@@ -281,21 +281,6 @@ tbody tr:hover td{background:var(--bg-alt)}
 .tl-b{height:5px;background:var(--blue);transition:.3s}
 .tl-v{font-size:11px;color:var(--text3);min-width:120px;text-align:right}
 
-/* ── Tag badges ── */
-.tag-ia{background:rgba(92,53,204,.1);color:#5c35cc}
-.tag-saas{background:rgba(0,82,204,.1);color:#0052cc}
-.tag-fintech{background:rgba(0,102,51,.1);color:#006633}
-.tag-medtech{background:rgba(180,30,90,.1);color:#b41e5a}
-.tag-deeptech{background:rgba(179,89,0,.1);color:#b35900}
-.tag-greentech{background:rgba(0,102,51,.1);color:#006633}
-.tag-default{background:var(--surface2);color:var(--text2)}
-.stg-preseed{background:rgba(179,89,0,.1);color:#b35900}
-.stg-seed{background:rgba(0,82,204,.1);color:#0052cc}
-.stg-serie-a{background:rgba(92,53,204,.1);color:#5c35cc}
-.stg-serie-b{background:rgba(0,102,51,.1);color:#006633}
-.stg-serie-c{background:rgba(180,30,90,.1);color:#b41e5a}
-.stg-growth{background:rgba(204,34,0,.1);color:#cc2200}
-
 /* ── Investor cards ── */
 .inv-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .inv-card{
@@ -511,11 +496,11 @@ tbody tr:hover td{background:var(--bg-alt)}
 .ma-ctx{font-size:10px;color:var(--text2);line-height:1.45;max-width:280px}
 .ma-amt{font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap}
 .type-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:2px;white-space:nowrap;letter-spacing:.02em}
-.type-acq{background:#0891b211;color:#0891b2;border:0.5px solid #0891b244}
-.type-buyout{background:#7c3aed11;color:#7c3aed;border:0.5px solid #7c3aed44}
-.type-lbo{background:#d9770611;color:#d97706;border:0.5px solid #d9770644}
-.type-fusion{background:#15803d11;color:#15803d;border:0.5px solid #15803d44}
-.type-ipo{background:#b4530911;color:#b45309;border:0.5px solid #b4530944}
+.type-acq{background:#ff563c11;color:#dd2b0f;border:0.5px solid #ff563c44}
+.type-buyout{background:#60585811;color:#605d5d;border:0.5px solid #60585844}
+.type-lbo{background:#ae180011;color:#ae1800;border:0.5px solid #ae180044}
+.type-fusion{background:#7c140511;color:#7c1405;border:0.5px solid #7c140544}
+.type-ipo{background:#9b979711;color:#605d5d;border:0.5px solid #9b979744}
 .type-other{background:var(--surface2);color:var(--text2)}
 
 /* ── Overview ── */
@@ -752,7 +737,7 @@ tbody tr:hover td{background:var(--bg-alt)}
 </div>
 <!-- COMPARABLES -->
 <div class="panel" id="p-pe">
-  <div class="ins-box gold" style="background:rgba(217,119,6,.08);border-color:#d97706;margin-bottom:12px">
+  <div class="ins-box gold" style="background:rgba(138,90,0,.08);border-color:var(--amber);margin-bottom:12px">
     <b>PE Watch &#8212; Calendrier des exits</b> &#8212; 30 op&eacute;rations track&eacute;es (LBO, Growth, PIPE). Fen&ecirc;tre d&#8217;exit calcul&eacute;e selon secteur (3-7 ans). Base manuelle enrichie.
   </div>
   <div class="pe-kpis" id="pe-kpis"></div>
@@ -901,7 +886,7 @@ var BM={
   'AgriTech':'ag','FoodTech':'fo','CloudTech':'cd','SpaceTech':'sp','DefenseTech':'def',
   'Industrie':'ind','E-commerce':'fin','Quantique':'ia','Autre':'ot'
 };
-var CL=['#0052cc','#1a6bdd','#3385ee','#4d9eff','#66b3ff','#0040a3','#003380','#004db3','#1a5ecc','#3373e0','#0066cc','#0080ff','#3399ff','#0099cc','#00b3cc','#005299'];
+var CL=['#dd2b0f','#605d5d','#ff563c','#7d7979','#ae1800','#9b9797','#ff9783','#444141','#7c1405','#bab6b6','#ffc4b8','#2d2b2b','#4d170e','#d7d3d3','#ffe0d9','#eae7e7'];
 
 // ── Utilitaires ─────────────────────────────────────────────────────────────
 function fmt(v){ v=parseFloat(v); if(!v||isNaN(v)) return 'NC'; if(v>=1000) return (v/1000).toFixed(1)+'B€'; return (v%1===0?v:v.toFixed(1))+'M€'; }
@@ -924,9 +909,9 @@ function stadeLabel(m){
   return 'Growth';
 }
 function stadeColor(r){
-  var map={'Pre-seed':'#8b5cf6','Seed':'#1a56db','Série A':'#0891b2',
-           'Série B':'#15803d','Série C':'#b45309','Growth':'#be123c','NC':'#6b7280'};
-  return map[stadeFromDeal(r)]||'#6b7280';
+  var map={'Pre-seed':'#ff9783','Seed':'#ff563c','Série A':'#dd2b0f',
+           'Série B':'#ae1800','Série C':'#7c1405','Growth':'#4d170e','NC':'#7d7979'};
+  return map[stadeFromDeal(r)]||'#7d7979';
 }
 function setProgress(pct, msg){
   var b=document.getElementById('sync-bar');
@@ -1201,8 +1186,8 @@ function buildCharts(){
   (function(){
     var el=document.getElementById('c-stg');if(!el)return;if(CHARTS['c-stg'])CHARTS['c-stg'].destroy();
     var ORDER=['Pre-seed','Seed','Série A','Série B','Série C','Growth','Post-IPO','Secondary'];
-    var COLORS={'Pre-seed':'#fef3c7','Seed':'#dbeafe','Série A':'#ede9fe','Série B':'#d1fae5','Série C':'#fce7f3','Growth':'#fee2e2','Post-IPO':'#f0fdf4','Secondary':'#faf5ff'};
-    var TCOLORS={'Pre-seed':'#92400e','Seed':'#1d4ed8','Série A':'#5b21b6','Série B':'#065f46','Série C':'#9d174d','Growth':'#991b1b','Post-IPO':'#14532d','Secondary':'#581c87'};
+    var COLORS={'Pre-seed':'#ffe0d9','Seed':'#ffc4b8','Série A':'#ff9783','Série B':'#ff563c','Série C':'#dd2b0f','Growth':'#ae1800','Post-IPO':'#605d5d','Secondary':'#d7d3d3'};
+    var TCOLORS={'Pre-seed':'#ff9783','Seed':'#ff563c','Série A':'#dd2b0f','Série B':'#ae1800','Série C':'#7c1405','Growth':'#4d170e','Post-IPO':'#2d2b2b','Secondary':'#7d7979'};
     // Exclure NC
     var sl=ss.filter(function(e){return e[1].d>0 && e[0]!=='NC';});
     sl.sort(function(a,b){return (ORDER.indexOf(a[0])||99)-(ORDER.indexOf(b[0])||99);});
@@ -1223,9 +1208,9 @@ function buildCharts(){
     CHARTS['c-tr']=new Chart(el,{type:'line',data:{
       labels:['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'],
       datasets:[
-        {label:'2024',data:yr24,borderColor:'#6b7280',backgroundColor:'rgba(107,114,128,0.06)',tension:.4,pointRadius:2,borderWidth:1.5,borderDash:[2,3],fill:true},
-        {label:'2025',data:yr25,borderColor:'#1a56db',backgroundColor:'rgba(26,86,219,0.09)',tension:.4,pointRadius:3,fill:true},
-        {label:'2026',data:yr26,borderColor:'#be123c',backgroundColor:'rgba(190,18,60,0.06)',tension:.4,pointRadius:3,borderDash:[4,3],fill:true,spanGaps:false}
+        {label:'2024',data:yr24,borderColor:'#bab6b6',backgroundColor:'rgba(186,182,182,0.08)',tension:.4,pointRadius:2,borderWidth:1.5,borderDash:[2,3],fill:true},
+        {label:'2025',data:yr25,borderColor:'#605d5d',backgroundColor:'rgba(96,93,93,0.09)',tension:.4,pointRadius:3,fill:true},
+        {label:'2026',data:yr26,borderColor:'#ec3013',backgroundColor:'rgba(236,48,19,0.08)',tension:.4,pointRadius:3,borderDash:[4,3],fill:true,spanGaps:false}
       ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9,family:'Inter'},boxWidth:10}}},scales:{x:{ticks:{font:{size:9,family:'Inter'}},grid:{display:false}},y:{ticks:{font:{size:9,family:'Inter'},callback:function(v){return v+'M€';}},grid:{color:'rgba(0,0,0,0.05)'}}}}});
   }
   // MA charts
