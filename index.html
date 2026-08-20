@@ -1886,10 +1886,14 @@ function buildCompanyDetailHtml(name){
     return r.s.toLowerCase()===name.toLowerCase()||
            (st&&r.s.toLowerCase()===st.n.toLowerCase());
   }).sort(function(a,b){return((a.an||0)*100+(a.mo||0))-((b.an||0)*100+(b.mo||0));});
-  if(!st&&!allDeals.length) return '<div style="padding:24px 0;color:var(--text3)">Aucune donnée pour « '+esc(name)+' ».</div>';
+  var mdMatches=MD.filter(function(m){return m.s.toLowerCase()===name.toLowerCase();});
+  var peMatches=PE.filter(function(p){return p.cible.toLowerCase()===name.toLowerCase();});
+  if(!st&&!allDeals.length&&!mdMatches.length&&!peMatches.length) return '<div style="padding:24px 0;color:var(--text3)">Aucune donnée pour « '+esc(name)+' ».</div>';
   if(!st){
     var latest2=allDeals[allDeals.length-1]||{};
-    st={n:name,t:latest2.t||'',p:latest2.p||'',h:allDeals.map(function(d){return{mo:d.mo,an:d.an,m:d.m,i:d.i||''};}),total:allDeals.reduce(function(a,d){return a+(d.m||0);},0),stade:stadeLabel(latest2.m),last_an:latest2.an,last_mo:latest2.mo};
+    var mdRef=mdMatches[0]||{};
+    var peRef=peMatches[0]||{};
+    st={n:name,t:latest2.t||mdRef.t||peRef.secteur||'',p:latest2.p||mdRef.sub||'',h:allDeals.map(function(d){return{mo:d.mo,an:d.an,m:d.m,i:d.i||''};}),total:allDeals.reduce(function(a,d){return a+(d.m||0);},0),stade:allDeals.length?stadeLabel(latest2.m):'',last_an:latest2.an,last_mo:latest2.mo};
   }
   var tot=allDeals.reduce(function(a,r){return a+(r.m||0);},0);
   var latest=allDeals[allDeals.length-1]||{};
@@ -1899,18 +1903,35 @@ function buildCompanyDetailHtml(name){
     +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
       +'<div class="st-name">'+esc(st.n)+'</div>'
       +bdg(st.t)
-      +'<span style="font-size:10px;color:var(--text3);background:var(--bg2);padding:2px 8px;border-radius:4px;border:0.5px solid var(--border);color:'+stadeColor(latest)+'">'+esc(st.stade||stadeFromDeal(latest))+'</span>'
+      +(allDeals.length?'<span style="font-size:10px;color:var(--text3);background:var(--bg2);padding:2px 8px;border-radius:4px;border:0.5px solid var(--border);color:'+stadeColor(latest)+'">'+esc(st.stade||stadeFromDeal(latest))+'</span>':(mdMatches.length?'<span class="type-badge type-other">Cible M&A</span>':(peMatches.length?'<span class="type-badge type-other">Participation PE</span>':'')))
     +'</div>'
   +'</div>'
   +'<div class="st-body">'
   +(st.p?'<div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px;padding:12px 14px;background:var(--bg2);border-radius:8px;border-left:2px solid '+stadeColor(latest)+'">'+esc(st.p)+'</div>':'')
-  +'<div class="st-kpis">'
+  +(allDeals.length?(
+    '<div class="st-kpis">'
     +'<div class="st-kpi"><div class="st-kl">Capital total</div><div class="st-kv">'+(tot?fmt(tot):'NC')+'</div><div class="st-ks">tous rounds</div></div>'
     +'<div class="st-kpi"><div class="st-kl">Rounds</div><div class="st-kv">'+allDeals.length+'</div><div class="st-ks">dans la base</div></div>'
     +'<div class="st-kpi"><div class="st-kl">Dernier round</div><div class="st-kv">'+(latest.m?fmt(latest.m):'NC')+'</div><div class="st-ks">'+fdt(latest.mo,latest.an)+'</div></div>'
     +'<div class="st-kpi"><div class="st-kl">Stade</div><div class="st-kv" style="font-size:14px;color:'+stadeColor(latest)+'">'+stadeFromDeal(latest)+'</div></div>'
-  +'</div>'
-  +'<div class="st-sec"><div class="st-sec-title">Equity History</div>'
+  ):(mdMatches.length?(function(){
+    var m=mdMatches[mdMatches.length-1];
+    return '<div class="st-kpis">'
+      +'<div class="st-kpi"><div class="st-kl">Acquéreur</div><div class="st-kv" style="font-size:15px">'+esc(m.acq||'NC')+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">Type</div><div class="st-kv" style="font-size:15px">'+esc(m.type||'Acquisition')+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">Date</div><div class="st-kv" style="font-size:15px">'+fdt(m.mo,m.an)+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">Montant</div><div class="st-kv">'+(m.m?fmt(m.m):'NC')+'</div></div>'
+    +'</div>';
+  })():(peMatches.length?(function(){
+    var p=peMatches[0];
+    return '<div class="st-kpis">'
+      +'<div class="st-kpi"><div class="st-kl">Fonds</div><div class="st-kv" style="font-size:15px">'+esc(p.fonds)+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">Entrée</div><div class="st-kv" style="font-size:15px">'+(p.an_entree||'NC')+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">EV entrée</div><div class="st-kv">'+(p.ev?fmt(p.ev):'NC')+'</div></div>'
+      +'<div class="st-kpi"><div class="st-kl">Statut</div><div class="st-kv" style="font-size:14px">'+matBadge(p)+'</div></div>'
+    +'</div>';
+  })():'')))
+  +(allDeals.length?('<div class="st-sec"><div class="st-sec-title">Equity History</div>'
   +'<div class="eq-timeline">'
   +allDeals.map(function(d,i){
     var col=stadeColor(d);
@@ -1928,7 +1949,7 @@ function buildCompanyDetailHtml(name){
       +'</div>'
     +'</div>';
   }).join('')
-  +'</div></div>'
+  +'</div></div>'):'')
   // Investisseurs historiques
   +(function(){
     if(allDeals.length<=1) return '';
