@@ -690,6 +690,13 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
   .pe-table td[data-label="Détention"]{flex-direction:column;align-items:flex-end;gap:4px}
   .pe-table td[data-label="Détention"] .pe-bar-wrap{width:100%}
 }
+
+/* ── sector "tags" collapse into a dropdown on small screens ── */
+.tag-select{display:none}
+@media(max-width:640px){
+  .tagbar{display:none}
+  .tag-select{display:block;width:100%;margin-bottom:10px}
+}
 </style>
 </head>
 <body>
@@ -850,7 +857,8 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
     <button class="fb" id="btn-new-only" onclick="toggleNewOnly()">Nouveaux seulement</button>
   </div>
   <div class="fbar" id="fb-l-stage"></div>
-  <div class="fbar" id="fb-l"></div>
+  <div class="fbar tagbar" id="fb-l"></div>
+  <select class="sel tag-select" id="fb-l-select" onchange="setLTag(this.value)"></select>
   <div class="rc" id="rc-l"></div>
   <div class="twrap"><table><thead><tr><th>Startup</th><th>Secteur</th><th>Montant</th><th>Investisseurs</th><th>Date</th></tr></thead><tbody id="tb-l"></tbody></table></div>
   <div class="pag" id="pg-l"></div>
@@ -889,7 +897,8 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
           <option value="a">A-Z acquéreur</option>
         </select>
       </div>
-      <div class="fbar" id="fb-m"></div>
+      <div class="fbar tagbar" id="fb-m"></div>
+      <select class="sel tag-select" id="fb-m-select" onchange="setMTag(this.value)"></select>
       <div class="rc" id="rc-m"></div>
       <div class="twrap">
         <table>
@@ -982,7 +991,8 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
     </div>
   </div>
   <div class="shdr" style="margin-top:4px">Secteurs</div>
-  <div class="fbar" id="cfbar"></div>
+  <div class="fbar tagbar" id="cfbar"></div>
+  <select class="sel tag-select" id="cfbar-select" onchange="setCmpTag(this.value)"></select>
   <div class="kpis" id="c-kpis" style="grid-template-columns:repeat(5,1fr);margin-top:10px"></div>
   <div class="g2" style="margin-top:14px">
     <div class="card">
@@ -1387,11 +1397,11 @@ function buildOverview(){
   var sbEl=document.getElementById('ov-sector-bar');
   if(sbEl) sbEl.innerHTML=tagEntries.map(function(e,i){
     var pct=tagTotal?Math.round(e[1].v/tagTotal*100):0;
-    return '<button class="ov-share-seg" style="width:'+pct+'%;background:'+CL[i%16]+';color:#fff" title="'+esc(e[0])+'" onclick="lTag=\''+e[0].replace(/'/g,"\\'")+'\';switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));apL()">'+pct+'%</button>';
+    return '<button class="ov-share-seg" style="width:'+pct+'%;background:'+CL[i%16]+';color:#fff" title="'+esc(e[0])+'" data-tag="'+esc(e[0])+'" onclick="switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));setLTag(this.dataset.tag)">'+pct+'%</button>';
   }).join('');
   var slEl=document.getElementById('ov-sector-legend');
   if(slEl) slEl.innerHTML=tagEntries.map(function(e,i){
-    return '<button class="ov-legend-row" onclick="lTag=\''+e[0].replace(/'/g,"\\'")+'\';switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));apL()"><span class="ov-legend-dot" style="background:'+CL[i%16]+'"></span><span style="flex:1">'+esc(e[0])+'</span><span style="color:var(--text3)">'+Math.round(e[1].v)+'M€</span></button>';
+    return '<button class="ov-legend-row" data-tag="'+esc(e[0])+'" onclick="switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));setLTag(this.dataset.tag)"><span class="ov-legend-dot" style="background:'+CL[i%16]+'"></span><span style="flex:1">'+esc(e[0])+'</span><span style="color:var(--text3)">'+Math.round(e[1].v)+'M€</span></button>';
   }).join('');
 
   var years=['2024','2025','2026'];
@@ -1422,7 +1432,7 @@ function buildOverview(){
   var vmax=tagsNoIA.length?tagsNoIA[0][1].v:1;
   var rankEl=document.getElementById('ov-sector-rank');
   if(rankEl) rankEl.innerHTML=tagsNoIA.map(function(e){
-    return '<button class="ov-sector-row" onclick="lTag=\''+e[0].replace(/'/g,"\\'")+'\';switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));apL()">'
+    return '<button class="ov-sector-row" data-tag="'+esc(e[0])+'" onclick="switchTab(\'ldf\',document.getElementById(\'tab-ldf\'));setLTag(this.dataset.tag)">'
       +'<div class="ov-sector-val">'+fmt(Math.round(e[1].v))+'</div>'
       +'<div class="ov-sector-bw"><div class="ov-sector-bf" style="width:'+Math.round(e[1].v/vmax*100)+'%"></div></div>'
       +'<div class="ov-sector-lbl">'+esc(e[0])+'</div>'
@@ -1613,10 +1623,21 @@ function buildLdfStageFilters(){
 function buildLdfFilters(){
   var tags=Object.keys(TAGS).sort();
   var fbar=document.getElementById('fb-l');
-  fbar.innerHTML='<button class="fb on" onclick="lTag=\'\';apL();this.parentNode.querySelectorAll(\'.fb\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">Tous</button>'
+  fbar.innerHTML='<button class="fb'+(lTag?'':' on')+'" data-tag="" onclick="setLTag(this.dataset.tag)">Tous</button>'
     +tags.map(function(t){
-      return '<button class="fb" onclick="lTag=\''+esc(t)+'\';apL();this.parentNode.querySelectorAll(\'.fb\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">'+esc(t)+'</button>';
+      return '<button class="fb'+(lTag===t?' on':'')+'" data-tag="'+esc(t)+'" onclick="setLTag(this.dataset.tag)">'+esc(t)+'</button>';
     }).join('');
+  var sel=document.getElementById('fb-l-select');
+  if(sel){
+    sel.innerHTML='<option value="">Tous secteurs</option>'+tags.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>';}).join('');
+    sel.value=lTag;
+  }
+}
+function setLTag(t){
+  lTag=t; apL();
+  document.querySelectorAll('#fb-l .fb').forEach(function(b){b.classList.toggle('on', b.dataset.tag===t);});
+  var sel=document.getElementById('fb-l-select');
+  if(sel) sel.value=t;
 }
 
 function apL(){
@@ -1769,10 +1790,21 @@ function buildMaKpis(){
 
 function buildMaFilters(){
   var tags=[...new Set(MD.map(function(r){return r.t;}))].sort();
-  document.getElementById('fb-m').innerHTML='<button class="fb on" onclick="mTag=\'\';apM();this.parentNode.querySelectorAll(\'.fb\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">Tous</button>'
+  document.getElementById('fb-m').innerHTML='<button class="fb'+(mTag?'':' on')+'" data-tag="" onclick="setMTag(this.dataset.tag)">Tous</button>'
     +tags.map(function(t){
-      return '<button class="fb red" onclick="mTag=\''+esc(t)+'\';apM();this.parentNode.querySelectorAll(\'.fb\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">'+esc(t)+'</button>';
+      return '<button class="fb red'+(mTag===t?' on':'')+'" data-tag="'+esc(t)+'" onclick="setMTag(this.dataset.tag)">'+esc(t)+'</button>';
     }).join('');
+  var sel=document.getElementById('fb-m-select');
+  if(sel){
+    sel.innerHTML='<option value="">Tous secteurs</option>'+tags.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>';}).join('');
+    sel.value=mTag;
+  }
+}
+function setMTag(t){
+  mTag=t; apM();
+  document.querySelectorAll('#fb-m .fb').forEach(function(b){b.classList.toggle('on', b.dataset.tag===t);});
+  var sel=document.getElementById('fb-m-select');
+  if(sel) sel.value=t;
 }
 
 function apM(){
@@ -1936,8 +1968,22 @@ function bldInv(){
 function buildCompFilters(){
   var tags=Object.keys(TAGS).sort();
   document.getElementById('cfbar').innerHTML=tags.map(function(t){
-    return '<button class="fb" onclick="cmpTag=\''+esc(t)+'\';document.getElementById(\'cmp-q\').value=\''+esc(t)+'\';bldComp();this.parentNode.querySelectorAll(\'.fb\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">'+esc(t)+'</button>';
+    return '<button class="fb'+(cmpTag===t?' on':'')+'" data-tag="'+esc(t)+'" onclick="setCmpTag(this.dataset.tag)">'+esc(t)+'</button>';
   }).join('');
+  var sel=document.getElementById('cfbar-select');
+  if(sel){
+    sel.innerHTML='<option value="">Tous secteurs</option>'+tags.map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+'</option>';}).join('');
+    sel.value=cmpTag;
+  }
+}
+function setCmpTag(t){
+  cmpTag=t; cmpQuery='';
+  var q=document.getElementById('cmp-q');
+  if(q) q.value=t;
+  bldComp();
+  document.querySelectorAll('#cfbar .fb').forEach(function(b){b.classList.toggle('on', b.dataset.tag===t);});
+  var sel=document.getElementById('cfbar-select');
+  if(sel) sel.value=t;
 }
 
 function cmpSearch(){
@@ -2360,7 +2406,7 @@ function buildCompanyDetailHtml(name){
       +'</div>';
   })()
   +'<div class="modal-footer">'
-    +'<button class="modal-btn primary" onclick="closeStartupModal();document.getElementById(\'lq\').value=\''+st.n.replace(/'/g,'\u2019').replace(/\u2019/g,'&apos;')+'\';lTag=\'\';lPg=1;apL();switchTab(\'ldf\',document.getElementById(\'tab-ldf\'))">→ Voir les deals</button>'
+    +'<button class="modal-btn primary" onclick="closeStartupModal();document.getElementById(\'lq\').value=\''+st.n.replace(/'/g,'\u2019').replace(/\u2019/g,'&apos;')+'\';lPg=1;setLTag(\'\');switchTab(\'ldf\',document.getElementById(\'tab-ldf\'))">→ Voir les deals</button>'
     +'<button class="modal-btn" onclick="closeStartupModal();cmpQuery=\''+st.n.replace(/'/g,'\u2019').replace(/\u2019/g,'&apos;')+'\';document.getElementById(\'cmp-q\').value=\''+st.n.replace(/'/g,'\u2019').replace(/\u2019/g,'&apos;')+'\';bldComp();switchTab(\'cmp\',document.getElementById(\'tab-cmp\'))">→ Comparables</button>'
   +'</div>'
   +'</div>';
