@@ -182,6 +182,7 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font);font-weight:800;letter-spacing:-.01em}
 .card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:16px 18px;
+  min-width:0;
 }
 .ct{
   font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
@@ -553,8 +554,8 @@ tbody tr:hover td{background:var(--bg-alt)}
 /* ══════════════════════════════════════════════════════════════
    iOS NATIVE SHELL — safe areas, touch feel, transitions, mobile nav
    ══════════════════════════════════════════════════════════════ */
-html{height:100%;-webkit-text-size-adjust:100%}
-body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 *{-webkit-tap-highlight-color:transparent}
 
 /* momentum scrolling wherever content scrolls independently */
@@ -820,14 +821,14 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
         <h2 style="font-size:16px;margin:0">Dernières levées</h2>
         <button class="modal-btn" style="margin-left:auto" onclick="switchTab('ldf',document.getElementById('tab-ldf'))">Voir tout</button>
       </div>
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="table ov-mini-table" style="width:100%;border-collapse:collapse;min-width:420px"><thead><tr style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:left"><th>Startup</th><th>Stade</th><th>Montant</th><th>Secteur</th><th>Date</th></tr></thead><tbody id="ov-recent-ld"></tbody></table></div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0"><table class="table ov-mini-table" style="width:100%;border-collapse:collapse"><thead><tr style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:left"><th>Startup</th><th>Stade</th><th>Montant</th><th>Secteur</th><th>Date</th></tr></thead><tbody id="ov-recent-ld"></tbody></table></div>
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
         <h2 style="font-size:16px;margin:0">Exits &amp; M&amp;A récents</h2>
         <button class="modal-btn" style="margin-left:auto" onclick="switchTab('ma',document.getElementById('tab-ma'))">Voir tout</button>
       </div>
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="table ov-mini-table" style="width:100%;border-collapse:collapse;min-width:380px"><thead><tr style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:left"><th>Cible</th><th>Acquéreur</th><th>Type</th><th>Montant</th></tr></thead><tbody id="ov-recent-ma"></tbody></table></div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0"><table class="table ov-mini-table" style="width:100%;border-collapse:collapse"><thead><tr style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:left"><th>Cible</th><th>Acquéreur</th><th>Type</th><th>Montant</th></tr></thead><tbody id="ov-recent-ma"></tbody></table></div>
     </div>
   </div>
 </div>
