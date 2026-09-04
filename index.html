@@ -697,6 +697,12 @@ body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
   .tagbar{display:none}
   .tag-select{display:block;width:100%;margin-bottom:10px}
 }
+
+/* ── center the dashboard in a max-width column on wide screens ──
+   (.hdr keeps a full-bleed background/border; only its inner content
+   and the page panels are constrained, so the site stops stretching
+   edge-to-edge on large monitors) */
+.hdr-top,.tabs,.panel{max-width:1440px;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
