@@ -1,0 +1,17 @@
+{
+  "name": "French Tech Intelligence",
+  "short_name": "FT Intel",
+  "description": "Market intelligence dashboard tracking French startup fundraising, exits & M&A, investors, and PE portfolio exit timing.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f2f2",
+  "theme_color": "#ec3013",
+  "lang": "fr",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
