@@ -281,6 +281,17 @@ tbody tr:hover td{background:var(--bg-alt)}
 .tl-b{height:5px;background:var(--blue);transition:.3s}
 .tl-v{font-size:11px;color:var(--text3);min-width:120px;text-align:right}
 
+/* ── Investor logos ── */
+.inv-logo-wrap{display:inline-block;position:relative;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--surface2)}
+.inv-logo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text2);background:var(--surface2)}
+.inv-logo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.inv-logo-wrap.sz-lb{width:20px;height:20px}
+.inv-logo-wrap.sz-lb .inv-logo-fallback{font-size:8px}
+.inv-logo-wrap.sz-card{width:26px;height:26px;margin-bottom:6px}
+.inv-logo-wrap.sz-card .inv-logo-fallback{font-size:9px}
+.inv-logo-wrap.sz-actor{width:48px;height:48px}
+.inv-logo-wrap.sz-actor .inv-logo-fallback{font-size:15px}
+
 /* ── Investor cards ── */
 .inv-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .inv-card{
@@ -893,6 +904,32 @@ function fmt(v){ v=parseFloat(v); if(!v||isNaN(v)) return 'NC'; if(v>=1000) retu
 function fdt(mo,an){ if(!an) return '—'; var ms=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc']; return (mo?ms[mo-1]+' ':'')+an; }
 function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function san(s){ return s?String(s).replace(/'/g,'\u2019').replace(/"/g,'\u201d').replace(/`/g,''):''; }
+var INV_LOGO_SKIP=['business angel','business angels','various','divers','non divulgu\u00e9','non divulgue','confidentiel','nc','family office','family offices','individus','particuliers','crowdfunding'];
+function invLogoDomain(name){
+  var n=(name||'').replace(/\\u([0-9a-fA-F]{4})/g,function(m,c){return String.fromCharCode(parseInt(c,16));}).trim();
+  if(!n) return '';
+  var low=n.toLowerCase();
+  if(INV_LOGO_SKIP.indexOf(low)!==-1) return '';
+  var core=n.replace(/\(.*?\)/g,'').split(',')[0];
+  var slug=core.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  return slug?slug+'.com':'';
+}
+function invInitials(name){
+  var n=(name||'').replace(/\\u([0-9a-fA-F]{4})/g,function(m,c){return String.fromCharCode(parseInt(c,16));}).trim();
+  var words=n.split(/\s+/).filter(Boolean);
+  if(!words.length) return '?';
+  if(words.length===1) return words[0].slice(0,2).toUpperCase();
+  return (words[0][0]+words[1][0]).toUpperCase();
+}
+function invLogoHtml(name,size){
+  var domain=invLogoDomain(name);
+  var initials=esc(invInitials(name));
+  var fallback='<span class="inv-logo-fallback">'+initials+'</span>';
+  if(!domain) return '<span class="inv-logo-wrap sz-'+size+'">'+fallback+'</span>';
+  return '<span class="inv-logo-wrap sz-'+size+'">'+fallback
+    +'<img class="inv-logo-img" src="https://www.google.com/s2/favicons?sz=64&domain='+domain+'" alt="" loading="lazy" onerror="this.remove()">'
+    +'</span>';
+}
 function bdg(t){
   var c=BM[t]||'ot';
   return '<span class="bg '+c+'">'+esc(t||'Autre')+'</span>';
@@ -1512,6 +1549,7 @@ function buildInvExplorer(){
       var nm=esc(inv.n);
       return '<div class="lb" data-n="'+nm+'" onclick="openInvModal(this.dataset.n)">'
         +'<div class="lb-r">'+(i+1)+'</div>'
+        +invLogoHtml(inv.n,'lb')
         +'<div class="lb-n">'+esc(decodeEsc(inv.n))+'</div>'
         +'<div class="lb-bw"><div class="lb-b" style="width:'+Math.round(inv.d/lbMax*100)+'%"></div></div>'
         +'<div class="lb-c">'+inv.d+'</div>'
@@ -1560,6 +1598,7 @@ function bldInv(){
     // focus tags (first 2)
     var tags=focus.split(',').slice(0,2).map(function(s){return s.trim();}).filter(Boolean);
     return '<div class="inv-card" data-n="'+esc(rawN)+'" onclick="openInvModal(this.dataset.n)">'
+      +invLogoHtml(rawN,'card')
       +'<div class="inv-card-top">'
         +'<div class="inv-card-name">'+nm+'</div>'
         +(type?'<span class="inv-card-type">'+esc(type)+'</span>':'')
@@ -1762,6 +1801,7 @@ function buildActorDetailHtml(name){
   if(buyerHtml) roles.push('Acquéreur');
   var html='<div class="st-hdr" style="border-bottom:0;padding-bottom:0">'
     +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+      +invLogoHtml(name,'actor')
       +'<div class="st-name">'+esc(name)+'</div>'
       +roles.map(function(r){return '<span class="tag-outline" style="display:inline-flex;align-items:center;padding:2px 8px;font-size:10px;font-weight:700;border:1px solid var(--blue);color:var(--blue)">'+r+'</span>';}).join('')
     +'</div>'
