@@ -864,17 +864,69 @@ function toggleTheme(){
 
 <!-- v1773826277 -->
 
+// ── Agrégats dérivés en direct depuis LD, pour que Vue d'ensemble et les
+// graphiques reflètent toujours les données réellement présentes dans
+// LD_BASE, sans étape de resynchronisation manuelle après chaque ajout ──
+function deriveTags(list){
+  var out={};
+  list.forEach(function(r){
+    var t=r.t||'Autre';
+    if(!out[t]) out[t]={d:0,v:0};
+    out[t].d++; out[t].v+=(r.m||0);
+  });
+  return out;
+}
+function deriveStages(list){
+  var out={};
+  list.forEach(function(r){
+    var s=r.stade||'NC';
+    if(!out[s]) out[s]={d:0,v:0};
+    out[s].d++; out[s].v+=(r.m||0);
+  });
+  return out;
+}
+function deriveMonthly(list){
+  var out={};
+  list.forEach(function(r){
+    if(!r.an||!r.mo) return;
+    var y=String(r.an), m=String(r.mo);
+    if(!out[y]) out[y]={};
+    if(!out[y][m]) out[y][m]={d:0,v:0};
+    out[y][m].d++; out[y][m].v+=(r.m||0);
+  });
+  return out;
+}
+function deriveInvestorLeaderboard(list){
+  var counts={}, tagCounts={};
+  list.forEach(function(r){
+    if(!r.i) return;
+    r.i.split(',').forEach(function(raw){
+      var n=raw.trim(); if(!n) return;
+      counts[n]=(counts[n]||0)+1;
+      if(!tagCounts[n]) tagCounts[n]={};
+      var t=r.t||'Autre';
+      tagCounts[n][t]=(tagCounts[n][t]||0)+1;
+    });
+  });
+  var arr=Object.keys(counts).map(function(n){
+    var tags=Object.entries(tagCounts[n]).sort(function(a,b){return b[1]-a[1];}).slice(0,4).map(function(e){return e[0];});
+    return {n:n,d:counts[n],tags:tags};
+  });
+  arr.sort(function(a,b){return b.d-a.d;});
+  return arr.slice(0,25);
+}
+
 // ── Données (initialisées immédiatement, synchrone) ──────────────────────
 var LD=[], MD=[], TAGS={}, INV={}, MO={}, SS={}, IL=[], INVFULL=[], STARTUPS=[];
 (function initSync(){
   try {
     LD       = JSON.parse(JSON.stringify(LD_BASE));
     MD       = JSON.parse(JSON.stringify(MD_BASE));
-    TAGS     = JSON.parse(JSON.stringify(TAGS_BASE));
+    TAGS     = deriveTags(LD);
     INV      = JSON.parse(JSON.stringify(INV_BASE));
-    MO       = JSON.parse(JSON.stringify(MO_BASE));
-    SS       = JSON.parse(JSON.stringify(SS_BASE));
-    IL       = JSON.parse(JSON.stringify(IL_BASE));
+    MO       = deriveMonthly(LD);
+    SS       = deriveStages(LD);
+    IL       = deriveInvestorLeaderboard(LD);
     INVFULL  = JSON.parse(JSON.stringify(INVFULL_BASE));
     STARTUPS = JSON.parse(JSON.stringify(STARTUPS_BASE));
   } catch(e){ console.error('initSync', e); }
