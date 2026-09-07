@@ -1500,6 +1500,7 @@ function buildLdfKpis(){
 
 // ── Charts ────────────────────────────────────────────────────────────────────
 function buildCharts(){
+  if(typeof Chart==='undefined') return;
   var tags=Object.entries(TAGS).sort(function(a,b){return b[1].v-a[1].v;}).slice(0,10);
   function mkChart(id,type,labels,data,colors,opts){
     var el=document.getElementById(id);
