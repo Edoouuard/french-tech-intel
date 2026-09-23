@@ -1446,7 +1446,7 @@ function buildOverview(){
     +'</button>';
   }).join('');
 
-  var recentLD=LD.slice().sort(function(a,b){return((b.an||0)*10000+(b.mo||0)*100)-((a.an||0)*10000+(a.mo||0)*100);}).slice(0,8);
+  var recentLD=LD.slice().sort(function(a,b){return((b.an||0)*10000+(b.mo||0)*100+(b.j||0))-((a.an||0)*10000+(a.mo||0)*100+(a.j||0));}).slice(0,8);
   var rlEl=document.getElementById('ov-recent-ld');
   if(rlEl) rlEl.innerHTML=recentLD.map(function(r){
     return '<tr style="cursor:pointer" onclick="openStartupModal(\''+r.s.replace(/'/g,'\u2019').replace(/\u2019/g,'&apos;')+'\')">'
