@@ -69,6 +69,7 @@ const ORG_WORDS = /\b(capital|ventures?|venture|invest\w*|fund|fonds|partners|gr
 const personLike = (n) => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -](?:de |du |le |la |van |von )?[A-ZÀ-Ý][a-zà-ÿ'’-]+){1,2}$/.test(String(n).trim()) && !ORG_WORDS.test(n);
 // Familles de types pour le filtre (le type précis reste affiché sur la fiche).
 const typeFamily = (t) => { const n = norm(t);
+  if (/club d investisseurs/.test(n)) return "Clubs et réseaux d'investisseurs";
   if (/business angel/.test(n)) return "Business angel";
   if (/cvc|corporate/.test(n)) return "Corporate (CVC)";
   if (/souverain|public|institutionnel|gestionnaire d actifs|^banque$|regional/.test(n)) return "Public, souverain et institutionnel";
@@ -81,7 +82,7 @@ const typeFamily = (t) => { const n = norm(t);
 const isPerson = (e) => !e.intl && !e.veh.length && !e.foreign.length && window.PeopleDetect.isPerson(e.name);
 const isAngelNetwork = (e) => !!(e.ins && /business angel/i.test(e.ins.type));
 const isAngel = (e) => isPerson(e) || isAngelNetwork(e);
-const entType = (e) => (e.intl ? e.intl.type : isPerson(e) ? "Business angel" : isAngelNetwork(e) ? "Réseau de business angels" : e.ins ? e.ins.type : e.veh.length || e.foreign.length ? "Fonds VC" : "Investisseur");
+const entType = (e) => (e.intl ? e.intl.type : isPerson(e) ? "Business angel" : isAngelNetwork(e) ? "Club d'investisseurs" : e.ins ? e.ins.type : e.veh.length || e.foreign.length ? "Fonds VC" : "Investisseur");
 INV.forEach((v) => { if (isGeneric(v.name)) return; const k = core(v.name) || norm(v.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, v.name, v)); });
 AF.forEach((f) => { const k = core(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
 INTL.forEach((f) => { const k = rawCore(f.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, f.name, null)); else { const e = ENT.get(k); e.intl = f; e.name = f.name; } });
@@ -96,8 +97,10 @@ const ENTS = [...ENT.values()];
 const DEPLOYING = ENTS.filter((e) => e.veh.length);
 const FOREIGN = ENTS.flatMap((e) => e.foreign.map((f) => ({ e, f }))).sort((a, b) => (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
 const entFor = (name) => ENT.get(core(name)) || ENT.get(norm(name)) || null;
-const ANGELS = ENTS.filter(isAngel).sort((a, b) => b.deals.length - a.deals.length || a.name.localeCompare(b.name));
-const FUNDS_ENTS = ENTS.filter((e) => !isAngel(e));
+// Un seul annuaire : les business angels individuels y figurent avec une étiquette « Business Angel ».
+const FUNDS_ENTS = ENTS;
+const N_BA = ENTS.filter(isPerson).length;
+const baTag = (e) => (isPerson(e) ? '<span class="ba-tag">Business Angel</span>' : "");
 const INTL_ENTS = ENTS.filter((e) => e.intl).sort((a, b) => b.deals.length - a.deals.length || a.name.localeCompare(b.name));
 // Acquéreurs
 const BUY = new Map();
@@ -143,7 +146,7 @@ const inPeriod = (date, p) => !p || (p === "12m" ? (date || "") >= SINCE12 : (da
 const SECTORS = Object.entries(D.reduce((a, d) => ((a[d.sector_raw] = (a[d.sector_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(Boolean);
 
 /* ================= ROUTAGE ================= */
-const VIEWS = ["ov", "levees", "exits", "fonds", "angels", "europe", "pe", "comps", "acq", "mcp"];
+const VIEWS = ["ov", "levees", "exits", "fonds", "europe", "pe", "comps", "acq", "mcp"];
 const built = new Set();
 const BUILDERS = {};
 let current = null;
@@ -185,7 +188,7 @@ BUILDERS.ov = () => {
   const kpis = [
     { k: "Levées suivies", v: D.length, f: (x) => nf.format(Math.round(x)), s: `${fmtAmt(tot)} depuis janvier 2024`, go: "levees" },
     { k: "Exits & M&A", v: OPS.length, f: (x) => nf.format(Math.round(x)), s: `dont ${big} opérations > 100 M€`, go: "exits" },
-    { k: "Fonds & investisseurs", v: FUNDS_ENTS.length, f: (x) => nf.format(Math.round(x)), s: `${INTL_ENTS.length} grands fonds internationaux inclus`, go: "fonds", deploy: DEPLOYING.length },
+    { k: "Fonds & investisseurs", v: FUNDS_ENTS.length, f: (x) => nf.format(Math.round(x)), s: `dont ${INTL_ENTS.length} grands fonds internationaux et ${N_BA} business angels`, go: "fonds", deploy: DEPLOYING.length },
     { k: "PE Watch", v: PE.length, f: (x) => nf.format(Math.round(x)), s: `${peLive} participations en portefeuille`, go: "pe" },
   ];
   $("#ovKpis").innerHTML = kpis.map((k, i) => `<button class="kpi c3 reveal" type="button" data-go="${k.go}"><span class="k">${k.k}</span><span class="v" id="ovk${i}">${k.f(k.v)}</span><span class="s">${k.s}</span>${k.deploy ? `<span class="deploy"><i></i><b>${k.deploy}</b> fonds en cours de déploiement</span>` : ""}</button>`).join("");
@@ -339,7 +342,7 @@ BUILDERS.fonds = () => {
   $("#fSec").innerHTML = opt(SECTORS, "Tous");
   const items = railItems();
   const vcN = FUNDS_ENTS.filter((e) => typeFamily(entType(e)) === "Fonds VC").length;
-  $("#fStrip").innerHTML = [[nf.format(FUNDS_ENTS.length), "fonds et sociétés d'investissement"], [nf.format(vcN), "fonds VC"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  $("#fStrip").innerHTML = [[nf.format(FUNDS_ENTS.length), "fonds et investisseurs"], [nf.format(vcN), "fonds VC"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
   $("#dlNote").textContent = `${items.length} véhicules qui investissent en France · faites défiler`;
   $("#foreignCount").textContent = `${FOREIGN.length} véhicule${FOREIGN.length > 1 ? "s" : ""}`;
   $("#foreignBox").hidden = !FOREIGN.length;
@@ -393,7 +396,7 @@ function renderFonds() {
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
-      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div><div class="ty">${esc(entType(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
+      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(entType(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
@@ -574,7 +577,7 @@ function entDetail(key) {
   const co = new Map(); deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
-  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(entType(e))}</span>${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
+  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(entType(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
@@ -696,37 +699,6 @@ function buildChat(animate) {
   ].join("");
   if (animate && hasGsap) gsap.fromTo("#chat > *", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.7, clearProps: "transform,opacity" });
 }
-
-/* ================= BUSINESS ANGELS ================= */
-const BA = { q: "", kind: "", sort: "deals" };
-BUILDERS.angels = () => {
-  const people = ANGELS.filter(isPerson), nets = ANGELS.filter(isAngelNetwork);
-  const deals = new Set(ANGELS.flatMap((e) => e.deals));
-  $("#baStrip").innerHTML = [[people.length, "business angels actifs (2 deals ou plus)"], [nets.length, "réseaux et clubs d'angels"], [nf.format(deals.size), "levées avec un angel identifié"], [fmtAmt(median([...deals].map((d) => d.amount_eur_m).filter((v) => v != null))), "tour médian"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
-  ["#baQ", "#baKind", "#baSort"].forEach((s) => $(s).addEventListener(s === "#baQ" ? "input" : "change", renderAngels));
-  renderAngels();
-};
-function renderAngels() {
-  const q = norm($("#baQ").value), kind = $("#baKind").value, so = $("#baSort").value;
-  let r = ANGELS.filter((e) => (!kind || (kind === "p" ? isPerson(e) : isAngelNetwork(e))) && (!q || norm([e.name, e.deals.map((d) => d.company + " " + d.sector_raw).join(" ")].join(" ")).includes(q)));
-  r = r.slice().sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "recent" ? (a, b) => (lastDeal(b).date || "").localeCompare(lastDeal(a).date || "") : (a, b) => b.deals.length - a.deals.length);
-  $("#baCount").textContent = `${r.length} angel${r.length > 1 ? "s" : ""}`;
-  $("#baGrid").innerHTML = r.map((e) => {
-    const l = lastDeal(e);
-    const secs = Object.entries(e.deals.reduce((a, d) => ((a[d.sector_raw] = (a[d.sector_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k);
-    const co = new Map(); e.deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
-    const topCo = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([n]) => n);
-    return `<button class="icard" type="button" data-ent="${esc(e.key)}">
-      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div><div class="ty">${isPerson(e) ? "Business angel" : "Réseau d'angels"}${e.ins && e.ins.ticket_eur_m && /\d/.test(e.ins.ticket_eur_m) ? " · ticket " + esc(fmtTicket(e.ins.ticket_eur_m)) : ""}</div></div></div>
-      <div class="facts"><div><b>${e.deals.length}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${l ? fmtMonth(l.date) : "—"}</b><span>dernier deal</span></div></div>
-      ${spark(e.deals)}
-      <div>${secs.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
-      ${l ? `<div class="depline" style="color:var(--muted);border-top-color:var(--line)">Dernier : <b style="color:var(--fg)">${esc(l.company)}</b> ${esc(l.stage_raw || "")} · ${fmtAmt(l.amount_eur_m)}${topCo.length ? ` · avec ${esc(topCo.join(", "))}` : ""}</div>` : ""}
-    </button>`;
-  }).join("") || `<div class="empty">Aucun business angel pour cette recherche.</div>`;
-  if (hasGsap) gsap.fromTo("#baGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
-}
-const lastDeal = (e) => e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0] || {};
 
 /* ================= FONDS EUROPÉENS ================= */
 const FC = window.FundsCore;
@@ -966,7 +938,7 @@ document.addEventListener("click", (ev) => {
 
 /* ================= RECHERCHE ⌘K ================= */
 const IDX = [];
-ENTS.forEach((e) => IDX.push({ g: isAngel(e) ? "Business angels" : "Fonds et investisseurs", lg: true, n: e.name, s: `${entType(e)} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
+ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${entType(e)} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
 const seenSt = new Set();
 D.forEach((d) => { const k = norm(d.company); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: d.company, s: `${d.sector_raw || ""} · ${d.stage_raw || ""}`, r: fmtAmt(d.amount_eur_m), ref: { t: "startup", id: d.company }, k, w: (d.amount_eur_m || 0) / 10 }); });
 ST.forEach((s) => { const k = norm(s.name); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: s.name, s: s.sector_raw || "", r: fmtAmt(s.total), ref: { t: "startup", id: s.name }, k, w: 0 }); });
@@ -1007,7 +979,6 @@ $("#liveInfo").textContent = `Mise à jour hebdo · ${fmtDay(LATEST_DAY)}`;
 $("#ct-levees").textContent = nf.format(D.length);
 $("#ct-exits").textContent = OPS.length;
 $("#ct-fonds").textContent = FUNDS_ENTS.length;
-$("#ct-angels").textContent = ANGELS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
 $("#ct-europe").textContent = AF.length;
