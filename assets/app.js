@@ -241,13 +241,12 @@ BUILDERS.ov = () => {
   const dep = DEPLOYING.slice().sort((a, b) => b.n12 - a.n12 || b.deals.length - a.deals.length).slice(0, 7);
   const mx = Math.max(1, ...dep.map((e) => e.n12));
   $("#ovDeploy").innerHTML = dep.map((e, i) => `<div class="lb" data-ent="${esc(e.key)}" style="cursor:pointer"><span class="rk">${String(i + 1).padStart(2, "0")}</span><div class="lbn">${logo(e.name, "av sm")}<div style="min-width:0;flex:1"><b>${esc(e.name)}</b> <span class="muted" style="font-size:.8rem">· ${esc(e.veh.map((f) => f.name).join(", "))} · ${esc(e.veh[0].size_label)}</span><div class="bar"><i style="width:${(e.n12 / mx) * 100}%;background:var(--accent)"></i></div></div></div><span class="n">${e.n12}</span></div>`).join("");
-  $("#ovDeals").innerHTML = D.slice(0, 8).map(lrowDeal).join("");
   $("#ovOps").innerHTML = OPS.filter((o) => o.date).slice(0, 8).map(lrowOp).join("");
   // leaders
   const c = new Map();
   D.filter((d) => d.date >= SINCE12).forEach((d) => new Set(d.investors).forEach((i) => { if (!isGeneric(i)) c.set(i, (c.get(i) || 0) + 1); }));
-  const lead = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12), lmax = lead[0] ? lead[0][1] : 1;
-  $("#ovLeaders").innerHTML = [lead.slice(0, 6), lead.slice(6)].map((col, ci) => `<div class="c6">${col.map(([n, k], i) => { const e = entFor(n); return `<div class="lb"${e ? ` data-ent="${esc(e.key)}" style="cursor:pointer"` : ""}><span class="rk">${String(ci * 6 + i + 1).padStart(2, "0")}</span><div class="lbn">${logo(n, "av sm")}<div style="min-width:0;flex:1"><span>${esc(n)}</span>${e && e.veh.length ? ' <span class="deploy-tag">EN DÉPLOIEMENT</span>' : ""}<div class="bar"><i style="width:${(k / lmax) * 100}%"></i></div></div></div><span class="n">${k}</span></div>`; }).join("")}</div>`).join("");
+  const lead = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10), lmax = lead[0] ? lead[0][1] : 1;
+  $("#ovLeaders").innerHTML = [lead].map((col, ci) => `<div>${col.map(([n, k], i) => { const e = entFor(n); return `<div class="lb"${e ? ` data-ent="${esc(e.key)}" style="cursor:pointer"` : ""}><span class="rk">${String(ci * 6 + i + 1).padStart(2, "0")}</span><div class="lbn">${logo(n, "av sm")}<div style="min-width:0;flex:1"><span>${esc(n)}</span>${e && e.veh.length ? ' <span class="deploy-tag">EN DÉPLOIEMENT</span>' : ""}<div class="bar"><i style="width:${(k / lmax) * 100}%"></i></div></div></div><span class="n">${k}</span></div>`; }).join("")}</div>`).join("");
   if (hasGsap) gsap.fromTo("#v-ov .lb .bar i", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "power3.out", stagger: 0.02, delay: 0.4 });
 };
 function drawTrend(mode) {

@@ -477,7 +477,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="ticker reveal" aria-label="Dernières levées"><ul id="ticker"></ul></div>
     <div class="grid" id="ovKpis"></div>
     <div class="panel reveal" style="margin-top:16px" id="weekPanel">
-      <div class="ph"><h3>Nouveautés de la semaine</h3><p id="weekRange"></p></div>
+      <div class="ph"><h3>Nouveautés de la semaine</h3><p><span id="weekRange"></span> · <button class="linkbtn" type="button" data-go="levees">Toutes les levées →</button></p></div>
       <div class="week">
         <div><div id="weekDeals"></div></div>
         <div>
@@ -508,16 +508,12 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div id="ovDeploy"></div>
       </div>
       <div class="panel c7 reveal">
-        <div class="ph"><h3>Dernières levées</h3><button class="linkbtn" type="button" data-go="levees">Voir tout →</button></div>
-        <div id="ovDeals"></div>
+        <div class="ph"><h3>Investisseurs les plus actifs</h3><p>12 derniers mois · hors business angels</p></div>
+        <div id="ovLeaders"></div>
       </div>
       <div class="panel c5 reveal">
         <div class="ph"><h3>Exits &amp; M&amp;A récents</h3><button class="linkbtn" type="button" data-go="exits">Voir tout →</button></div>
         <div id="ovOps"></div>
-      </div>
-      <div class="panel c12 reveal">
-        <div class="ph"><h3>Investisseurs les plus actifs</h3><p>12 derniers mois · hors business angels</p></div>
-        <div class="grid" id="ovLeaders" style="gap:0 32px"></div>
       </div>
       <button class="mcp-cta c12 reveal" type="button" data-go="mcp" aria-label="Découvrir le serveur MCP">
         <div>
