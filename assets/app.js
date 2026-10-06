@@ -30,8 +30,13 @@ const fmtDay = (k) => { const [y, m, dd] = k.split("-"); return `${+dd} ${MOIS[+
 const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 const fmtMonth = (ym) => { if (!ym) return "—"; const [y, m] = ym.split("-"); return MOIS[+m - 1] + " " + y.slice(2); };
 const fmtAmt = (m) => (m == null ? "n.c." : m >= 1000 ? "€" + (m / 1000).toFixed(m >= 10000 ? 0 : 1).replace(".", ",") + " Md" : m >= 10 ? "€" + Math.round(m) + "M" : m >= 1 ? "€" + (Math.round(m * 10) / 10).toString().replace(".", ",") + "M" : "€" + Math.round(m * 1000) + "k");
-const core = (n) => IFT.coreName(String(n || "").replace(/\(.*?\)/g, " "));
-const GENERIC = /^(business angels?|angels?|fondateurs?|founders?|family offices?|nc|n c|non communique.*|investisseurs? historiques?|existing investors|autres?|undisclosed|management|salaries)$/;
+// Grands fonds internationaux : profil éditorial + alias (« a16z » = « Andreessen Horowitz »).
+const INTL = (window.INSIGHTS_VEHICLES && window.INSIGHTS_VEHICLES.intl) || [];
+const rawCore = (n) => IFT.coreName(String(n || "").replace(/\(.*?\)/g, " "));
+const ALIAS = new Map();
+INTL.forEach((f) => { const k = rawCore(f.name); f.aliases.concat(f.name).forEach((a) => { const ak = rawCore(a); if (ak) ALIAS.set(ak, k); }); });
+const core = (n) => { const k = rawCore(n); return ALIAS.get(k) || k; };
+const GENERIC = /^(business angels?|angels?|fondateurs?|founders?|family offices?|nc|n c|nd|non communique.*|non divulgue.*|investisseurs? historiques?|existing investors|autres?|undisclosed|management|salaries|business angels non nommes)$/;
 const isGeneric = (i) => GENERIC.test(norm(i));
 const fmtTicket = (t) => (t && /\d/.test(t) ? String(t).replace(/→/g, "–") + " M€" : "");
 const initials = (n) => String(n).replace(/\(.*?\)/g, "").split(/[\s\-&]+/).filter((w) => /[A-Za-zÀ-ÿ0-9]/.test(w)).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "·";
@@ -56,14 +61,38 @@ const mkEnt = (key, name, ins) => {
   // en France sur 24 mois ; les autres (fonds étrangers sans deal français récent) sont présentés à part.
   const veh = vehicles.filter((f) => f.country === "France" || n24 > 0);
   const foreign = vehicles.filter((f) => !veh.includes(f));
-  return { key, name, ins, veh, foreign, deals, n24, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
+  return { key, name, ins, veh, foreign, deals, n24, intl: INTL_BY.get(key) || null, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
 };
+const INTL_BY = new Map(INTL.map((f) => [rawCore(f.name), f]));
+// Type d'un investisseur : annuaire Insights, profil international, sinon déduit du nom.
+const ORG_WORDS = /\b(capital|ventures?|venture|invest\w*|fund|fonds|partners|group|groupe|holding|bank|banque|cr[ée]dit|caisse|angels|club|r[ée]gion|sas?|gestion|equity|labs?|studio|foundation|fondation|corp|inc|ltd|gmbh|ag|bv|family|office|accelerat\w*|incubat\w*|bpi\w*|universit\w*|[ée]cole|school|participations?|d[ée]veloppement|innovation|impact|vc|tech|ai|management|assets?|finance|financi[eè]re|mutuel\w*|assurances?|insurance|systems|industries|global|international|network|collective|syndicate|seed|growth|pe|cvc|sa\b|spa)\b/i;
+const personLike = (n) => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -](?:de |du |le |la |van |von )?[A-ZÀ-Ý][a-zà-ÿ'’-]+){1,2}$/.test(String(n).trim()) && !ORG_WORDS.test(n);
+// Familles de types pour le filtre (le type précis reste affiché sur la fiche).
+const typeFamily = (t) => { const n = norm(t);
+  if (/business angel/.test(n)) return "Business angel";
+  if (/cvc|corporate/.test(n)) return "Corporate (CVC)";
+  if (/souverain|public|institutionnel|gestionnaire d actifs|^banque$|regional/.test(n)) return "Public, souverain et institutionnel";
+  if (/growth|hedge|private equity|^pe$|buyout/.test(n)) return "Growth et private equity";
+  if (/accelerateur|studio/.test(n)) return "Accélérateur et studio";
+  if (/family/.test(n)) return "Family office";
+  if (/crowd/.test(n)) return "Crowdfunding";
+  if (/^investisseur$/.test(n)) return "Autre investisseur";
+  return "Fonds VC"; };
+const entType = (e) => (e.intl ? e.intl.type : e.ins ? e.ins.type : e.veh.length || e.foreign.length ? "Fonds VC" : personLike(e.name) ? "Business angel" : "Investisseur");
 INV.forEach((v) => { if (isGeneric(v.name) || /business angel/i.test(v.type)) return; const k = core(v.name) || norm(v.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, v.name, v)); });
 AF.forEach((f) => { const k = core(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
+INTL.forEach((f) => { const k = rawCore(f.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, f.name, null)); else { const e = ENT.get(k); e.intl = f; e.name = f.name; } });
+// Tout investisseur cité sur une levée a sa page : on prend sa graphie la plus fréquente.
+{
+  const spell = new Map();
+  D.forEach((d) => d.investors.forEach((i) => { if (isGeneric(i) || i.length < 2) return; const k = core(i) || norm(i); if (!k) return; const m = spell.get(k) || spell.set(k, new Map()).get(k); m.set(i, (m.get(i) || 0) + 1); }));
+  spell.forEach((m, k) => { if (ENT.has(k)) return; const name = [...m.entries()].sort((a, b) => b[1] - a[1])[0][0].replace(/\s+/g, " ").trim(); ENT.set(k, mkEnt(k, name, null)); });
+}
 const ENTS = [...ENT.values()];
 const DEPLOYING = ENTS.filter((e) => e.veh.length);
 const FOREIGN = ENTS.flatMap((e) => e.foreign.map((f) => ({ e, f }))).sort((a, b) => (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
-const entFor = (name) => ENT.get(core(name)) || null;
+const entFor = (name) => ENT.get(core(name)) || ENT.get(norm(name)) || null;
+const INTL_ENTS = ENTS.filter((e) => e.intl).sort((a, b) => b.deals.length - a.deals.length || a.name.localeCompare(b.name));
 // Acquéreurs
 const BUY = new Map();
 OPS.forEach((o) => { if (!o.acquirer || /^(nd|nc|n d|n c|non communique.*|non divulgue.*|inconnu|undisclosed)$/.test(norm(o.acquirer))) return; const k = norm(o.acquirer); (BUY.get(k) || BUY.set(k, { name: o.acquirer, ops: [] }).get(k)).ops.push(o); });
@@ -150,7 +179,7 @@ BUILDERS.ov = () => {
   const kpis = [
     { k: "Levées suivies", v: D.length, f: (x) => nf.format(Math.round(x)), s: `${fmtAmt(tot)} depuis janvier 2024`, go: "levees" },
     { k: "Exits & M&A", v: OPS.length, f: (x) => nf.format(Math.round(x)), s: `dont ${big} opérations > 100 M€`, go: "exits" },
-    { k: "Fonds VC", v: ENTS.length, f: (x) => nf.format(Math.round(x)), s: "au moins une opération suivie", go: "fonds", deploy: DEPLOYING.length },
+    { k: "Fonds & investisseurs", v: ENTS.filter((e) => entType(e) !== "Business angel").length, f: (x) => nf.format(Math.round(x)), s: `${INTL_ENTS.length} grands fonds internationaux inclus`, go: "fonds", deploy: DEPLOYING.length },
     { k: "PE Watch", v: PE.length, f: (x) => nf.format(Math.round(x)), s: `${peLive} participations en portefeuille`, go: "pe" },
   ];
   $("#ovKpis").innerHTML = kpis.map((k, i) => `<button class="kpi c3 reveal" type="button" data-go="${k.go}"><span class="k">${k.k}</span><span class="v" id="ovk${i}">${k.f(k.v)}</span><span class="s">${k.s}</span>${k.deploy ? `<span class="deploy"><i></i><b>${k.deploy}</b> fonds en cours de déploiement</span>` : ""}</button>`).join("");
@@ -299,15 +328,17 @@ const railItems = () => {
   return items.sort((a, b) => b.e.n12 - a.e.n12 || (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
 };
 BUILDERS.fonds = () => {
-  const types = [...new Set(ENTS.map((e) => (e.ins ? e.ins.type : "VC")))].sort();
+  const types = [...new Set(ENTS.map((e) => typeFamily(entType(e))))].sort((a, b) => a.localeCompare(b));
   $("#fType").innerHTML = opt(types, "Tous");
   $("#fSec").innerHTML = opt(SECTORS, "Tous");
   const items = railItems();
-  const vcN = ENTS.filter((e) => !e.ins || e.ins.type === "VC" || e.ins.type === "Indépendant").length;
-  $("#fStrip").innerHTML = [[nf.format(ENTS.length), "investisseurs répertoriés"], [nf.format(vcN), "fonds VC indépendants"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  const vcN = ENTS.filter((e) => entType(e) !== "Business angel").length;
+  $("#fStrip").innerHTML = [[nf.format(ENTS.length), "investisseurs avec une page"], [nf.format(vcN), "fonds et sociétés d'investissement"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
   $("#dlNote").textContent = `${items.length} véhicules qui investissent en France · faites défiler`;
   $("#foreignCount").textContent = `${FOREIGN.length} véhicule${FOREIGN.length > 1 ? "s" : ""}`;
   $("#foreignBox").hidden = !FOREIGN.length;
+  $("#intlCount").textContent = `${INTL_ENTS.length} fonds · ${INTL_ENTS.filter((e) => e.deals.length).length} présents sur des levées françaises`;
+  $("#intlGrid").innerHTML = INTL_ENTS.map((e) => { const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return `<button class="dcard intl" type="button" data-ent="${esc(e.key)}"><span class="dtop">${logo(e.name)}<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">${esc(e.intl.country)}</span></span><span class="vn">${esc(e.name)}</span><span class="mg">${esc(e.intl.hq)} · ${esc(e.intl.type)}</span><span class="big" style="font-size:${e.intl.aum ? "1.35rem" : "1rem"}">${esc(e.intl.aum || e.intl.stages)}</span><span class="meta"><span class="act${e.deals.length ? "" : " zero"}">${e.deals.length ? `${e.deals.length} deal${e.deals.length > 1 ? "s" : ""} en France · dernier ${fmtMonth(last.date)}` : "Aucun deal français suivi"}</span></span></button>`; }).join("");
   $("#foreignGrid").innerHTML = FOREIGN.map(({ e, f }) => { const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return `<button class="fcard" type="button" data-ent="${esc(e.key)}">${logo(e.name, "av sm")}<span style="min-width:0"><b>${esc(f.name)}</b><span class="muted">${esc(f.country)} · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}</span><span class="fl">${last ? "Dernier deal en France : " + fmtMonth(last.date) : "Aucun deal en France suivi"}</span></span></button>`; }).join("");
   $("#rail").innerHTML = items.map(({ e, f }) => `<button class="dcard" type="button" data-ent="${esc(e.key)}"><span class="dtop">${logo(e.name)}<span class="deploy-tag">EN DÉPLOIEMENT</span></span><span class="vn">${esc(f.name)}</span><span class="mg">${esc(e.name)} · ${esc(f.country)}${f.country !== "France" ? " · investit en France" : ""}</span><span class="big">${esc(f.size_label)}</span><span class="meta"><span>${esc(f.stage || "")}${f.ticket ? " · ticket " + esc(f.ticket) : ""}</span></span><span class="meta"><span class="act${e.n12 ? "" : " zero"}">${e.n12 ? `${e.n12} deal${e.n12 > 1 ? "s" : ""} FR sur 12 mois` : "Aucun deal FR récent"}</span><span>${esc((f.sectors || []).slice(0, 2).join(" · "))}</span></span></button>`).join("");
   const rail = $("#rail");
@@ -339,7 +370,7 @@ function stageCovers(e, stg) {
 function renderFonds() {
   const q = norm($("#fQ").value), ty = $("#fType").value, stg = $("#fStage").value, sec = $("#fSec").value, dep = $("#fDep").checked;
   let r = ENTS.filter((e) => {
-    const type = e.ins ? e.ins.type : "VC";
+    const type = typeFamily(entType(e));
     if (ty && type !== ty) return false;
     if (dep && !e.veh.length) return false;
     if (stg && !stageCovers(e, stg)) return false;
@@ -356,7 +387,7 @@ function renderFonds() {
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
-      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div><div class="ty">${esc(ins.type || "Fonds VC")}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
+      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div><div class="ty">${esc(entType(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
@@ -499,6 +530,13 @@ function qChart(deals) {
   return `<div class="chart"><svg viewBox="0 0 ${W} ${H + 20}" role="img" aria-label="Deals par trimestre">${quarterKeys.map((k, i) => `<rect class="qbar" style="transform-origin:${(i * bw + bw / 2).toFixed(1)}px ${H}px" x="${(i * bw + 4).toFixed(1)}" y="${(H - (c[k] / mx) * (H - 14)).toFixed(1)}" width="${(bw - 8).toFixed(1)}" height="${((c[k] / mx) * (H - 14)).toFixed(1)}" rx="3" fill="var(--signal)"/><text x="${(i * bw + bw / 2).toFixed(1)}" y="${(H - (c[k] / mx) * (H - 14) - 4).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--muted)">${c[k] || ""}</text>${k.endsWith("Q1") ? `<text x="${(i * bw + 4).toFixed(1)}" y="${H + 16}" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--muted)">${k.slice(0, 4)}</text>` : ""}`).join("")}</svg></div>`;
 }
 function hbars(entries, fmt = (v) => v) { const mx = Math.max(1, ...entries.map((e) => e[1])); return entries.map(([k, v]) => `<div class="hbar" style="cursor:default"><span>${esc(k)}</span><div class="t"><i style="width:${(v / mx) * 100}%"></i></div><span class="r">${fmt(v)}</span></div>`).join(""); }
+function intlBlock(p) {
+  return `<div class="vehicle" style="border-color:color-mix(in srgb,var(--signal) 40%,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--signal) 7%,var(--bg-2)),var(--bg-2) 60%)">
+    <div class="vh"><div><span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">PROFIL INTERNATIONAL</span><h3 style="margin-top:8px">${esc(p.name)}</h3><p class="muted" style="font-size:.84rem">${esc(p.hq)} · ${esc(p.country)} · fondé en ${p.founded}</p></div>${p.aum ? `<div style="text-align:right"><div style="font-family:var(--f-display);font-size:1.7rem;font-weight:500;letter-spacing:-.04em">${esc(p.aum)}</div><div class="mono muted">actifs sous gestion (public)</div></div>` : ""}</div>
+    <dl class="kv"><dt>Type</dt><dd>${esc(p.type)}</dd><dt>Stades</dt><dd>${esc(p.stages)}</dd><dt>Focus</dt><dd>${esc(p.focus)}</dd>${p.notable ? `<dt>Portefeuille</dt><dd>${esc(p.notable)}</dd>` : ""}<dt>Site</dt><dd class="mono">${esc(p.domain)}</dd></dl>
+    <p class="mono muted">Profil éditorial à partir d'informations publiques ; chiffres indicatifs.</p>
+  </div>`;
+}
 function vehicleBlock(f, foreign = false) {
   const ppl = VEH_PEOPLE.get(f.id) || [];
   const roles = ppl.filter((p) => p.role).map((p) => p.role);
@@ -530,11 +568,13 @@ function entDetail(key) {
   const co = new Map(); deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
-  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(ins.type || "Fonds VC")}</span>${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
+  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(entType(e))}</span>${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
+    ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
-    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
+    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length || !e.ins ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
+    ${!e.ins && !e.intl && !e.veh.length && !e.foreign.length ? `<p class="muted" style="font-size:.86rem">Fiche construite à partir des levées suivies par Insights${entType(e) === "Business angel" ? " (investisseur individuel)" : ""}.</p>` : ""}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
     ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDeal).join("")) : ""}
@@ -609,6 +649,7 @@ const MCP_TOOLS = [
   ["match_european_funds", "Classe /100 les fonds VC européens en déploiement pour votre levée, avec bonus s'ils investissent en France.", "Quels fonds allemands ou suisses pour ma seed deeptech ?"],
   ["search_european_funds", "Annuaire des ~200 fonds européens en déploiement : taille, thèse, ticket, LPs, activité en France.", "Les fonds climat européens de plus de 100 M€."],
   ["get_european_fund", "Fiche d'un fonds européen : équipe, LPs, signaux, deals français, fonds comparables.", "Que sait-on de Cherry Ventures ?"],
+  ["international_funds", "Grands fonds internationaux (Insight Partners, ICONIQ, Sequoia, a16z…) et leurs deals en France.", "Quels fonds américains ont investi en France cette année ?"],
   ["get_startup", "Historique des tours d'une startup, investisseurs, exit éventuel.", "Résume les levées de Mistral AI."],
   ["top_investors", "Investisseurs les plus actifs sur une période, un secteur, un stade.", "Top 10 des investisseurs seed sur 12 mois."],
   ["market_overview", "Volumes par mois, secteur ou stade.", "Combien a levé la French Tech au T3 ?"],
@@ -853,7 +894,7 @@ function wireExports() {
   const on = (id, fn) => { const b = $(id); if (b && !b._wired) { b._wired = true; b.addEventListener("click", fn); } };
   on("#lCsv", () => downloadCSV("levees", ["Date", "Startup", "Stade", "Montant (M€)", "Secteur", "Investisseurs", "Pitch"], (L.rows || []).map((d) => [dayKey(d) || d.date, d.company, d.stage_raw, d.amount_eur_m, d.sector_raw, d.investors.join(", "), d.pitch])));
   on("#eCsv", () => downloadCSV("exits", ["Date", "Cible", "Acquéreur", "Type", "Secteur", "Montant (M€)", "Description", "Contexte"], (E.rows || []).map((o) => [o.date, o.target, o.acquirer, o.type, o.sector_raw, o.amount_eur_m, o.description, o.context])));
-  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, e.ins ? e.ins.type : "Fonds VC", e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.veh.map((f) => f.name).join(" | "), e.veh.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
+  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, entType(e), e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.veh.map((f) => f.name).join(" | "), e.veh.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
 }
 
 /* ================= THÈME ================= */
@@ -888,7 +929,7 @@ document.addEventListener("click", (ev) => {
 
 /* ================= RECHERCHE ⌘K ================= */
 const IDX = [];
-ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${e.ins ? e.ins.type : "Fonds VC"} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
+ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${entType(e)} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
 const seenSt = new Set();
 D.forEach((d) => { const k = norm(d.company); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: d.company, s: `${d.sector_raw || ""} · ${d.stage_raw || ""}`, r: fmtAmt(d.amount_eur_m), ref: { t: "startup", id: d.company }, k, w: (d.amount_eur_m || 0) / 10 }); });
 ST.forEach((s) => { const k = norm(s.name); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: s.name, s: s.sector_raw || "", r: fmtAmt(s.total), ref: { t: "startup", id: s.name }, k, w: 0 }); });
