@@ -400,6 +400,32 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .fcard b { display: block; font-size: .9rem; line-height: 1.2; overflow-wrap: anywhere; }
 .fcard .muted { display: block; font-size: .76rem; }
 .fcard .fl { display: block; font-family: var(--f-mono); font-size: .66rem; color: var(--muted); margin-top: 3px; }
+/* ---------- fonds européens ---------- */
+.eu-map { position: relative; border-radius: 14px; overflow: hidden; background: radial-gradient(120% 90% at 70% 20%, var(--bg-3), var(--bg) 70%); border: 1px solid var(--line); }
+.eu-map canvas { display: block; width: 100%; height: clamp(320px, 38vw, 470px); cursor: crosshair; }
+.eu-hud { position: absolute; left: 12px; bottom: 10px; right: 12px; font-size: .74rem; color: var(--muted); pointer-events: none; }
+.eu-hud b { color: var(--accent); font-weight: 500; }
+.crow { display: grid; grid-template-columns: 32px minmax(70px, 0.9fr) minmax(30px, 1.3fr) 34px 64px 58px; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); cursor: pointer; font-size: .88rem; }
+.crow:hover { color: var(--accent); }
+.crow .cc { font-family: var(--f-mono); font-size: .66rem; border: 1px solid var(--line-strong); border-radius: 5px; text-align: center; padding: 1px 0; }
+.crow .bar { height: 14px; background: var(--bg-3); border-radius: 4px; overflow: hidden; }
+.crow .bar i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--signal) 50%, transparent), var(--signal)); transform-origin: left; }
+.crow .r { text-align: right; font-family: var(--f-mono); font-size: .76rem; }
+.crow .r.dim { color: var(--muted); }
+@media (max-width: 520px) { .crow { grid-template-columns: 28px minmax(60px, 1fr) minmax(24px, .8fr) 28px 56px; } .crow > :last-child { display: none; } }
+.ecard .cn { font-family: var(--f-mono); font-size: .64rem; border: 1px solid var(--line-strong); border-radius: 5px; padding: 1px 5px; color: var(--muted); }
+.ecard .th { font-size: .82rem; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.fr-badge { font-family: var(--f-mono); font-size: .64rem; color: var(--ok); }
+.fr-badge.zero { color: var(--muted); }
+.matchgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px; margin-top: 6px; }
+.mcard { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 12px; align-items: start; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--bg); cursor: pointer; text-align: left; color: inherit; font: inherit; transition: border-color .2s, transform .25s cubic-bezier(.2,.8,.2,1); }
+.mcard:hover { border-color: var(--accent); transform: translateY(-2px); }
+.mcard .nm { font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.mcard .meta { font-size: .76rem; color: var(--muted); }
+.mcard .why { grid-column: 1 / -1; font-family: var(--f-mono); font-size: .68rem; color: var(--signal); }
+.score { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-family: var(--f-mono); font-size: .78rem; background: conic-gradient(var(--accent) calc(var(--v) * 1%), var(--line) 0); position: relative; }
+.score::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--bg); }
+.score span { position: relative; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
@@ -422,6 +448,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <button class="tab" role="tab" data-view="levees">Levées <span class="ct" id="ct-levees"></span></button>
       <button class="tab" role="tab" data-view="exits">Exits &amp; M&amp;A <span class="ct" id="ct-exits"></span></button>
       <button class="tab" role="tab" data-view="fonds">Fonds VC <span class="ct" id="ct-fonds"></span></button>
+      <button class="tab" role="tab" data-view="europe">Fonds européens <span class="ct" id="ct-europe"></span></button>
       <button class="tab" role="tab" data-view="pe">PE Watch <span class="ct" id="ct-pe"></span></button>
       <button class="tab" role="tab" data-view="comps">Comparables</button>
       <button class="tab" role="tab" data-view="acq">Acquéreurs <span class="ct" id="ct-acq"></span></button>
@@ -567,6 +594,52 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     </div>
   </section>
 
+  <!-- ============ FONDS EUROPÉENS ============ -->
+  <section class="view" id="v-europe" data-view="europe" hidden>
+    <div class="view-head"><h1 class="reveal">Fonds VC <em>européens</em> en déploiement.</h1><p class="lede reveal" id="euLede"></p></div>
+    <div class="strip reveal" id="euStrip"></div>
+    <div class="grid">
+      <div class="panel c7 reveal">
+        <div class="ph"><h3>Carte des fonds</h3><p id="euMapNote">Survolez un point · cliquez pour ouvrir la fiche</p></div>
+        <div class="eu-map"><canvas id="euMap" aria-label="Fonds européens regroupés par pays ; les points mis en avant correspondent aux filtres de l'annuaire." role="img"></canvas><div class="eu-hud mono" id="euHud"></div></div>
+        <div class="legend" id="euLegend" style="margin-top:10px"></div>
+      </div>
+      <div class="panel c5 reveal">
+        <div class="ph"><h3>Par pays</h3><p>fonds · capital affiché · médiane</p></div>
+        <div id="euCountries"></div>
+        <div class="ph" style="margin-top:20px"><h3>Par stade</h3><p id="euStageNote"></p></div>
+        <div id="euStages"></div>
+      </div>
+      <div class="panel c12 reveal">
+        <div class="ph"><h3>Trouver un fonds européen pour votre levée</h3><p>Score /100 : stade, secteur, géographie, ticket, complétude, et bonus si le fonds investit en France</p></div>
+        <form class="filters" id="euMatchForm" autocomplete="off">
+          <div class="field grow"><label for="emPitch">Votre projet en une phrase</label><input class="input" id="emPitch" value="Logiciel d'IA qui optimise la consommation énergétique des sites industriels"></div>
+          <div class="field"><label for="emStage">Stade</label><select class="input" id="emStage"></select></div>
+          <div class="field"><label for="emCountry">Siège</label><select class="input" id="emCountry"></select></div>
+          <div class="field"><label for="emAmt">Montant (M€)</label><input class="input" id="emAmt" type="number" min="0" step="0.1" value="3" style="width:110px"></div>
+          <button class="btn btn-primary" type="submit" style="margin-bottom:1px">Trouver mes fonds →</button>
+        </form>
+        <div class="matchgrid" id="euMatch"></div>
+      </div>
+      <div class="panel c12 reveal">
+        <div class="ph"><h3>Annuaire des fonds européens</h3><p>Les filtres mettent aussi la carte à jour</p></div>
+        <div class="filters">
+          <div class="field grow"><label for="euQ">Recherche</label><input class="input" id="euQ" placeholder="Nom, thèse, LP, personne…"></div>
+          <div class="field"><label for="euCountry">Pays</label><select class="input" id="euCountry"></select></div>
+          <div class="field"><label for="euStage">Stade</label><select class="input" id="euStage"></select></div>
+          <div class="field"><label for="euSec">Secteur</label><select class="input" id="euSec"></select></div>
+          <div class="field"><label for="euSize">Taille</label><select class="input" id="euSize"><option value="">Toutes</option><option value="0-50">&lt; 50 M€</option><option value="50-150">50–150 M€</option><option value="150-500">150–500 M€</option><option value="500-1e9">&gt; 500 M€</option></select></div>
+          <div class="field"><label for="euSort">Tri</label><select class="input" id="euSort"><option value="size_desc">Taille ↓</option><option value="fr">Activité en France</option><option value="name">Nom A→Z</option><option value="relevance">Pertinence</option></select></div>
+          <label class="toggle" for="euFr"><input type="checkbox" id="euFr"> Investit en France</label>
+          <label class="toggle" for="euTicket"><input type="checkbox" id="euTicket"> Ticket publié</label>
+        </div>
+        <div class="tablebar"><span class="mono muted" id="euCount"></span><span style="display:flex;gap:8px"><button class="linkbtn" type="button" id="euReset">Réinitialiser</button><button class="btn sm" type="button" id="euCsv">Exporter en CSV</button></span></div>
+        <div class="icards" id="euGrid"></div>
+        <div class="more"><button class="btn" type="button" id="euMore">Afficher plus</button></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ PE ============ -->
   <section class="view" id="v-pe" data-view="pe" hidden>
     <div class="view-head"><h1 class="reveal">PE Watch</h1><p class="lede reveal">Les LBO français suivis, de l'entrée à la sortie. La bande claire marque la fenêtre de sortie attendue : au-delà, la participation est en retard.</p></div>
@@ -624,7 +697,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <g font-family="JetBrains Mono, monospace" font-size="11.5" fill="var(--muted)" text-anchor="middle">
             <rect x="10" y="62" width="150" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="85" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Vous</text><text x="85" y="110">une question</text>
             <rect x="250" y="62" width="170" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="335" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Claude · ChatGPT</text><text x="335" y="110">choisit l'outil</text>
-            <rect x="510" y="56" width="170" height="78" rx="14" fill="var(--bg-3)" stroke="var(--accent)"/><text x="595" y="88" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Serveur MCP</text><text x="595" y="107">insights-french-tech</text><text x="595" y="122">15 outils</text>
+            <rect x="510" y="56" width="170" height="78" rx="14" fill="var(--bg-3)" stroke="var(--accent)"/><text x="595" y="88" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Serveur MCP</text><text x="595" y="107">insights-french-tech</text><text x="595" y="122">19 outils</text>
             <rect x="760" y="62" width="130" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="825" y="91" fill="var(--accent)" font-size="14" font-family="Hanken Grotesk, sans-serif">Base Insights</text><text x="825" y="110">màj chaque lundi</text>
             <path d="M162 84 L248 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M422 84 L508 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M682 84 L758 84" stroke="var(--muted)" marker-end="url(#ah)"/>
             <path d="M758 108 L682 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M508 108 L422 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M248 108 L162 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/>

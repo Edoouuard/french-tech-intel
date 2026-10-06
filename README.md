@@ -9,7 +9,7 @@ Intelligence de marché sur la French Tech : levées de fonds, exits & M&A, fond
 | `index.html` | Page publiée. Contient les données `var XX_BASE=[…];` (une ligne par jeu), mises à jour chaque semaine. |
 | `assets/app.js` | Interface (vues, graphiques, fiches, recherche ⌘K, page MCP). |
 | `assets/insights-lib.js` | Normalisation des données `*_BASE`, partagée avec le serveur MCP. |
-| `assets/vehicles.js`, `assets/logos.js` | Fonds en cours de déploiement et logos des investisseurs. |
+| `assets/vehicles.js`, `assets/logos.js` | Fonds VC européens en déploiement (vue « Fonds européens ») et logos des investisseurs. |
 | `src/shell.html` | Gabarit HTML/CSS d'`index.html`. |
 | `api/mcp.js`, `lib/` | Serveur MCP hébergé sur `/mcp` (fonction Vercel). |
 | `data/vehicles.json` | Fonds en déploiement, lus par le serveur MCP. |

@@ -54,14 +54,14 @@ const mkEnt = (key, name, ins) => {
   const n24 = deals.filter((d) => d.date >= SINCE24).length;
   // Un véhicule compte comme « en déploiement en France » s'il est français ou si son gestionnaire a investi
   // en France sur 24 mois ; les autres (fonds étrangers sans deal français récent) sont présentés à part.
-  const atlas = vehicles.filter((f) => f.country === "France" || n24 > 0);
-  const foreign = vehicles.filter((f) => !atlas.includes(f));
-  return { key, name, ins, atlas, foreign, deals, n24, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
+  const veh = vehicles.filter((f) => f.country === "France" || n24 > 0);
+  const foreign = vehicles.filter((f) => !veh.includes(f));
+  return { key, name, ins, veh, foreign, deals, n24, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
 };
 INV.forEach((v) => { if (isGeneric(v.name) || /business angel/i.test(v.type)) return; const k = core(v.name) || norm(v.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, v.name, v)); });
 AF.forEach((f) => { const k = core(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
 const ENTS = [...ENT.values()];
-const DEPLOYING = ENTS.filter((e) => e.atlas.length);
+const DEPLOYING = ENTS.filter((e) => e.veh.length);
 const FOREIGN = ENTS.flatMap((e) => e.foreign.map((f) => ({ e, f }))).sort((a, b) => (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
 const entFor = (name) => ENT.get(core(name)) || null;
 // Acquéreurs
@@ -79,7 +79,7 @@ const logo = (name, cls = "av") => { const src = LOGOS[core(name)]; return src ?
 const tip = $("#tip");
 function showTip(html, x, y) { tip.innerHTML = html; tip.classList.add("on"); const w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = Math.min(innerWidth - w - 10, Math.max(10, x + 14)) + "px"; tip.style.top = Math.max(10, y - h - 12) + "px"; }
 const hideTip = () => tip.classList.remove("on");
-const invLinks = (list) => list.map((i) => { const e = entFor(i); return e && !isGeneric(i) ? `<button class="ent${e.atlas.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">${esc(i)}</button>` : esc(i); }).join(", ");
+const invLinks = (list) => list.map((i) => { const e = entFor(i); return e && !isGeneric(i) ? `<button class="ent${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">${esc(i)}</button>` : esc(i); }).join(", ");
 const stagePill = (s) => (s && s !== "NC" ? `<span class="pill"><i style="background:${stageColor(s)}"></i>${esc(s)}</span>` : `<span class="pill">NC</span>`);
 const lrowDeal = (d) => `<div class="lrow" data-startup="${esc(d.company)}"><span class="dt">${fmtMonth(d.date)}</span><span class="co">${esc(d.company)}<small>${esc(d.sector_raw || "")} · ${esc(d.stage_raw || "NC")}</small>${isNew(d) ? '<span class="new-tag">CETTE SEMAINE</span>' : ""}</span><span class="v">${fmtAmt(d.amount_eur_m)}</span><span class="sub">${invLinks(d.investors) || "Investisseurs non communiqués"}</span></div>`;
 const lrowOp = (o) => `<div class="lrow" data-op="${esc(o.id)}"><span class="dt">${fmtMonth(o.date)}</span><span class="co">${esc(o.target)} <span class="muted">→</span> ${esc(o.acquirer || "?")}</span><span class="v">${fmtAmt(o.amount_eur_m)}</span><span class="sub">${esc(o.type)}${o.sector_raw ? " · " + esc(o.sector_raw) : ""}</span></div>`;
@@ -108,7 +108,7 @@ const inPeriod = (date, p) => !p || (p === "12m" ? (date || "") >= SINCE12 : (da
 const SECTORS = Object.entries(D.reduce((a, d) => ((a[d.sector_raw] = (a[d.sector_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(Boolean);
 
 /* ================= ROUTAGE ================= */
-const VIEWS = ["ov", "levees", "exits", "fonds", "pe", "comps", "acq", "mcp"];
+const VIEWS = ["ov", "levees", "exits", "fonds", "europe", "pe", "comps", "acq", "mcp"];
 const built = new Set();
 const BUILDERS = {};
 let current = null;
@@ -125,6 +125,7 @@ function go(view, opts = {}) {
   $$(".view").forEach((v) => (v.hidden = v.dataset.view !== view));
   if (!built.has(view)) { BUILDERS[view](); built.add(view); }
   if (opts.after) opts.after();
+  if (view === "europe" && built.has("europe")) { layoutEuMap(); startEuMap(); }
   moveInk();
   const t = $(`.tab[data-view="${view}"]`), bar = $("#tabs");
   if (t && (t.offsetLeft < bar.scrollLeft || t.offsetLeft + t.offsetWidth > bar.scrollLeft + bar.clientWidth)) bar.scrollTo({ left: t.offsetLeft - 24, behavior: "smooth" });
@@ -167,14 +168,14 @@ BUILDERS.ov = () => {
   // déploiement
   const dep = DEPLOYING.slice().sort((a, b) => b.n12 - a.n12 || b.deals.length - a.deals.length).slice(0, 7);
   const mx = Math.max(1, ...dep.map((e) => e.n12));
-  $("#ovDeploy").innerHTML = dep.map((e, i) => `<div class="lb" data-ent="${esc(e.key)}" style="cursor:pointer"><span class="rk">${String(i + 1).padStart(2, "0")}</span><div class="lbn">${logo(e.name, "av sm")}<div style="min-width:0;flex:1"><b>${esc(e.name)}</b> <span class="muted" style="font-size:.8rem">· ${esc(e.atlas.map((f) => f.name).join(", "))} · ${esc(e.atlas[0].size_label)}</span><div class="bar"><i style="width:${(e.n12 / mx) * 100}%;background:var(--accent)"></i></div></div></div><span class="n">${e.n12}</span></div>`).join("");
+  $("#ovDeploy").innerHTML = dep.map((e, i) => `<div class="lb" data-ent="${esc(e.key)}" style="cursor:pointer"><span class="rk">${String(i + 1).padStart(2, "0")}</span><div class="lbn">${logo(e.name, "av sm")}<div style="min-width:0;flex:1"><b>${esc(e.name)}</b> <span class="muted" style="font-size:.8rem">· ${esc(e.veh.map((f) => f.name).join(", "))} · ${esc(e.veh[0].size_label)}</span><div class="bar"><i style="width:${(e.n12 / mx) * 100}%;background:var(--accent)"></i></div></div></div><span class="n">${e.n12}</span></div>`).join("");
   $("#ovDeals").innerHTML = D.slice(0, 8).map(lrowDeal).join("");
   $("#ovOps").innerHTML = OPS.filter((o) => o.date).slice(0, 8).map(lrowOp).join("");
   // leaders
   const c = new Map();
   D.filter((d) => d.date >= SINCE12).forEach((d) => new Set(d.investors).forEach((i) => { if (!isGeneric(i)) c.set(i, (c.get(i) || 0) + 1); }));
   const lead = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12), lmax = lead[0] ? lead[0][1] : 1;
-  $("#ovLeaders").innerHTML = [lead.slice(0, 6), lead.slice(6)].map((col, ci) => `<div class="c6">${col.map(([n, k], i) => { const e = entFor(n); return `<div class="lb"${e ? ` data-ent="${esc(e.key)}" style="cursor:pointer"` : ""}><span class="rk">${String(ci * 6 + i + 1).padStart(2, "0")}</span><div class="lbn">${logo(n, "av sm")}<div style="min-width:0;flex:1"><span>${esc(n)}</span>${e && e.atlas.length ? ' <span class="deploy-tag">EN DÉPLOIEMENT</span>' : ""}<div class="bar"><i style="width:${(k / lmax) * 100}%"></i></div></div></div><span class="n">${k}</span></div>`; }).join("")}</div>`).join("");
+  $("#ovLeaders").innerHTML = [lead.slice(0, 6), lead.slice(6)].map((col, ci) => `<div class="c6">${col.map(([n, k], i) => { const e = entFor(n); return `<div class="lb"${e ? ` data-ent="${esc(e.key)}" style="cursor:pointer"` : ""}><span class="rk">${String(ci * 6 + i + 1).padStart(2, "0")}</span><div class="lbn">${logo(n, "av sm")}<div style="min-width:0;flex:1"><span>${esc(n)}</span>${e && e.veh.length ? ' <span class="deploy-tag">EN DÉPLOIEMENT</span>' : ""}<div class="bar"><i style="width:${(k / lmax) * 100}%"></i></div></div></div><span class="n">${k}</span></div>`; }).join("")}</div>`).join("");
   if (hasGsap) gsap.fromTo("#v-ov .lb .bar i", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "power3.out", stagger: 0.02, delay: 0.4 });
 };
 function drawTrend(mode) {
@@ -237,7 +238,7 @@ function renderLevees() {
   const [lo, hi] = mn ? mn.split("-").map(Number) : [null, null];
   let r = D.filter((d) => (!L.week || isNew(d)) && (!sec || d.sector_raw === sec) && (!L.stage || d.stage_raw === L.stage) && (L.month ? d.date === L.month : inPeriod(d.date, yr)) &&
     (!mn || (d.amount_eur_m != null && d.amount_eur_m >= lo && d.amount_eur_m < hi)) &&
-    (!dep || d.investors.some((i) => (entFor(i) || {}).atlas?.length)) &&
+    (!dep || d.investors.some((i) => (entFor(i) || {}).veh?.length)) &&
     (!q || norm([d.company, d.pitch, d.sector_raw, d.investors.join(" ")].join(" ")).includes(q)));
   const so = $("#lSort").value;
   if (so === "amt") r = r.slice().sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
@@ -294,7 +295,7 @@ const qOf = (ym) => `${ym.slice(0, 4)}-Q${Math.ceil(+ym.slice(5, 7) / 3)}`;
 const spark = (deals) => { const c = Object.fromEntries(quarterKeys.map((k) => [k, 0])); deals.forEach((d) => { const k = qOf(d.date || "0000-01"); if (k in c) c[k]++; }); const mx = Math.max(1, ...Object.values(c)); return `<div class="spark" title="Deals par trimestre depuis 2024">${quarterKeys.map((k) => `<i style="height:${(c[k] / mx) * 100}%"></i>`).join("")}</div>`; };
 const railItems = () => {
   const items = [];
-  DEPLOYING.forEach((e) => e.atlas.forEach((f) => items.push({ e, f })));
+  DEPLOYING.forEach((e) => e.veh.forEach((f) => items.push({ e, f })));
   return items.sort((a, b) => b.e.n12 - a.e.n12 || (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
 };
 BUILDERS.fonds = () => {
@@ -332,7 +333,7 @@ function stageIdx(t) {
 function stageCovers(e, stg) {
   const want = stageIdx(stg);
   if (e.deals.some((d) => d.stage_raw === stg)) return true;
-  const ranges = [e.ins && e.ins.stages, ...e.atlas.map((f) => f.stage)].filter(Boolean);
+  const ranges = [e.ins && e.ins.stages, ...e.veh.map((f) => f.stage)].filter(Boolean);
   return ranges.some((r) => { const parts = String(r).split(/→|->|–/).map(stageIdx).filter((i) => i >= 0); if (!parts.length) return false; return want >= Math.min(...parts) && want <= Math.max(...parts); });
 }
 function renderFonds() {
@@ -340,10 +341,10 @@ function renderFonds() {
   let r = ENTS.filter((e) => {
     const type = e.ins ? e.ins.type : "VC";
     if (ty && type !== ty) return false;
-    if (dep && !e.atlas.length) return false;
+    if (dep && !e.veh.length) return false;
     if (stg && !stageCovers(e, stg)) return false;
     if (sec && !e.deals.some((d) => d.sector_raw === sec) && !(e.ins && e.ins.sectors.includes(sec))) return false;
-    if (q && !norm([e.name, e.ins && e.ins.focus, e.ins && e.ins.type, e.atlas.map((f) => f.name + " " + (f.thesis || "")).join(" ")].join(" ")).includes(q)) return false;
+    if (q && !norm([e.name, e.ins && e.ins.focus, e.ins && e.ins.type, e.veh.map((f) => f.name + " " + (f.thesis || "")).join(" ")].join(" ")).includes(q)) return false;
     return true;
   });
   const so = $("#fSort").value;
@@ -352,14 +353,14 @@ function renderFonds() {
   $("#fCount").textContent = `${nf.format(r.length)} investisseurs`;
   $("#fGrid").innerHTML = r.slice(0, FS.shown).map((e) => {
     const ins = e.ins || {};
-    const a0 = e.atlas[0];
+    const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
-    return `<button class="icard${e.atlas.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
+    return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
       <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div><div class="ty">${esc(ins.type || "Fonds VC")}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
-      ${e.atlas.length ? `<div class="depline">● En déploiement : ${e.atlas.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
+      ${e.veh.length ? `<div class="depline">● En déploiement : ${e.veh.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
     </button>`;
   }).join("") || `<div class="empty">Aucun investisseur pour ces filtres.</div>`;
   $("#fMore").hidden = r.length <= FS.shown;
@@ -469,11 +470,11 @@ function renderAcq() {
 /* ================= FICHES ================= */
 const stack = [];
 function openDetail(ref, push = true) {
-  const html = ref.t === "ent" ? entDetail(ref.id) : ref.t === "startup" ? startupDetail(ref.id) : ref.t === "op" ? opDetail(ref.id) : ref.t === "buyer" ? buyerDetail(ref.id) : ref.t === "pe" ? peDetail(ref.id) : null;
+  const html = ref.t === "fund" ? fundDetail(ref.id) : ref.t === "ent" ? entDetail(ref.id) : ref.t === "startup" ? startupDetail(ref.id) : ref.t === "op" ? opDetail(ref.id) : ref.t === "buyer" ? buyerDetail(ref.id) : ref.t === "pe" ? peDetail(ref.id) : null;
   if (!html) return;
   if (push) stack.push(ref);
   $("#dBack").disabled = stack.length < 2;
-  $("#dCrumb").textContent = { ent: "Fonds", startup: "Startup", op: "Opération", buyer: "Acquéreur", pe: "PE Watch" }[ref.t] + " · " + (ref.label || ref.id);
+  $("#dCrumb").textContent = { fund: "Fonds européen", ent: "Fonds", startup: "Startup", op: "Opération", buyer: "Acquéreur", pe: "PE Watch" }[ref.t] + " · " + (ref.label || ref.id);
   $("#dBody").innerHTML = html;
   $("#dBody").scrollTop = 0;
   $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false");
@@ -520,7 +521,7 @@ function vehicleBlock(f, foreign = false) {
 }
 function entDetail(key) {
   let e = ENT.get(key);
-  if (!e) { const deals = DBC.get(key) || []; if (!deals.length) return null; const nm = deals[0].investors.find((i) => core(i) === key) || key; e = { key, name: nm, ins: null, atlas: [], deals, n12: deals.filter((d) => d.date >= SINCE12).length, nb: deals.length }; }
+  if (!e) { const deals = DBC.get(key) || []; if (!deals.length) return null; const nm = deals[0].investors.find((i) => core(i) === key) || key; e = { key, name: nm, ins: null, veh: [], deals, n12: deals.filter((d) => d.date >= SINCE12).length, nb: deals.length }; }
   const ins = e.ins || {};
   const deals = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   const tot = deals.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
@@ -529,11 +530,11 @@ function entDetail(key) {
   const co = new Map(); deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
-  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(ins.type || "Fonds VC")}</span>${e.atlas.length ? `<span class="deploy-tag">${e.atlas.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
-    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.atlas[0] && e.atlas[0].ticket ? esc(e.atlas[0].ticket) : "—", "ticket"]])}
+  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(ins.type || "Fonds VC")}</span>${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
+    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
-    ${e.atlas.length ? sec(`Fonds en cours de déploiement (${e.atlas.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.atlas.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
+    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
     ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDeal).join("")) : ""}
@@ -605,6 +606,9 @@ const MCP_TOOLS = [
   ["get_investor", "Fiche complète d'un fonds : thèse, ticket, LPs, équipe, deals, co-investisseurs.", "Que fait Serena en ce moment ?"],
   ["deploying_funds", "Véhicules en cours d'investissement, avec leurs deals français récents.", "Quels fonds en déploiement investissent en deeptech ?"],
   ["comparables", "Médiane, quartiles et percentile de votre montant face aux deals comparables.", "3 M€ en seed IA, c'est haut ou bas ?"],
+  ["match_european_funds", "Classe /100 les fonds VC européens en déploiement pour votre levée, avec bonus s'ils investissent en France.", "Quels fonds allemands ou suisses pour ma seed deeptech ?"],
+  ["search_european_funds", "Annuaire des ~200 fonds européens en déploiement : taille, thèse, ticket, LPs, activité en France.", "Les fonds climat européens de plus de 100 M€."],
+  ["get_european_fund", "Fiche d'un fonds européen : équipe, LPs, signaux, deals français, fonds comparables.", "Que sait-on de Cherry Ventures ?"],
   ["get_startup", "Historique des tours d'une startup, investisseurs, exit éventuel.", "Résume les levées de Mistral AI."],
   ["top_investors", "Investisseurs les plus actifs sur une période, un secteur, un stade.", "Top 10 des investisseurs seed sur 12 mois."],
   ["market_overview", "Volumes par mois, secteur ou stade.", "Combien a levé la French Tech au T3 ?"],
@@ -635,15 +639,184 @@ function buildChat(animate) {
   const pool = D.filter((d) => d.date >= since && d.stage_raw === "Seed" && secs.has(d.sector_raw));
   const c = new Map();
   pool.forEach((d) => new Set(d.investors).forEach((i) => { if (!isGeneric(i)) c.set(i, (c.get(i) || 0) + 1); }));
-  const top = [...c.entries()].sort((a, b) => { const da = (entFor(a[0]) || {}).atlas?.length ? 1 : 0, db = (entFor(b[0]) || {}).atlas?.length ? 1 : 0; return b[1] + db * 2 - (a[1] + da * 2); }).slice(0, 3);
+  const top = [...c.entries()].sort((a, b) => { const da = (entFor(a[0]) || {}).veh?.length ? 1 : 0, db = (entFor(b[0]) || {}).veh?.length ? 1 : 0; return b[1] + db * 2 - (a[1] + da * 2); }).slice(0, 3);
   const amts = pool.map((d) => d.amount_eur_m).filter((v) => v != null);
   const args = { description: "IA de décarbonation pour sites industriels", stage: "Seed", amount_eur_m: 3, limit: 5 };
   $("#chat").innerHTML = [
     `<div class="msg user">Je lève 3 M€ en seed pour une IA qui décarbone les sites industriels. Quels fonds contacter en priorité ?</div>`,
     `<div class="toolcall">⚙ insights-french-tech · find_investors<pre class="code" style="margin:0">${esc(JSON.stringify(args, null, 2))}</pre></div>`,
-    `<div class="msg bot">Sur 24 mois, ${pool.length} tours seed IA / climat / énergie ont été suivis (médiane ${fmtAmt(median(amts))}). Les plus actifs :<ol>${top.map(([n, k]) => { const e = entFor(n); const v = e && e.atlas[0]; return `<li><b>${esc(n)}</b> : ${k} deal${k > 1 ? "s" : ""} comparables${v ? `, fonds en déploiement ${esc(v.name)} (${esc(v.size_label)})` : ""}.</li>`; }).join("")}</ol><p class="muted" style="margin-top:8px;font-size:.84rem">Votre montant se situe dans la fourchette haute du segment. Je peux ouvrir la fiche de chacun.</p></div>`,
+    `<div class="msg bot">Sur 24 mois, ${pool.length} tours seed IA / climat / énergie ont été suivis (médiane ${fmtAmt(median(amts))}). Les plus actifs :<ol>${top.map(([n, k]) => { const e = entFor(n); const v = e && e.veh[0]; return `<li><b>${esc(n)}</b> : ${k} deal${k > 1 ? "s" : ""} comparables${v ? `, fonds en déploiement ${esc(v.name)} (${esc(v.size_label)})` : ""}.</li>`; }).join("")}</ol><p class="muted" style="margin-top:8px;font-size:.84rem">Votre montant se situe dans la fourchette haute du segment. Je peux ouvrir la fiche de chacun.</p></div>`,
   ].join("");
   if (animate && hasGsap) gsap.fromTo("#chat > *", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.7, clearProps: "transform,opacity" });
+}
+
+/* ================= FONDS EUROPÉENS ================= */
+const FC = window.FundsCore;
+const EU_ORDER = ["France", "Allemagne", "Pays-Bas", "Belgique", "Suisse", "Autriche", "Luxembourg", "Irlande", "Monaco"];
+const EU_STAGES = FC.STAGES;
+const euStageColor = (s) => `var(--s${Math.max(0, EU_STAGES.indexOf(s))})`;
+// Activité française d'un fonds = celle de son gestionnaire dans Insights.
+const fundEnt = (f) => ENT.get(core(f.name)) || null;
+const frActivity = (f) => { const e = fundEnt(f); if (!e || !e.deals.length) return null; const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return { n12: e.n12, n24: e.n24, last: `${last.company}, ${fmtMonth(last.date)}`, e }; };
+const investsFR = (f) => f.country === "France" || ((frActivity(f) || {}).n24 || 0) > 0;
+const EU = { shown: 24, rows: AF };
+const euMap = { nodes: [], hubs: [], hot: null, hover: null, w: 0, h: 0, t0: 0, running: false };
+
+BUILDERS.europe = () => {
+  const cap = AF.reduce((s, f) => s + (f.size_eur_m || 0), 0);
+  const nFr = AF.filter(investsFR).length;
+  $("#euLede").innerHTML = `${AF.length} fonds actifs dans ${new Set(AF.map((f) => f.country)).size} pays, avec leur taille, leur thèse, leur ticket, leurs LPs et leur équipe. Chaque fiche est enrichie par Insights : ${nFr} d'entre eux investissent en France, avec leurs deals récents.`;
+  $("#euStrip").innerHTML = [[AF.length, "fonds en déploiement"], [fmtAmt(cap), "capital affiché cumulé"], [`<span style="color:var(--accent)">${nFr}</span>`, "investissent en France"], [AF.filter((f) => f.ticket).length, "publient leur ticket"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  // pays
+  const byC = EU_ORDER.map((c) => { const fs = AF.filter((f) => f.country === c); const sz = fs.map((f) => f.size_eur_m).filter(Boolean); return { c, n: fs.length, cap: sz.reduce((a, b) => a + b, 0), med: median(sz) }; }).filter((x) => x.n);
+  const mx = Math.max(...byC.map((x) => x.n));
+  $("#euCountries").innerHTML = byC.map((x) => `<div class="crow" data-c="${esc(x.c)}"><span class="cc">${FC.COUNTRY_CODE[x.c] || ""}</span><span>${esc(x.c)}</span><div class="bar"><i style="width:${(x.n / mx) * 100}%"></i></div><span class="r">${x.n}</span><span class="r">${fmtAmt(x.cap)}</span><span class="r dim">${fmtAmt(x.med)}</span></div>`).join("");
+  $$("#euCountries .crow").forEach((r) => r.addEventListener("click", () => { $("#euCountry").value = r.dataset.c; EU.shown = 24; renderEurope(); $("#euGrid").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }));
+  const byS = EU_STAGES.map((s) => ({ s, n: AF.filter((f) => f.stage === s).length })).filter((x) => x.n);
+  $("#euStageNote").textContent = `${AF.length} fonds`;
+  $("#euStages").innerHTML = `<div class="stagebar">${byS.map((x) => `<div data-s="${esc(x.s)}" style="flex-grow:${x.n};background:${euStageColor(x.s)}" title="${esc(x.s)} · ${x.n}">${x.n / AF.length > 0.1 ? Math.round((x.n / AF.length) * 100) + "%" : ""}</div>`).join("")}</div><div style="margin-top:12px">${byS.map((x) => `<div class="srow" data-s="${esc(x.s)}"><i style="background:${euStageColor(x.s)}"></i><span>${esc(x.s)}</span><span class="r">${x.n}</span><span class="r">${fmtAmt(median(AF.filter((f) => f.stage === x.s).map((f) => f.size_eur_m).filter(Boolean)))} méd.</span></div>`).join("")}</div>`;
+  $$("#euStages [data-s]").forEach((r) => r.addEventListener("click", () => { $("#euStage").value = r.dataset.s; EU.shown = 24; renderEurope(); }));
+  $("#euLegend").innerHTML = EU_STAGES.slice(0, 6).map((s) => `<span><i style="background:${euStageColor(s)};height:8px;width:8px;border-radius:50%"></i>${s}</span>`).join("") + `<span><i style="background:var(--accent);height:8px;width:8px;border-radius:50%"></i>Sélection</span>`;
+  // filtres annuaire
+  const secs = FC.stats(AF, "sector").filter((s) => s.key !== "Non renseigné" && s.funds > 1).map((s) => s.key);
+  $("#euCountry").innerHTML = opt(EU_ORDER.filter((c) => AF.some((f) => f.country === c)), "Tous");
+  $("#euStage").innerHTML = opt(EU_STAGES.filter((s) => AF.some((f) => f.stage === s)), "Tous");
+  $("#euSec").innerHTML = opt(secs, "Tous");
+  ["#euQ", "#euCountry", "#euStage", "#euSec", "#euSize", "#euSort", "#euFr", "#euTicket"].forEach((s) => $(s).addEventListener(s === "#euQ" ? "input" : "change", () => { EU.shown = 24; renderEurope(); }));
+  $("#euMore").addEventListener("click", () => { EU.shown += 36; renderEurope(); });
+  $("#euReset").addEventListener("click", () => { ["#euQ", "#euCountry", "#euStage", "#euSec", "#euSize"].forEach((s) => ($(s).value = "")); $("#euSort").value = "size_desc"; $("#euFr").checked = $("#euTicket").checked = false; EU.shown = 24; renderEurope(); });
+  $("#euCsv").addEventListener("click", () => downloadCSV("fonds-europeens", ["Fonds", "Pays", "Stade", "Taille affichée", "Taille (M€)", "Ticket", "Secteurs", "Thèse", "Géographie", "LPs", "Deals France 12 mois", "Dernier deal France"], EU.rows.map((f) => { const a = frActivity(f); return [f.name, f.country, f.stage, f.size_label, f.size_eur_m, f.ticket, (f.sectors || []).join(", "), f.thesis, f.geo_scope, f.lps, a ? a.n12 : 0, a ? a.last : ""]; })));
+  // matching
+  $("#emStage").innerHTML = EU_STAGES.map((s) => `<option ${s === "Seed" ? "selected" : ""}>${s}</option>`).join("");
+  $("#emCountry").innerHTML = EU_ORDER.map((c) => `<option ${c === "France" ? "selected" : ""}>${c}</option>`).join("");
+  $("#euMatchForm").addEventListener("submit", (ev) => { ev.preventDefault(); runEuMatch(true); });
+  runEuMatch(false);
+  renderEurope();
+  initEuMap();
+  if (hasGsap) gsap.fromTo("#euCountries .bar i", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.out", stagger: 0.05, delay: 0.3 });
+};
+
+function euFiltered() {
+  const sz = $("#euSize").value, [lo, hi] = sz ? sz.split("-").map(Number) : [null, null];
+  const opts = { text: $("#euQ").value, countries: $("#euCountry").value ? [$("#euCountry").value] : [], stages: $("#euStage").value ? [$("#euStage").value] : [], sectors: $("#euSec").value ? [$("#euSec").value] : [], has_ticket: $("#euTicket").checked, sort: $("#euSort").value === "fr" ? "relevance" : $("#euSort").value };
+  let r = FC.search(AF, opts).map((x) => x.fund);
+  if (sz) r = r.filter((f) => f.size_eur_m != null && f.size_eur_m >= lo && f.size_eur_m < hi);
+  if ($("#euFr").checked) r = r.filter(investsFR);
+  if ($("#euSort").value === "fr") r.sort((a, b) => ((frActivity(b) || {}).n12 || 0) - ((frActivity(a) || {}).n12 || 0) || (b.size_eur_m || 0) - (a.size_eur_m || 0));
+  return r;
+}
+function euCard(f) {
+  const a = frActivity(f);
+  return `<button class="icard ecard${investsFR(f) ? " dep" : ""}" type="button" data-fund="${f.id}">
+    <div class="ih">${logo(f.name)}<div style="min-width:0"><div class="nm">${esc(f.name)}</div><div class="ty"><span class="cn">${FC.COUNTRY_CODE[f.country] || ""}</span> ${esc(f.country)} · ${esc(f.stage || "")}</div></div></div>
+    <div class="facts"><div><b>${esc(f.size_label || "—")}</b><span>taille affichée</span></div><div><b>${esc(f.ticket ? f.ticket.slice(0, 18) : "—")}</b><span>ticket</span></div><div><b>${a ? a.n12 : 0}</b><span>deals FR 12 mois</span></div></div>
+    <p class="th">${esc(f.thesis || "Thèse non publiée")}</p>
+    <div>${(f.sectors || []).slice(0, 4).map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
+    <span class="fr-badge${a ? "" : " zero"}">${a ? `● Dernier deal en France : ${esc(a.last)}` : f.country === "France" ? "Fonds français · aucun deal suivi" : "Aucun deal en France suivi"}</span>
+  </button>`;
+}
+function renderEurope() {
+  const r = euFiltered();
+  EU.rows = r;
+  $("#euCount").textContent = `${r.length} fonds`;
+  $("#euGrid").innerHTML = r.slice(0, EU.shown).map(euCard).join("") || `<div class="empty">Aucun fonds pour ces filtres.</div>`;
+  $("#euMore").hidden = r.length <= EU.shown;
+  const all = r.length === AF.length;
+  euMap.hot = all ? null : new Set(r.map((f) => f.id));
+  $("#euHud").innerHTML = all ? `${AF.length} fonds · utilisez les filtres pour les mettre en avant` : `<b>${r.length}</b> fonds sélectionnés sur ${AF.length}`;
+  if (hasGsap) gsap.fromTo("#euGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
+}
+function runEuMatch(animate) {
+  const s = { description: $("#emPitch").value, stage: $("#emStage").value, country: $("#emCountry").value, raise_eur_m: parseFloat($("#emAmt").value) || undefined };
+  const res = FC.matchStartup(AF, s, (f) => { const a = frActivity(f); return a ? { n12: a.n12, last: a.last } : null; }).slice(0, 9);
+  $("#euMatch").innerHTML = res.map((m) => `<button class="mcard" type="button" data-fund="${m.fund.id}">${logo(m.fund.name, "av sm")}<div style="min-width:0"><div class="nm">${esc(m.fund.name)}</div><div class="meta">${esc(m.fund.country)} · ${esc(m.fund.stage || "")} · ${esc(m.fund.size_label || "")}${m.fund.ticket ? " · ticket " + esc(m.fund.ticket) : ""}</div></div><div class="score" style="--v:${m.score}"><span>${m.score}</span></div><div class="why">↳ ${esc(m.why.slice(0, 4).join(" · "))}</div></button>`).join("") || `<div class="empty">Aucun fonds compatible.</div>`;
+  if (animate && hasGsap) gsap.fromTo("#euMatch .mcard", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.05, ease: "power3.out", clearProps: "transform,opacity" });
+}
+
+// Carte schématique : un amas de points par pays (taille = taille du fonds, couleur = stade).
+const EU_HUBS = { France: [46.6, 1.6], Allemagne: [51.4, 11.6], "Pays-Bas": [53.6, 5.6], Belgique: [50.9, 2.9], Suisse: [46.5, 8.6], Autriche: [47.4, 15.0], Luxembourg: [49.3, 6.6], Irlande: [53.4, -7.4], Monaco: [43.3, 6.9] };
+function euProject(lat, lon) {
+  const lon0 = -10.5, lon1 = 18.5, lat0 = 42.2, lat1 = 55.6, k = Math.cos((49 * Math.PI) / 180);
+  const spanX = (lon1 - lon0) * k, spanY = lat1 - lat0;
+  const s = Math.min((euMap.w - 50) / spanX, (euMap.h - 70) / spanY);
+  return [(euMap.w - spanX * s) / 2 + (lon - lon0) * k * s, 30 + (euMap.h - 70 - spanY * s) / 2 + (lat1 - lat) * s];
+}
+function layoutEuMap() {
+  const cv = $("#euMap"), r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+  if (!r.width) return;
+  euMap.w = r.width; euMap.h = r.height;
+  cv.width = r.width * dpr; cv.height = r.height * dpr;
+  cv.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+  euMap.nodes = []; euMap.hubs = [];
+  const spread = Math.max(4.2, Math.min(euMap.w, euMap.h) * 0.0125);
+  for (const c of EU_ORDER) {
+    const list = AF.filter((f) => f.country === c).sort((a, b) => (b.size_eur_m || 0) - (a.size_eur_m || 0));
+    if (!list.length || !EU_HUBS[c]) continue;
+    const [hx, hy] = euProject(...EU_HUBS[c]);
+    euMap.hubs.push({ c, x: hx, y: hy, n: list.length, R: spread * Math.sqrt(list.length) + 4 });
+    list.forEach((f, i) => { const ang = i * 2.39996323, rr = spread * Math.sqrt(i + 0.6); euMap.nodes.push({ f, bx: hx + Math.cos(ang) * rr, by: hy + Math.sin(ang) * rr, x: 0, y: 0, ph: (f.id * 1.7) % 6.28, rad: 1.6 + Math.log10((f.size_eur_m || 10) + 1) * 0.9, glow: 0 }); });
+  }
+}
+function drawEuMap(now) {
+  if (current !== "europe") { euMap.running = false; return; }
+  const cv = $("#euMap"), ctx = cv.getContext("2d"), t = (now - euMap.t0) / 1000;
+  // Palette lue une fois par image (getComputedStyle par point ralentissait toute la page).
+  const cs = getComputedStyle(document.documentElement), pv = (v) => cs.getPropertyValue(v).trim();
+  const fg = pv("--fg"), muted = pv("--muted"), line = pv("--line"), acc = pv("--accent"), fmono = pv("--f-mono");
+  const stageCol = EU_STAGES.map((_, i) => pv("--s" + Math.min(6, i)));
+  ctx.clearRect(0, 0, euMap.w, euMap.h);
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath();
+  for (let lon = -10; lon <= 18; lon += 2) { const [x1, y1] = euProject(55.6, lon), [x2, y2] = euProject(42.2, lon); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
+  for (let lat = 43; lat <= 55; lat += 2) { const [x1, y1] = euProject(lat, -10.5), [x2, y2] = euProject(lat, 18.5); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
+  ctx.stroke();
+  const any = !!euMap.hot;
+  for (const n of euMap.nodes) {
+    const w = reduce ? 0 : 1;
+    n.x = n.bx + Math.cos(t * 0.6 + n.ph) * 1.3 * w; n.y = n.by + Math.sin(t * 0.8 + n.ph) * 1.3 * w;
+    const hot = any && euMap.hot.has(n.f.id);
+    n.glow += ((hot ? 1 : 0) - n.glow) * 0.1;
+    const r = n.rad + n.glow * 1.5;
+    if (n.glow > 0.05) { ctx.globalAlpha = 0.2 * n.glow; ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(n.x, n.y, r + 6, 0, 6.283); ctx.fill(); }
+    ctx.globalAlpha = any ? 0.22 + n.glow * 0.78 : 0.88;
+    ctx.fillStyle = n.glow > 0.3 ? acc : stageCol[Math.max(0, EU_STAGES.indexOf(n.f.stage))];
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.283); ctx.fill();
+    if (euMap.hover === n) { ctx.globalAlpha = 1; ctx.strokeStyle = fg; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(n.x, n.y, r + 4, 0, 6.283); ctx.stroke(); }
+  }
+  ctx.globalAlpha = 1; ctx.font = "500 11px " + fmono;
+  for (const h of euMap.hubs) {
+    const cc = FC.COUNTRY_CODE[h.c], side = { BE: "l", LU: "r", CH: "r", AT: "r", MC: "r", IE: "b" }[cc];
+    const x = side === "l" ? h.x - h.R - 8 : side === "r" ? h.x + h.R + 8 : h.x, y = side === "l" || side === "r" ? h.y - 2 : side === "b" ? h.y + h.R + 10 : h.y - h.R - 16;
+    ctx.textAlign = side === "l" ? "right" : side === "r" ? "left" : "center";
+    ctx.fillStyle = fg; ctx.fillText(cc, x, y); ctx.fillStyle = muted; ctx.fillText(String(h.n), x, y + 13);
+  }
+  ctx.textAlign = "left";
+  if (reduce) { euMap.running = false; return; }
+  requestAnimationFrame(drawEuMap);
+}
+function startEuMap() { if (euMap.running) return; euMap.running = true; euMap.t0 = euMap.t0 || performance.now(); requestAnimationFrame(drawEuMap); }
+function initEuMap() {
+  layoutEuMap();
+  const cv = $("#euMap");
+  const pick = (ev) => { const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top; let best = null, bd = 144; for (const n of euMap.nodes) { const d = (n.x - x) ** 2 + (n.y - y) ** 2; if (d < bd) { bd = d; best = n; } } return best; };
+  cv.addEventListener("mousemove", (ev) => { const n = pick(ev); euMap.hover = n; cv.style.cursor = n ? "pointer" : "crosshair"; if (n) { const a = frActivity(n.f); showTip(`<b>${esc(n.f.name)}</b><small>${esc(n.f.country)} · ${esc(n.f.stage || "")} · ${esc(n.f.size_label || "")}${a ? " · " + a.n12 + " deals FR / 12 mois" : ""}</small>`, ev.clientX, ev.clientY); } else hideTip(); });
+  cv.addEventListener("mouseleave", () => { euMap.hover = null; hideTip(); });
+  cv.addEventListener("click", (ev) => { const n = pick(ev); if (n) openDetail({ t: "fund", id: n.f.id, label: n.f.name }); });
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (current === "europe") layoutEuMap(); }, 150); });
+  startEuMap();
+}
+
+function fundDetail(id) {
+  const f = AF.find((x) => String(x.id) === String(id));
+  if (!f) return null;
+  const a = frActivity(f), e = a ? a.e : fundEnt(f);
+  const fr = investsFR(f);
+  const sims = FC.matchStartup(AF.filter((x) => x.id !== f.id), { stage: f.stage, sectors: f.sectors, country: f.country, min_score: 0 }).slice(0, 4);
+  const deals = e ? e.deals.slice().sort((x, y) => (y.date || "").localeCompare(x.date || "")) : [];
+  return `<div><div class="d-title">${logo(f.name)}<div><h2>${esc(f.name)}</h2><div class="d-tags"><span class="pill">${esc(f.country)}</span>${f.stage ? stagePill(f.stage) : ""}${fr ? '<span class="deploy-tag">INVESTIT EN FRANCE</span>' : '<span class="pill">Hors France</span>'}</div></div></div></div>
+    ${facts4([[esc(f.size_label || "—"), "taille affichée"], [esc(f.ticket || "—"), "ticket initial"], [a ? a.n12 : 0, "deals FR · 12 mois"], [a ? a.n24 : 0, "deals FR · 24 mois"]])}
+    ${vehicleBlock(f, !fr)}
+    ${deals.length ? sec(`Activité en France du gestionnaire (${deals.length} deals suivis)`, deals.slice(0, 6).map(lrowDeal).join("") + `<p style="margin-top:10px"><button class="btn" type="button" data-ent="${esc(e.key)}">Fiche investisseur complète : rythme, secteurs, co-investisseurs →</button></p>`) : sec("Activité en France", `<p class="muted" style="font-size:.88rem">Aucune levée française de ce gestionnaire dans Insights depuis 2024.</p>`)}
+    ${sims.length ? sec("Fonds comparables", `<div class="matchgrid">${sims.map((m) => `<button class="mcard" type="button" data-fund="${m.fund.id}">${logo(m.fund.name, "av sm")}<div style="min-width:0"><div class="nm">${esc(m.fund.name)}</div><div class="meta">${esc(m.fund.country)} · ${esc(m.fund.stage || "")} · ${esc(m.fund.size_label || "")}</div></div><div class="score" style="--v:${m.score}"><span>${m.score}</span></div></button>`).join("")}</div>`) : ""}`;
 }
 
 /* ================= CETTE SEMAINE ================= */
@@ -680,7 +853,7 @@ function wireExports() {
   const on = (id, fn) => { const b = $(id); if (b && !b._wired) { b._wired = true; b.addEventListener("click", fn); } };
   on("#lCsv", () => downloadCSV("levees", ["Date", "Startup", "Stade", "Montant (M€)", "Secteur", "Investisseurs", "Pitch"], (L.rows || []).map((d) => [dayKey(d) || d.date, d.company, d.stage_raw, d.amount_eur_m, d.sector_raw, d.investors.join(", "), d.pitch])));
   on("#eCsv", () => downloadCSV("exits", ["Date", "Cible", "Acquéreur", "Type", "Secteur", "Montant (M€)", "Description", "Contexte"], (E.rows || []).map((o) => [o.date, o.target, o.acquirer, o.type, o.sector_raw, o.amount_eur_m, o.description, o.context])));
-  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, e.ins ? e.ins.type : "Fonds VC", e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.atlas.map((f) => f.name).join(" | "), e.atlas.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
+  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, e.ins ? e.ins.type : "Fonds VC", e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.veh.map((f) => f.name).join(" | "), e.veh.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
 }
 
 /* ================= THÈME ================= */
@@ -700,6 +873,8 @@ function wireExports() {
 document.addEventListener("click", (ev) => {
   const cp = ev.target.closest("[data-comps]");
   if (cp) { const c = JSON.parse(cp.dataset.comps); closeDetail(); go("comps", { after: () => { $("#cSec").value = c.sec || ""; $("#cStage").value = c.st || ""; $("#cYear").value = ""; $("#cMine").value = c.amt; renderComps(); } }); return; }
+  const fd = ev.target.closest("[data-fund]");
+  if (fd && !fd.closest(".pal")) { ev.stopPropagation(); const f = AF.find((x) => String(x.id) === fd.dataset.fund); openDetail({ t: "fund", id: fd.dataset.fund, label: f ? f.name : "" }); return; }
   const t = ev.target.closest("[data-ent],[data-startup],[data-op],[data-buyer],[data-go]");
   if (!t) return;
   if (t.closest(".pal")) return;
@@ -713,11 +888,12 @@ document.addEventListener("click", (ev) => {
 
 /* ================= RECHERCHE ⌘K ================= */
 const IDX = [];
-ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${e.ins ? e.ins.type : "Fonds VC"} · ${e.nb} deals${e.atlas.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.atlas.map((f) => f.name).join(" ")), w: e.nb + (e.atlas.length ? 20 : 0) }));
+ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${e.ins ? e.ins.type : "Fonds VC"} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
 const seenSt = new Set();
 D.forEach((d) => { const k = norm(d.company); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: d.company, s: `${d.sector_raw || ""} · ${d.stage_raw || ""}`, r: fmtAmt(d.amount_eur_m), ref: { t: "startup", id: d.company }, k, w: (d.amount_eur_m || 0) / 10 }); });
 ST.forEach((s) => { const k = norm(s.name); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: s.name, s: s.sector_raw || "", r: fmtAmt(s.total), ref: { t: "startup", id: s.name }, k, w: 0 }); });
 BUYERS.forEach((b) => IDX.push({ g: "Acquéreurs", n: b.name, s: `${b.ops.length} opération${b.ops.length > 1 ? "s" : ""}`, r: "", ref: { t: "buyer", id: norm(b.name), label: b.name }, k: norm(b.name), w: b.ops.length }));
+AF.forEach((f) => IDX.push({ g: "Fonds européens", lg: true, n: f.name, s: `${f.country} · ${f.stage || ""} · ${f.size_label || ""}`, r: investsFR(f) ? "investit en France" : "", ref: { t: "fund", id: f.id, label: f.name }, k: norm(f.name + " " + (f.thesis || "") + " " + f.country), w: 2 }));
 PE.forEach((p, i) => IDX.push({ g: "PE Watch", n: p.target, s: p.funds.join(", "), r: fmtAmt(p.ev_eur_m), ref: { t: "pe", id: i, label: p.target }, k: norm(p.target + " " + p.funds.join(" ")), w: 1 }));
 let palSel = 0, palRes = [];
 function openPal() { $("#pal").hidden = false; $("#palQ").value = ""; renderPal(); setTimeout(() => $("#palQ").focus(), 0); if (hasGsap) gsap.fromTo(".pal-box", { y: -14, opacity: 0, scale: 0.98 }, { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }); }
@@ -755,9 +931,10 @@ $("#ct-exits").textContent = OPS.length;
 $("#ct-fonds").textContent = ENTS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
+$("#ct-europe").textContent = AF.length;
 $("#footSrc").innerHTML = `Sources : <a href="${esc(RAW.meta.url)}" target="_blank" rel="noopener">Insights French Tech</a> · données jusqu'au ${fmtDay(LATEST_DAY)}, mises à jour chaque semaine. Montants annoncés, non vérifiés.${(RAW.meta.duplicates_merged || {}).operations || (RAW.meta.duplicates_merged || {}).deals ? ` ${RAW.meta.duplicates_merged.deals + RAW.meta.duplicates_merged.operations} doublons fusionnés automatiquement.` : ""}`;
 const start = decodeURIComponent(location.hash.replace("#", ""));
-const deep = start.match(/^(ent|startup|op|buyer|pe):(.+)$/);
+const deep = start.match(/^(fund|ent|startup|op|buyer|pe):(.+)$/);
 go(VIEWS.includes(start) ? start : "ov", { silent: true });
 if (deep) setTimeout(() => openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }), 400);
 requestAnimationFrame(moveInk);
