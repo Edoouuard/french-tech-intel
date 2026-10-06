@@ -48,9 +48,24 @@ const quant = (a, q) => { a = a.slice().sort((x, y) => x - y); if (!a.length) re
 // Index investisseur (nom « cœur ») → deals
 const DBC = new Map();
 D.forEach((d) => { new Set(d.investors.map(core)).forEach((k) => { if (k) (DBC.get(k) || DBC.set(k, []).get(k)).push(d); }); });
+// Rattache un véhicule à son fonds : nom complet, sinon début du nom (« Daphni Blue III » → « Daphni »).
+const VAGUE = new Set(["angel", "angels", "climate", "impact", "deep", "tech", "blue", "green", "digital", "health", "growth", "seed", "early", "global", "venture", "ventures", "capital", "fund", "europe", "european"]);
+const KNOWN = new Set();
+INV.forEach((v) => { if (!isGeneric(v.name)) KNOWN.add(core(v.name) || norm(v.name)); });
+D.forEach((d) => d.investors.forEach((i) => { if (!isGeneric(i)) KNOWN.add(core(i) || norm(i)); }));
+INTL.forEach((f) => KNOWN.add(rawCore(f.name)));
+function vehKey(name) {
+  const c = core(name);
+  if (c && KNOWN.has(c)) return c;
+  const w = c.split(" ").filter(Boolean);
+  for (let k = w.length - 1; k >= 1; k--) { const p = w.slice(0, k).join(" "); if (p.length >= 5 && !VAGUE.has(p) && KNOWN.has(p)) return p; }
+  const nw = norm(name).split(" ");
+  for (let k = Math.min(3, nw.length - 1); k >= 2; k--) { const p = nw.slice(0, k).join(" "); if (KNOWN.has(p)) return p; }
+  return c;
+}
 // Index nom de fonds → véhicules en déploiement
 const ABC = new Map();
-AF.forEach((f) => { const k = core(f.name); if (k) (ABC.get(k) || ABC.set(k, []).get(k)).push(f); });
+AF.forEach((f) => { const k = vehKey(f.name); if (k) (ABC.get(k) || ABC.set(k, []).get(k)).push(f); });
 // Entités « fonds » : annuaire Insights + véhicules en déploiement français ou actifs en France
 const ENT = new Map();
 const mkEnt = (key, name, ins) => {
@@ -85,7 +100,7 @@ const isAngelNetwork = (e) => !!(e.ins && /business angel/i.test(e.ins.type));
 const isAngel = (e) => isPerson(e) || isAngelNetwork(e);
 const entType = (e) => (e.intl ? e.intl.type : isPerson(e) ? "Business angel" : isAngelNetwork(e) ? "Club d'investisseurs" : e.ins ? e.ins.type : e.veh.length || e.foreign.length ? "Fonds VC" : "Investisseur");
 INV.forEach((v) => { if (isGeneric(v.name)) return; const k = core(v.name) || norm(v.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, v.name, v)); });
-AF.forEach((f) => { const k = core(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
+AF.forEach((f) => { const k = vehKey(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
 INTL.forEach((f) => { const k = rawCore(f.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, f.name, null)); else { const e = ENT.get(k); e.intl = f; e.name = f.name; } });
 // Tout investisseur cité sur une levée a sa page : on prend sa graphie la plus fréquente.
 {
@@ -541,7 +556,6 @@ function intlBlock(p) {
   return `<div class="vehicle" style="border-color:color-mix(in srgb,var(--signal) 40%,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--signal) 7%,var(--bg-2)),var(--bg-2) 60%)">
     <div class="vh"><div><span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">PROFIL INTERNATIONAL</span><h3 style="margin-top:8px">${esc(p.name)}</h3><p class="muted" style="font-size:.84rem">${esc(p.hq)} · ${esc(p.country)} · fondé en ${p.founded}</p></div>${p.aum ? `<div style="text-align:right"><div style="font-family:var(--f-display);font-size:1.7rem;font-weight:500;letter-spacing:-.04em">${esc(p.aum)}</div><div class="mono muted">actifs sous gestion (public)</div></div>` : ""}</div>
     <dl class="kv"><dt>Type</dt><dd>${esc(p.type)}</dd><dt>Stades</dt><dd>${esc(p.stages)}</dd><dt>Focus</dt><dd>${esc(p.focus)}</dd>${p.notable ? `<dt>Portefeuille</dt><dd>${esc(p.notable)}</dd>` : ""}<dt>Site</dt><dd class="mono">${esc(p.domain)}</dd></dl>
-    <p class="mono muted">Profil éditorial à partir d'informations publiques ; chiffres indicatifs.</p>
   </div>`;
 }
 function vehicleBlock(f, foreign = false) {
@@ -580,7 +594,7 @@ function entDetail(key) {
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
-    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length || !e.ins ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce fonds.</p>`)}
+    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : ""}
     ${!e.ins && !e.intl && !e.veh.length && !e.foreign.length ? `<p class="muted" style="font-size:.86rem">Fiche construite à partir des levées suivies par Insights${entType(e) === "Business angel" ? " (investisseur individuel)" : ""}.</p>` : ""}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
@@ -704,7 +718,7 @@ const EU_ORDER = ["France", "Allemagne", "Pays-Bas", "Belgique", "Suisse", "Autr
 const EU_STAGES = FC.STAGES;
 const euStageColor = (s) => `var(--s${Math.max(0, EU_STAGES.indexOf(s))})`;
 // Activité française d'un fonds dans Insights.
-const fundEnt = (f) => ENT.get(core(f.name)) || null;
+const fundEnt = (f) => ENT.get(vehKey(f.name)) || null;
 const frActivity = (f) => { const e = fundEnt(f); if (!e || !e.deals.length) return null; const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return { n12: e.n12, n24: e.n24, last: `${last.company}, ${fmtMonth(last.date)}`, e }; };
 const investsFR = (f) => f.country === "France" || ((frActivity(f) || {}).n24 || 0) > 0;
 const EU = { shown: 24, rows: AF };
