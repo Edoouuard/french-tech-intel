@@ -188,11 +188,29 @@ function go(view, opts = {}) {
 $$(".tab").forEach((t) => t.addEventListener("click", () => go(t.dataset.view)));
 addEventListener("resize", moveInk);
 
+/* ================= MISE À JOUR DU LUNDI ================= */
+// Le site est mis à jour chaque lundi à 8 h (heure de Paris) : on affiche le dernier lundi 8 h écoulé.
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const MOIS_LONG = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+const LAST_UPDATE = (() => {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", weekday: "short", hour12: false }).formatToParts(new Date()).map((p) => [p.type, p.value]));
+  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.weekday);
+  let back = (wd + 6) % 7; // jours écoulés depuis lundi
+  if (back === 0 && +parts.hour < 8) back = 7;
+  const d = new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day - back));
+  return { date: d, next: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 7)) };
+})();
+const fmtLong = (d) => `${JOURS[d.getUTCDay()]} ${d.getUTCDate()} ${MOIS_LONG[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+const fmtShort = (d) => `${d.getUTCDate()} ${MOIS[d.getUTCMonth()]}`;
+
 /* ================= VUE D'ENSEMBLE ================= */
 BUILDERS.ov = () => {
   const m = RAW.meta;
   const tot = D.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
-  $("#ovLede").innerHTML = `${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs suivis depuis janvier 2024. Mise à jour chaque semaine : ${D.filter(isNew).length} nouvelles levées entre le ${fmtDay(WEEK_START)} et le ${fmtDay(LATEST_DAY)}. ${DEPLOYING.length} fonds sont en cours de déploiement.`;
+  const fresh = D.filter(isNew).sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
+  const freshAmt = fresh.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
+  const tops = fresh.slice(0, 2).map((d) => `<button class="ent" type="button" data-startup="${esc(d.company)}">${esc(d.company)}</button> (${fmtAmt(d.amount_eur_m)})`).join(" et ");
+  $("#ovLede").innerHTML = `Depuis janvier 2024, ${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs passés au crible. Mis à jour le ${fmtLong(LAST_UPDATE.date)} à 8 h : ${fresh.length} nouvelles levées pour ${fmtAmt(freshAmt)}${tops ? `, dont ${tops}` : ""}.`;
   $("#ctaUrl").textContent = "insights-french-tech.com/mcp";
   $("#topUrl").textContent = "insights-french-tech.com/mcp";
   $("#topCopy").addEventListener("click", () => copyText("https://www.insights-french-tech.com/mcp", $("#topUrl")));
@@ -690,7 +708,7 @@ BUILDERS.mcp = () => {
   $("#toolGrid").innerHTML = MCP_TOOLS.map(([n, d, ex]) => `<div class="toolc"><code>${n}</code><p>${d}</p>${ex ? `<p class="ex">« ${esc(ex)} »</p>` : ""}</div>`).join("");
   $("#qchips").innerHTML = MCP_TOOLS.filter((x) => x[2]).map((x) => `<button class="qchip" type="button">${esc(x[2])}</button>`).join("");
   $$("#qchips .qchip").forEach((b) => b.addEventListener("click", () => copyText(b.textContent, b)));
-  $("#mcpFresh").textContent = `La base est mise à jour chaque semaine. Données actuelles : jusqu'au ${fmtDay(LATEST_DAY)}, ${nf.format(D.length)} levées, ${OPS.length} exits, ${ENTS.length} investisseurs.`;
+  $("#mcpFresh").textContent = `La base est mise à jour chaque lundi à 8 h (dernière mise à jour : ${fmtLong(LAST_UPDATE.date)}). Données actuelles : ${nf.format(D.length)} levées, ${OPS.length} exits, ${ENTS.length} investisseurs.`;
   buildChat(true);
   $("#replay").addEventListener("click", () => buildChat(true));
 };
@@ -884,7 +902,7 @@ function fundDetail(id) {
 function buildWeek() {
   const wk = D.filter(isNew).sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
   const amt = wk.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
-  $("#weekRange").textContent = `du ${fmtDay(WEEK_START)} au ${fmtDay(LATEST_DAY)}`;
+  $("#weekRange").textContent = `ajoutées le ${fmtLong(LAST_UPDATE.date)} · deals du ${fmtDay(WEEK_START)} au ${fmtDay(LATEST_DAY)}`;
   if (!wk.length) { $("#weekPanel").hidden = true; return; }
   $("#weekDeals").innerHTML = wk.slice(0, 8).map(lrowDeal).join("") + (wk.length > 8 ? `<p style="margin-top:10px"><button class="linkbtn" type="button" id="weekAll">Voir les ${wk.length} levées de la semaine →</button></p>` : "");
   $("#weekAmt").textContent = fmtAmt(amt);
@@ -968,7 +986,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* ================= DÉMARRAGE ================= */
-$("#liveInfo").textContent = `Mise à jour hebdo · ${fmtDay(LATEST_DAY)}`;
+$("#liveInfo").textContent = `Mis à jour lundi ${fmtShort(LAST_UPDATE.date)} · 8 h`;
+$("#liveInfo").title = `Prochaine mise à jour : ${fmtLong(LAST_UPDATE.next)} à 8 h`;
 $("#ct-levees").textContent = nf.format(D.length);
 $("#ct-exits").textContent = OPS.length;
 $("#ct-fonds").textContent = FUNDS_ENTS.length;
