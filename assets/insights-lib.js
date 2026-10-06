@@ -96,11 +96,84 @@
       last_round: ym(s.last_an, s.last_mo),
       rounds: (s.h || []).map((h) => ({ date: ym(h.an, h.mo), amount_eur_m: h.m ?? null, investors: splitList(h.i) })),
     }));
-    const last = deals[0] && deals[0].date;
+    const dd = dedupeDeals(deals), od = dedupeOps(ops);
+    const last = dd.kept[0] && dd.kept[0].date;
     return {
-      meta: { source: "Insights French Tech", url: SOURCE_URL, fetched_at: fetchedAt || new Date().toISOString(), latest_deal_month: last, counts: { deals: deals.length, operations: ops.length, investors: investors.length, startups: startups.length, pe: pe.length }, scope: "France uniquement" },
-      deals, operations: ops, investors, pe, startups,
+      meta: {
+        source: "Insights French Tech", url: SOURCE_URL, fetched_at: fetchedAt || new Date().toISOString(), latest_deal_month: last,
+        counts: { deals: dd.kept.length, operations: od.kept.length, investors: investors.length, startups: startups.length, pe: pe.length },
+        duplicates_merged: { deals: dd.merged, operations: od.merged }, scope: "France uniquement",
+      },
+      deals: dd.kept, operations: od.kept, investors, pe, startups,
     };
+  }
+
+  // ---- Doublons ------------------------------------------------------------------------------
+  // Les mises à jour hebdomadaires ajoutent parfois une même opération plusieurs fois (ressaisie,
+  // graphie différente, acquéreur « ND » puis nommé). On fusionne à la lecture, sans toucher aux
+  // données sources : la fiche la plus complète est gardée et complétée par les autres.
+  const filled = (o) => Object.values(o).filter((v) => v != null && v !== "" && !(Array.isArray(v) && !v.length)).length;
+  const ymNum = (ym) => (ym ? +ym.slice(0, 4) * 12 + +ym.slice(5, 7) : null);
+  const GENERIC_ACQ = /^(nd|nc|n d|n c|non communique.*|non divulgue.*|inconnu|undisclosed|acquereur.*)$/;
+  const firmKey = (s) => norm(String(s || "").replace(/\(.*?\)/g, " ")).replace(/^(groupe|group|groupement) /, "").trim();
+  function mergeInto(best, others) {
+    const out = { ...best };
+    for (const o of others) for (const [k, v] of Object.entries(o)) {
+      if (k === "id") continue;
+      if (out[k] == null || out[k] === "" || (Array.isArray(out[k]) && !out[k].length)) out[k] = v;
+      else if (k === "investors" && Array.isArray(v)) out[k] = [...new Set([...out[k], ...v])];
+    }
+    return out;
+  }
+  function groupBy(list, same) {
+    const groups = [];
+    for (const x of list) {
+      const g = groups.find((gr) => gr.some((y) => same(x, y)));
+      g ? g.push(x) : groups.push([x]);
+    }
+    return groups;
+  }
+  function dedupeOps(ops) {
+    const byTarget = new Map();
+    for (const o of ops) { const k = firmKey(o.target); (byTarget.get(k) || byTarget.set(k, []).get(k)).push(o); }
+    const kept = []; let merged = 0;
+    for (const list of byTarget.values()) {
+      const groups = groupBy(list, (a, b) => {
+        const ka = firmKey(a.acquirer), kb = firmKey(b.acquirer);
+        return ka === kb || GENERIC_ACQ.test(ka) || GENERIC_ACQ.test(kb) || ka.startsWith(kb + " ") || kb.startsWith(ka + " ");
+      });
+      for (const g of groups) {
+        if (g.length === 1) { kept.push(g[0]); continue; }
+        // Priorité : acquéreur nommé, puis fiche la plus remplie, puis la plus récente.
+        const ranked = g.slice().sort((a, b) => (GENERIC_ACQ.test(firmKey(a.acquirer)) - GENERIC_ACQ.test(firmKey(b.acquirer))) || filled(b) - filled(a) || (b.date || "").localeCompare(a.date || ""));
+        kept.push(mergeInto(ranked[0], ranked.slice(1)));
+        merged += g.length - 1;
+      }
+    }
+    return { kept: kept.sort((a, b) => (b.date || "").localeCompare(a.date || "")), merged };
+  }
+  function dedupeDeals(deals) {
+    const byCo = new Map();
+    for (const d of deals) { const k = norm(d.company).replace(/\s+/g, ""); (byCo.get(k) || byCo.set(k, []).get(k)).push(d); }
+    const kept = []; let merged = 0;
+    for (const list of byCo.values()) {
+      const groups = groupBy(list, (a, b) => {
+        if (a.amount_eur_m == null || b.amount_eur_m == null) return false;
+        const sameAmt = Math.abs(a.amount_eur_m - b.amount_eur_m) <= 0.15 * Math.max(a.amount_eur_m, b.amount_eur_m);
+        const gap = Math.abs(ymNum(a.date) - ymNum(b.date));
+        const sameStage = !a.stage_raw || !b.stage_raw || a.stage_raw === b.stage_raw;
+        // Même montant (±15 %) et même stade : doublon si les dates sont proches, ou si le montant est identique.
+        return sameAmt && sameStage && (gap <= 3 || a.amount_eur_m === b.amount_eur_m);
+      });
+      for (const g of groups) {
+        if (g.length === 1) { kept.push(g[0]); continue; }
+        // La plus complète gagne ; à égalité, la première annonce (date la plus ancienne).
+        const ranked = g.slice().sort((a, b) => filled(b) - filled(a) || (a.date || "").localeCompare(b.date || ""));
+        kept.push(mergeInto(ranked[0], ranked.slice(1)));
+        merged += g.length - 1;
+      }
+    }
+    return { kept: kept.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.day || 0) - (a.day || 0)), merged };
   }
 
   // ---- Requêtes ----------------------------------------------------------------------------

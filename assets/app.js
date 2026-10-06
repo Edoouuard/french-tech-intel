@@ -20,6 +20,7 @@ const AF = VEH.funds, AP = VEH.people;
 const LATEST = RAW.meta.latest_deal_month;
 const ymAdd = (ym, n) => { const [y, m] = ym.split("-").map(Number); const d = new Date(y, m - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; };
 const SINCE12 = ymAdd(LATEST, -11);
+const SINCE24 = ymAdd(LATEST, -23);
 // Mise à jour hebdomadaire : les deals datés au jour près servent à repérer ceux de la dernière semaine.
 const dayKey = (d) => (d.date && d.day ? `${d.date}-${String(d.day).padStart(2, "0")}` : null);
 const LATEST_DAY = D.map(dayKey).filter(Boolean).sort().pop() || `${LATEST}-28`;
@@ -49,13 +50,19 @@ AF.forEach((f) => { const k = core(f.name); if (k) (ABC.get(k) || ABC.set(k, [])
 const ENT = new Map();
 const mkEnt = (key, name, ins) => {
   const deals = DBC.get(key) || [];
-  const atlas = ABC.get(key) || [];
-  return { key, name, ins, atlas, deals, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
+  const vehicles = ABC.get(key) || [];
+  const n24 = deals.filter((d) => d.date >= SINCE24).length;
+  // Un véhicule compte comme « en déploiement en France » s'il est français ou si son gestionnaire a investi
+  // en France sur 24 mois ; les autres (fonds étrangers sans deal français récent) sont présentés à part.
+  const atlas = vehicles.filter((f) => f.country === "France" || n24 > 0);
+  const foreign = vehicles.filter((f) => !atlas.includes(f));
+  return { key, name, ins, atlas, foreign, deals, n24, n12: deals.filter((d) => d.date >= SINCE12).length, nb: ins && ins.deals_tracked ? Math.max(ins.deals_tracked, deals.length) : deals.length };
 };
 INV.forEach((v) => { if (isGeneric(v.name) || /business angel/i.test(v.type)) return; const k = core(v.name) || norm(v.name); if (!ENT.has(k)) ENT.set(k, mkEnt(k, v.name, v)); });
 AF.forEach((f) => { const k = core(f.name); if (!k || ENT.has(k)) return; if (f.country === "France" || DBC.has(k)) ENT.set(k, mkEnt(k, f.name, null)); });
 const ENTS = [...ENT.values()];
 const DEPLOYING = ENTS.filter((e) => e.atlas.length);
+const FOREIGN = ENTS.flatMap((e) => e.foreign.map((f) => ({ e, f }))).sort((a, b) => (b.f.size_eur_m || 0) - (a.f.size_eur_m || 0));
 const entFor = (name) => ENT.get(core(name)) || null;
 // Acquéreurs
 const BUY = new Map();
@@ -297,8 +304,11 @@ BUILDERS.fonds = () => {
   const items = railItems();
   const vcN = ENTS.filter((e) => !e.ins || e.ins.type === "VC" || e.ins.type === "Indépendant").length;
   $("#fStrip").innerHTML = [[nf.format(ENTS.length), "investisseurs répertoriés"], [nf.format(vcN), "fonds VC indépendants"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
-  $("#dlNote").textContent = `${items.length} véhicules actifs · faites défiler`;
-  $("#rail").innerHTML = items.map(({ e, f }) => `<button class="dcard" type="button" data-ent="${esc(e.key)}"><span class="dtop">${logo(e.name)}<span class="deploy-tag">EN DÉPLOIEMENT</span></span><span class="vn">${esc(f.name)}</span><span class="mg">${esc(e.name)} · ${esc(f.country)}</span><span class="big">${esc(f.size_label)}</span><span class="meta"><span>${esc(f.stage || "")}${f.ticket ? " · ticket " + esc(f.ticket) : ""}</span></span><span class="meta"><span class="act${e.n12 ? "" : " zero"}">${e.n12 ? `${e.n12} deal${e.n12 > 1 ? "s" : ""} FR sur 12 mois` : "Aucun deal FR récent"}</span><span>${esc((f.sectors || []).slice(0, 2).join(" · "))}</span></span></button>`).join("");
+  $("#dlNote").textContent = `${items.length} véhicules qui investissent en France · faites défiler`;
+  $("#foreignCount").textContent = `${FOREIGN.length} véhicule${FOREIGN.length > 1 ? "s" : ""}`;
+  $("#foreignBox").hidden = !FOREIGN.length;
+  $("#foreignGrid").innerHTML = FOREIGN.map(({ e, f }) => { const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return `<button class="fcard" type="button" data-ent="${esc(e.key)}">${logo(e.name, "av sm")}<span style="min-width:0"><b>${esc(f.name)}</b><span class="muted">${esc(f.country)} · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}</span><span class="fl">${last ? "Dernier deal en France : " + fmtMonth(last.date) : "Aucun deal en France suivi"}</span></span></button>`; }).join("");
+  $("#rail").innerHTML = items.map(({ e, f }) => `<button class="dcard" type="button" data-ent="${esc(e.key)}"><span class="dtop">${logo(e.name)}<span class="deploy-tag">EN DÉPLOIEMENT</span></span><span class="vn">${esc(f.name)}</span><span class="mg">${esc(e.name)} · ${esc(f.country)}${f.country !== "France" ? " · investit en France" : ""}</span><span class="big">${esc(f.size_label)}</span><span class="meta"><span>${esc(f.stage || "")}${f.ticket ? " · ticket " + esc(f.ticket) : ""}</span></span><span class="meta"><span class="act${e.n12 ? "" : " zero"}">${e.n12 ? `${e.n12} deal${e.n12 > 1 ? "s" : ""} FR sur 12 mois` : "Aucun deal FR récent"}</span><span>${esc((f.sectors || []).slice(0, 2).join(" · "))}</span></span></button>`).join("");
   const rail = $("#rail");
   $("#railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: "smooth" }));
   $("#railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
@@ -488,11 +498,11 @@ function qChart(deals) {
   return `<div class="chart"><svg viewBox="0 0 ${W} ${H + 20}" role="img" aria-label="Deals par trimestre">${quarterKeys.map((k, i) => `<rect class="qbar" style="transform-origin:${(i * bw + bw / 2).toFixed(1)}px ${H}px" x="${(i * bw + 4).toFixed(1)}" y="${(H - (c[k] / mx) * (H - 14)).toFixed(1)}" width="${(bw - 8).toFixed(1)}" height="${((c[k] / mx) * (H - 14)).toFixed(1)}" rx="3" fill="var(--signal)"/><text x="${(i * bw + bw / 2).toFixed(1)}" y="${(H - (c[k] / mx) * (H - 14) - 4).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--muted)">${c[k] || ""}</text>${k.endsWith("Q1") ? `<text x="${(i * bw + 4).toFixed(1)}" y="${H + 16}" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--muted)">${k.slice(0, 4)}</text>` : ""}`).join("")}</svg></div>`;
 }
 function hbars(entries, fmt = (v) => v) { const mx = Math.max(1, ...entries.map((e) => e[1])); return entries.map(([k, v]) => `<div class="hbar" style="cursor:default"><span>${esc(k)}</span><div class="t"><i style="width:${(v / mx) * 100}%"></i></div><span class="r">${fmt(v)}</span></div>`).join(""); }
-function vehicleBlock(f) {
+function vehicleBlock(f, foreign = false) {
   const ppl = VEH_PEOPLE.get(f.id) || [];
   const roles = ppl.filter((p) => p.role).map((p) => p.role);
   return `<div class="vehicle">
-    <div class="vh"><div><span class="deploy-tag">EN DÉPLOIEMENT</span><h3 style="margin-top:8px">${esc(f.name)}</h3><p class="muted" style="font-size:.84rem">${esc(f.country)} · ${esc(f.stage || "")} ${f.consolidation !== "full" ? "· fiche partiellement consolidée" : ""}</p></div><div style="text-align:right"><div style="font-family:var(--f-display);font-size:1.9rem;font-weight:500;letter-spacing:-.04em">${esc(f.size_label)}</div><div class="mono muted">taille affichée, non vérifiée</div></div></div>
+    <div class="vh"><div><span class="deploy-tag"${foreign ? ' style="background:var(--bg-3);color:var(--muted)"' : ""}>${foreign ? "ÉTRANGER · HORS FRANCE" : "EN DÉPLOIEMENT"}</span><h3 style="margin-top:8px">${esc(f.name)}</h3><p class="muted" style="font-size:.84rem">${esc(f.country)} · ${esc(f.stage || "")} ${f.consolidation !== "full" ? "· fiche partiellement consolidée" : ""}</p></div><div style="text-align:right"><div style="font-family:var(--f-display);font-size:1.9rem;font-weight:500;letter-spacing:-.04em">${esc(f.size_label)}</div><div class="mono muted">taille affichée, non vérifiée</div></div></div>
     <dl class="kv">
       ${f.thesis ? `<dt>Thèse</dt><dd>${esc(f.thesis)}</dd>` : ""}
       ${f.ticket ? `<dt>Ticket initial</dt><dd>${esc(f.ticket)}</dd>` : ""}
@@ -519,10 +529,11 @@ function entDetail(key) {
   const co = new Map(); deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
-  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(ins.type || "Fonds VC")}</span>${e.atlas.length ? `<span class="deploy-tag">${e.atlas.length} FONDS EN DÉPLOIEMENT</span>` : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
+  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags"><span class="pill">${esc(ins.type || "Fonds VC")}</span>${e.atlas.length ? `<span class="deploy-tag">${e.atlas.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.atlas[0] && e.atlas[0].ticket ? esc(e.atlas[0].ticket) : "—", "ticket"]])}
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
-    ${e.atlas.length ? sec(`Fonds en cours de déploiement (${e.atlas.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.atlas.map(vehicleBlock).join("")}</div>`) : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
+    ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
+    ${e.atlas.length ? sec(`Fonds en cours de déploiement (${e.atlas.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.atlas.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
     ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDeal).join("")) : ""}
@@ -744,7 +755,7 @@ $("#ct-exits").textContent = OPS.length;
 $("#ct-fonds").textContent = ENTS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
-$("#footSrc").innerHTML = `Sources : <a href="${esc(RAW.meta.url)}" target="_blank" rel="noopener">Insights French Tech</a> · données jusqu'au ${fmtDay(LATEST_DAY)}, mises à jour chaque semaine. Montants annoncés, non vérifiés.`;
+$("#footSrc").innerHTML = `Sources : <a href="${esc(RAW.meta.url)}" target="_blank" rel="noopener">Insights French Tech</a> · données jusqu'au ${fmtDay(LATEST_DAY)}, mises à jour chaque semaine. Montants annoncés, non vérifiés.${(RAW.meta.duplicates_merged || {}).operations || (RAW.meta.duplicates_merged || {}).deals ? ` ${RAW.meta.duplicates_merged.deals + RAW.meta.duplicates_merged.operations} doublons fusionnés automatiquement.` : ""}`;
 const start = decodeURIComponent(location.hash.replace("#", ""));
 const deep = start.match(/^(ent|startup|op|buyer|pe):(.+)$/);
 go(VIEWS.includes(start) ? start : "ov", { silent: true });

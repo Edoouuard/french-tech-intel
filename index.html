@@ -397,6 +397,18 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .themebtn { border: 1px solid var(--line-strong); background: var(--bg-2); border-radius: 10px; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; flex: none; }
 .themebtn:hover { border-color: var(--accent); }
 .themebtn svg { width: 17px; height: 17px; }
+/* fonds étrangers mis à part */
+.foreign { border: 1px dashed var(--line-strong); border-radius: var(--r); padding: 12px 16px; margin: -6px 0 22px; background: var(--bg-2); }
+.foreign summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; align-items: center; list-style: none; font-size: .92rem; }
+.foreign summary::-webkit-details-marker { display: none; }
+.foreign summary::after { content: "+"; font-family: var(--f-mono); color: var(--muted); margin-left: 8px; }
+.foreign[open] summary::after { content: "−"; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 8px; }
+.fcard { display: flex; gap: 10px; align-items: flex-start; text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); cursor: pointer; color: inherit; font: inherit; }
+.fcard:hover { border-color: var(--line-strong); }
+.fcard b { display: block; font-size: .9rem; line-height: 1.2; overflow-wrap: anywhere; }
+.fcard .muted { display: block; font-size: .76rem; }
+.fcard .fl { display: block; font-family: var(--f-mono); font-size: .66rem; color: var(--muted); margin-top: 3px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
@@ -545,6 +557,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="rail-nav"><button type="button" id="railPrev" aria-label="Défiler à gauche">←</button><button type="button" id="railNext" aria-label="Défiler à droite">→</button></div>
       <div class="rail" id="rail"></div>
     </div>
+    <details class="foreign reveal" id="foreignBox">
+      <summary><span><b>Fonds étrangers en déploiement</b> <span class="muted">· sans levée en France sur les 24 derniers mois</span></span><span class="mono muted" id="foreignCount"></span></summary>
+      <p class="muted" style="font-size:.86rem;margin:6px 0 12px">Ces véhicules lèvent ou investissent actuellement, mais hors de France. Ils sont listés à part pour ne pas fausser la liste des fonds actifs sur le marché français.</p>
+      <div class="fgrid" id="foreignGrid"></div>
+    </details>
     <div class="panel reveal">
       <div class="filters">
         <div class="field grow"><label for="fQ">Recherche</label><input class="input" id="fQ" placeholder="Nom, focus, type…"></div>
