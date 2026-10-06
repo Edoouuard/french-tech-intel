@@ -450,6 +450,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <button class="tab" role="tab" data-view="levees">Levées <span class="ct" id="ct-levees"></span></button>
       <button class="tab" role="tab" data-view="exits">Exits &amp; M&amp;A <span class="ct" id="ct-exits"></span></button>
       <button class="tab" role="tab" data-view="fonds">Fonds VC <span class="ct" id="ct-fonds"></span></button>
+      <button class="tab" role="tab" data-view="angels">Business angels <span class="ct" id="ct-angels"></span></button>
       <button class="tab" role="tab" data-view="europe">Fonds européens <span class="ct" id="ct-europe"></span></button>
       <button class="tab" role="tab" data-view="pe">PE Watch <span class="ct" id="ct-pe"></span></button>
       <button class="tab" role="tab" data-view="comps">Comparables</button>
@@ -569,7 +570,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
   <!-- ============ FONDS ============ -->
   <section class="view" id="v-fonds" data-view="fonds" hidden>
-    <div class="view-head"><h1 class="reveal">Fonds VC et investisseurs</h1><p class="lede reveal">Chaque investisseur cité sur une levée française a sa page, avec son rythme réel de deals : fonds, corporates, business angels et grands fonds internationaux. Quand un de ses véhicules est en cours de déploiement, la fiche détaille sa thèse, son ticket, ses LPs et son équipe.</p></div>
+    <div class="view-head"><h1 class="reveal">Fonds VC et investisseurs</h1><p class="lede reveal">Les fonds et sociétés d'investissement actifs en France, avec leur rythme réel de deals : fonds VC, corporates, investisseurs publics et grands fonds internationaux. Les business angels ont leur propre onglet. Quand un de ses véhicules est en cours de déploiement, la fiche détaille sa thèse, son ticket, ses LPs et son équipe.</p></div>
     <div class="strip reveal" id="fStrip"></div>
     <div class="deploy-line reveal">
       <div class="ph"><h3>Fonds en cours de déploiement</h3><p id="dlNote"></p></div>
@@ -597,6 +598,21 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="tablebar"><span class="mono muted" id="fCount"></span><button class="btn sm" type="button" id="fCsv">Exporter en CSV</button></div>
       <div class="icards" id="fGrid"></div>
       <div class="more"><button class="btn" type="button" id="fMore">Afficher plus</button></div>
+    </div>
+  </section>
+
+  <!-- ============ BUSINESS ANGELS ============ -->
+  <section class="view" id="v-angels" data-view="angels" hidden>
+    <div class="view-head"><h1 class="reveal">Business <em>angels</em>.</h1><p class="lede reveal">Les investisseurs individuels et les réseaux d'angels présents sur au moins deux levées françaises suivies : leurs deals, leurs secteurs et avec qui ils co-investissent. Ce ne sont pas des fonds VC, ils sont donc présentés à part.</p></div>
+    <div class="strip reveal" id="baStrip"></div>
+    <div class="panel reveal">
+      <div class="filters">
+        <div class="field grow"><label for="baQ">Recherche</label><input class="input" id="baQ" placeholder="Nom, startup, secteur…"></div>
+        <div class="field"><label for="baKind">Type</label><select class="input" id="baKind"><option value="">Tous</option><option value="p">Business angels</option><option value="n">Réseaux et clubs</option></select></div>
+        <div class="field"><label for="baSort">Tri</label><select class="input" id="baSort"><option value="deals">Nombre de deals</option><option value="recent">Plus récents</option><option value="name">Nom A→Z</option></select></div>
+      </div>
+      <div class="tablebar"><span class="mono muted" id="baCount"></span></div>
+      <div class="icards" id="baGrid"></div>
     </div>
   </section>
 
