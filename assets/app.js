@@ -69,16 +69,17 @@ const ORG_WORDS = /\b(capital|ventures?|venture|invest\w*|fund|fonds|partners|gr
 const personLike = (n) => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -](?:de |du |le |la |van |von )?[A-ZÀ-Ý][a-zà-ÿ'’-]+){1,2}$/.test(String(n).trim()) && !ORG_WORDS.test(n);
 // Familles de types pour le filtre (le type précis reste affiché sur la fiche).
 const typeFamily = (t) => { const n = norm(t);
-  if (/club d investisseurs/.test(n)) return "Clubs et réseaux d'investisseurs";
+  if (/club d investisseurs/.test(n)) return "Clubs d'investisseurs";
   if (/business angel/.test(n)) return "Business angel";
   if (/cvc|corporate/.test(n)) return "Corporate (CVC)";
-  if (/souverain|public|institutionnel|asset|^banque$|regional/.test(n)) return "Public, souverain et institutionnel";
   if (/growth|hedge|private equity|^pe$|buyout/.test(n)) return "Growth et private equity";
   if (/accelerateur|studio/.test(n)) return "Accélérateur et studio";
   if (/family/.test(n)) return "Family office";
   if (/crowd/.test(n)) return "Crowdfunding";
-  if (/^investisseur$/.test(n)) return "Autre investisseur";
+  // VC, indépendant, institutionnel, public, régional, souverain, spécialisé, impact, autre : tous « Fonds VC ».
   return "Fonds VC"; };
+// Libellé affiché : la famille, sauf pour les types qui restent distincts (CVC, growth…).
+const typeLabel = (e) => { const t = entType(e), f = typeFamily(t); return f === "Fonds VC" ? "Fonds VC" : f === "Clubs d'investisseurs" ? "Club d'investisseurs" : f === "Crowdfunding" ? "Crowdfunding" : t; };
 const isPerson = (e) => !e.intl && !e.veh.length && !e.foreign.length && window.PeopleDetect.isPerson(e.name);
 const isAngelNetwork = (e) => !!(e.ins && /business angel/i.test(e.ins.type));
 const isAngel = (e) => isPerson(e) || isAngelNetwork(e);
@@ -394,7 +395,7 @@ function renderFonds() {
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
-      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(entType(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
+      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
@@ -574,7 +575,7 @@ function entDetail(key) {
   const co = new Map(); deals.forEach((d) => d.investors.forEach((i) => { if (core(i) !== e.key && !isGeneric(i)) co.set(i, (co.get(i) || 0) + 1); }));
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
-  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(entType(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
+  return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(typeLabel(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
@@ -916,7 +917,7 @@ document.addEventListener("click", (ev) => {
 
 /* ================= RECHERCHE ⌘K ================= */
 const IDX = [];
-ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${entType(e)} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
+ENTS.forEach((e) => IDX.push({ g: "Fonds et investisseurs", lg: true, n: e.name, s: `${typeLabel(e)} · ${e.nb} deals${e.veh.length ? " · en déploiement" : ""}`, r: e.n12 ? e.n12 + " / 12 mois" : "", ref: { t: "ent", id: e.key, label: e.name }, k: norm(e.name + " " + e.veh.map((f) => f.name).join(" ")), w: e.nb + (e.veh.length ? 20 : 0) }));
 const seenSt = new Set();
 D.forEach((d) => { const k = norm(d.company); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: d.company, s: `${d.sector_raw || ""} · ${d.stage_raw || ""}`, r: fmtAmt(d.amount_eur_m), ref: { t: "startup", id: d.company }, k, w: (d.amount_eur_m || 0) / 10 }); });
 ST.forEach((s) => { const k = norm(s.name); if (seenSt.has(k)) return; seenSt.add(k); IDX.push({ g: "Startups", n: s.name, s: s.sector_raw || "", r: fmtAmt(s.total), ref: { t: "startup", id: s.name }, k, w: 0 }); });
