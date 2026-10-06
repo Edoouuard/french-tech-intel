@@ -1,5 +1,10 @@
 <title>Insights French Tech</title>
-<meta name="description" content="Levées, exits, fonds VC en déploiement et PE de la French Tech.">
+<meta name="description" content="Levées, exits, fonds VC en déploiement et PE de la French Tech, mis à jour chaque semaine et interrogeables depuis Claude et ChatGPT.">
+<meta property="og:title" content="Insights French Tech">
+<meta property="og:description" content="Levées, exits, fonds VC en déploiement et PE de la French Tech, mis à jour chaque semaine. Serveur MCP pour Claude et ChatGPT.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.insights-french-tech.com/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -360,6 +365,29 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .qchip:hover { border-style: solid; border-color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: .86rem; opacity: 0; transition: opacity .25s, transform .25s; z-index: 150; pointer-events: none; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
+/* ---------- v4 : bandeau MCP, semaine, export, thème ---------- */
+.mcp-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px 20px; align-items: center; padding: 16px 18px; margin-bottom: 22px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 12%, var(--bg-2)), var(--bg-2) 55%); }
+.mcp-top .ic { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: var(--fg); color: var(--bg); position: relative; }
+.mcp-top .ic::after { content: ""; position: absolute; inset: -5px; border-radius: 16px; border: 1px solid var(--accent); animation: ring 2.6s ease-out infinite; }
+.mcp-top .ic svg { width: 22px; height: 22px; }
+.mcp-top b { font-family: var(--f-display); font-size: 1.08rem; letter-spacing: -0.01em; display: block; }
+.mcp-top p { font-size: .86rem; color: var(--muted); }
+.mcp-top .acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.mcp-top code { font-family: var(--f-mono); font-size: .76rem; color: var(--accent); padding: 7px 10px; border: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent); border-radius: 9px; white-space: nowrap; }
+@media (max-width: 760px) { .mcp-top { grid-template-columns: auto minmax(0, 1fr); } .mcp-top .acts { grid-column: 1 / -1; justify-content: flex-start; } .mcp-top code { white-space: normal; overflow-wrap: anywhere; } }
+.btn.sm { padding: 7px 12px; font-size: .82rem; }
+.week { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px 28px; }
+@media (max-width: 860px) { .week { grid-template-columns: minmax(0, 1fr); } }
+.week .big { font-family: var(--f-display); font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1; }
+.week .sub { color: var(--muted); font-size: .86rem; margin-top: 4px; }
+.week-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0 6px; }
+.week-stats div { border-top: 1px solid var(--line); padding-top: 8px; }
+.week-stats b { display: block; font-family: var(--f-mono); font-weight: 500; font-size: 1rem; }
+.week-stats span { font-size: .74rem; color: var(--muted); }
+.tablebar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.themebtn { border: 1px solid var(--line-strong); background: var(--bg-2); border-radius: 10px; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; flex: none; }
+.themebtn:hover { border-color: var(--accent); }
+.themebtn svg { width: 17px; height: 17px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
@@ -375,6 +403,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       </a>
       <span class="live" id="liveInfo">Live</span>
       <button class="searchbtn" id="openPal" type="button" aria-label="Rechercher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Startup, fonds, acquéreur…</span><kbd>⌘K</kbd></button>
+      <button class="themebtn" id="themeBtn" type="button" aria-label="Changer de thème"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
     </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Vues">
       <button class="tab" role="tab" data-view="ov">Vue d'ensemble</button>
@@ -397,8 +426,25 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <h1 class="reveal">Le capital-risque français, <em>mois par mois</em>.</h1>
       <p class="lede reveal" id="ovLede"></p>
     </div>
+    <div class="mcp-top reveal">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/><path d="m16 15 3 3-3 3"/></svg></span>
+      <div><b>Interrogez Insights depuis Claude ou ChatGPT</b><p>Branchez le serveur MCP : votre assistant cherche lui-même les levées, les fonds en déploiement et les comparables de la semaine.</p></div>
+      <div class="acts"><code id="topUrl"></code><button class="btn sm" type="button" id="topCopy">Copier l'URL</button><button class="btn btn-primary sm" type="button" data-go="mcp">Comment ça marche →</button></div>
+    </div>
     <div class="ticker reveal" aria-label="Dernières levées"><ul id="ticker"></ul></div>
     <div class="grid" id="ovKpis"></div>
+    <div class="panel reveal" style="margin-top:16px" id="weekPanel">
+      <div class="ph"><h3>Cette semaine</h3><p id="weekRange"></p></div>
+      <div class="week">
+        <div><div id="weekDeals"></div></div>
+        <div>
+          <div class="big" id="weekAmt"></div><div class="sub" id="weekSub"></div>
+          <div class="week-stats" id="weekStats"></div>
+          <div class="ph" style="margin:14px 0 6px"><h3 style="font-size:.95rem">Investisseurs de la semaine</h3></div>
+          <div class="chips" id="weekInv"></div>
+        </div>
+      </div>
+    </div>
     <div class="grid" style="margin-top:16px">
       <div class="panel chart c8 reveal">
         <div class="ph"><h3>Tendance mensuelle</h3><div class="seg" id="trendMode"><button type="button" data-m="v" aria-pressed="true">M€ levés</button><button type="button" data-m="n" aria-pressed="false">Nombre de deals</button></div></div>
@@ -456,6 +502,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <label class="toggle" for="lDep"><input type="checkbox" id="lDep"> Avec un fonds en déploiement</label>
       </div>
       <div class="chips" id="lStages" style="margin-bottom:14px"></div>
+      <div class="tablebar"><span class="mono muted" id="lCount"></span><button class="btn sm" type="button" id="lCsv">Exporter en CSV</button></div>
       <div class="table" id="lTable"></div>
       <div class="pager" id="lPager"></div>
     </div>
@@ -473,6 +520,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="field"><label for="eSort">Tri</label><select class="input" id="eSort"><option value="date">Plus récentes</option><option value="amt">Montant ↓</option></select></div>
       </div>
       <div class="chips" id="eTypes" style="margin-bottom:14px"></div>
+      <div class="tablebar"><span class="mono muted" id="eCount"></span><button class="btn sm" type="button" id="eCsv">Exporter en CSV</button></div>
       <div class="table" id="eTable"></div>
       <div class="pager" id="ePager"></div>
     </div>
@@ -496,7 +544,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="field"><label for="fSort">Tri</label><select class="input" id="fSort"><option value="n12">Activité 12 mois</option><option value="nb">Deals suivis</option><option value="name">Nom A→Z</option></select></div>
         <label class="toggle" for="fDep"><input type="checkbox" id="fDep"> En cours de déploiement</label>
       </div>
-      <p class="mono muted" id="fCount" style="margin-bottom:12px"></p>
+      <div class="tablebar"><span class="mono muted" id="fCount"></span><button class="btn sm" type="button" id="fCsv">Exporter en CSV</button></div>
       <div class="icards" id="fGrid"></div>
       <div class="more"><button class="btn" type="button" id="fMore">Afficher plus</button></div>
     </div>
@@ -609,7 +657,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Fiche">
-  <div class="d-top"><button class="iconbtn" id="dBack" type="button" aria-label="Fiche précédente" disabled>←</button><span class="crumb" id="dCrumb"></span><button class="iconbtn" id="dClose" type="button" aria-label="Fermer">×</button></div>
+  <div class="d-top"><button class="iconbtn" id="dBack" type="button" aria-label="Fiche précédente" disabled>←</button><span class="crumb" id="dCrumb"></span><button class="btn sm" id="dLink" type="button">Copier le lien</button><button class="iconbtn" id="dClose" type="button" aria-label="Fermer">×</button></div>
   <div class="d-body" id="dBody"></div>
 </aside>
 <div class="pal" id="pal" hidden role="dialog" aria-label="Recherche">

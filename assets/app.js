@@ -35,7 +35,7 @@ const isGeneric = (i) => GENERIC.test(norm(i));
 const fmtTicket = (t) => (t && /\d/.test(t) ? String(t).replace(/→/g, "–") + " M€" : "");
 const initials = (n) => String(n).replace(/\(.*?\)/g, "").split(/[\s\-&]+/).filter((w) => /[A-Za-zÀ-ÿ0-9]/.test(w)).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "·";
 const STAGE_ORDER = ["Pre-seed", "Seed", "Série A", "Série B", "Série C", "Growth", "Post-IPO", "Secondary", "NC"];
-const stageColor = (s) => css("--s" + Math.min(6, Math.max(0, STAGE_ORDER.indexOf(s))));
+const stageColor = (s) => `var(--s${Math.min(6, Math.max(0, STAGE_ORDER.indexOf(s)))})`;
 const median = (a) => { a = a.slice().sort((x, y) => x - y); const n = a.length; return n ? (n % 2 ? a[(n - 1) / 2] : (a[n / 2 - 1] + a[n / 2]) / 2) : null; };
 const quant = (a, q) => { a = a.slice().sort((x, y) => x - y); if (!a.length) return null; const p = (a.length - 1) * q, lo = Math.floor(p); return a[lo] + (a[Math.ceil(p)] - a[lo]) * (p - lo); };
 
@@ -132,6 +132,9 @@ BUILDERS.ov = () => {
   const tot = D.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
   $("#ovLede").innerHTML = `${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs suivis depuis janvier 2024. Mise à jour chaque semaine : ${D.filter(isNew).length} nouvelles levées entre le ${fmtDay(WEEK_START)} et le ${fmtDay(LATEST_DAY)}. ${DEPLOYING.length} gestionnaires ont un fonds en cours de déploiement.`;
   $("#ctaUrl").textContent = "insights-french-tech.com/mcp";
+  $("#topUrl").textContent = "insights-french-tech.com/mcp";
+  $("#topCopy").addEventListener("click", () => copyText("https://www.insights-french-tech.com/mcp", $("#topUrl")));
+  buildWeek();
   const ticker = D.slice(0, 24).map((d) => `<li data-startup="${esc(d.company)}"><b>${esc(d.company)}</b>${esc(d.stage_raw || "")}<span>${fmtAmt(d.amount_eur_m)}</span></li>`).join("");
   $("#ticker").innerHTML = ticker + ticker;
   const big = OPS.filter((o) => (o.amount_eur_m || 0) > 100).length;
@@ -165,7 +168,7 @@ BUILDERS.ov = () => {
   D.filter((d) => d.date >= SINCE12).forEach((d) => new Set(d.investors).forEach((i) => { if (!isGeneric(i)) c.set(i, (c.get(i) || 0) + 1); }));
   const lead = [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12), lmax = lead[0] ? lead[0][1] : 1;
   $("#ovLeaders").innerHTML = [lead.slice(0, 6), lead.slice(6)].map((col, ci) => `<div class="c6">${col.map(([n, k], i) => { const e = entFor(n); return `<div class="lb"${e ? ` data-ent="${esc(e.key)}" style="cursor:pointer"` : ""}><span class="rk">${String(ci * 6 + i + 1).padStart(2, "0")}</span><div class="lbn">${logo(n, "av sm")}<div style="min-width:0;flex:1"><span>${esc(n)}</span>${e && e.atlas.length ? ' <span class="deploy-tag">EN DÉPLOIEMENT</span>' : ""}<div class="bar"><i style="width:${(k / lmax) * 100}%"></i></div></div></div><span class="n">${k}</span></div>`; }).join("")}</div>`).join("");
-  if (hasGsap) gsap.from("#v-ov .lb .bar i, #v-ov .hbar .t i", { scaleX: 0, duration: 1, ease: "power3.out", stagger: 0.02, delay: 0.4 });
+  if (hasGsap) gsap.fromTo("#v-ov .lb .bar i", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "power3.out", stagger: 0.02, delay: 0.4 });
 };
 function drawTrend(mode) {
   const years = ["2024", "2025", "2026"];
@@ -176,7 +179,7 @@ function drawTrend(mode) {
   const step = mode === "v" ? (max > 3000 ? 1000 : 500) : 20, top = Math.ceil(max / step) * step;
   const W = 760, H = 270, pl = 46, pr = 12, pt = 14, pb = 28;
   const x = (m) => pl + (m / 11) * (W - pl - pr), yv = (v) => pt + (H - pt - pb) * (1 - v / top);
-  const colors = { 2024: css("--muted"), 2025: css("--signal"), 2026: css("--accent") };
+  const colors = { 2024: "var(--muted)", 2025: "var(--signal)", 2026: "var(--accent)" };
   const ticks = []; for (let v = 0; v <= top; v += step) ticks.push(v);
   let svg = ticks.map((v) => `<line x1="${pl}" x2="${W - pr}" y1="${yv(v)}" y2="${yv(v)}" stroke="var(--line)"/><text x="${pl - 8}" y="${yv(v) + 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10.5" fill="var(--muted)">${mode === "v" ? (v >= 1000 ? v / 1000 + " Md" : v) : v}</text>`).join("");
   svg += MOIS.map((mo, m) => `<text x="${x(m)}" y="${H - 8}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="var(--muted)">${mo}</text>`).join("");
@@ -208,7 +211,7 @@ function drawSectors(mode) {
   const rows = Object.entries(agg).sort((a, b) => b[1] - a[1]).slice(0, 9), mx = rows[0] ? rows[0][1] : 1;
   $("#ovSectors").innerHTML = rows.map(([k, v]) => `<div class="hbar" data-sec="${esc(k)}"><span>${esc(k)}</span><div class="t"><i style="width:${(v / mx) * 100}%"></i></div><span class="r">${fmtAmt(v)}</span></div>`).join("");
   $$("#ovSectors .hbar").forEach((el) => el.addEventListener("click", () => go("levees", { after: () => { $("#lSec").value = el.dataset.sec; L.page = 1; renderLevees(); } })));
-  if (hasGsap) gsap.from("#ovSectors .t i", { scaleX: 0, duration: 0.9, ease: "power3.out", stagger: 0.04 });
+  if (hasGsap) gsap.fromTo("#ovSectors .t i", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.out", stagger: 0.04, delay: 0.3 });
 }
 
 /* ================= LEVÉES ================= */
@@ -225,7 +228,7 @@ BUILDERS.levees = () => {
 function renderLevees() {
   const q = norm($("#lQ").value), sec = $("#lSec").value, yr = $("#lYear").value, mn = $("#lMin").value, dep = $("#lDep").checked;
   const [lo, hi] = mn ? mn.split("-").map(Number) : [null, null];
-  let r = D.filter((d) => (!sec || d.sector_raw === sec) && (!L.stage || d.stage_raw === L.stage) && (L.month ? d.date === L.month : inPeriod(d.date, yr)) &&
+  let r = D.filter((d) => (!L.week || isNew(d)) && (!sec || d.sector_raw === sec) && (!L.stage || d.stage_raw === L.stage) && (L.month ? d.date === L.month : inPeriod(d.date, yr)) &&
     (!mn || (d.amount_eur_m != null && d.amount_eur_m >= lo && d.amount_eur_m < hi)) &&
     (!dep || d.investors.some((i) => (entFor(i) || {}).atlas?.length)) &&
     (!q || norm([d.company, d.pitch, d.sector_raw, d.investors.join(" ")].join(" ")).includes(q)));
@@ -233,14 +236,19 @@ function renderLevees() {
   if (so === "amt") r = r.slice().sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
   if (so === "amta") r = r.slice().sort((a, b) => (a.amount_eur_m ?? 1e9) - (b.amount_eur_m ?? 1e9));
   const amts = r.map((d) => d.amount_eur_m).filter((v) => v != null);
+  L.rows = r;
+  $("#lCount").textContent = `${nf.format(r.length)} levées`;
   $("#lStrip").innerHTML = [[nf.format(r.length), L.month ? "deals en " + fmtMonth(L.month) : "deals"], [fmtAmt(amts.reduce((a, b) => a + b, 0)), "montant annoncé"], [fmtAmt(median(amts)), "ticket médian"], [fmtAmt(amts.length ? amts.reduce((a, b) => a + b, 0) / amts.length : null), "ticket moyen"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
   const page = r.slice((L.page - 1) * L.per, L.page * L.per);
   $("#lTable").innerHTML = `<div class="tr head t-deals"><span>Date</span><span>Startup</span><span>Stade</span><span class="r">Montant</span><span>Secteur</span><span>Investisseurs</span></div>` +
     (page.map((d) => `<div class="tr row t-deals" data-startup="${esc(d.company)}"><span class="dt">${fmtMonth(d.date)}</span><span class="nm">${esc(d.company)}${isNew(d) ? '<span class="new-tag">CETTE SEMAINE</span>' : ""}<small>${esc(d.pitch || "")}</small></span><span>${stagePill(d.stage_raw)}</span><span class="r amt">${fmtAmt(d.amount_eur_m)}</span><span class="muted" style="font-size:.84rem">${esc(d.sector_raw || "")}</span><span class="inv">${invLinks(d.investors) || "—"}</span></div>`).join("") || `<div class="empty">Aucune levée pour ces filtres.${L.month ? ` <button class="linkbtn" type="button" id="clrMonth">Retirer le filtre ${fmtMonth(L.month)}</button>` : ""}</div>`);
   if (L.month && r.length) $("#lTable").insertAdjacentHTML("afterbegin", `<p class="mono" style="padding:8px 0">Filtre mois : ${fmtMonth(L.month)} · <button class="linkbtn" type="button" id="clrMonth">retirer</button></p>`);
+  if (L.week) $("#lTable").insertAdjacentHTML("afterbegin", `<p class="mono" style="padding:8px 0">Filtre : levées de la semaine (${fmtDay(WEEK_START)} – ${fmtDay(LATEST_DAY)}) · <button class="linkbtn" type="button" id="clrWeek">retirer</button></p>`);
+  const cw = $("#clrWeek"); if (cw) cw.addEventListener("click", () => { L.week = false; renderLevees(); });
+  wireExports();
   const cm = $("#clrMonth"); if (cm) cm.addEventListener("click", () => { L.month = ""; renderLevees(); });
   pager($("#lPager"), r.length, L.page, L.per, (p) => { L.page = p; renderLevees(); $("#lTable").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); });
-  if (hasGsap) gsap.from("#lTable .tr.row", { opacity: 0, x: -8, duration: 0.35, stagger: 0.012, ease: "power2.out" });
+  if (hasGsap) gsap.fromTo("#lTable .tr.row", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.012, ease: "power2.out", clearProps: "transform,opacity" });
 }
 
 /* ================= EXITS ================= */
@@ -260,13 +268,16 @@ function renderExits() {
   const q = norm($("#eQ").value), sec = $("#eSec").value, yr = $("#eYear").value;
   let r = OPS.filter((o) => (!E.type || TYPE_GROUP(o.type) === E.type) && (!sec || o.sector_raw === sec) && (!yr || (o.date || "").startsWith(yr)) && (!q || norm([o.target, o.acquirer, o.sector_raw, o.description, o.context].join(" ")).includes(q)));
   if ($("#eSort").value === "amt") r = r.slice().sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
+  E.rows = r;
+  $("#eCount").textContent = `${nf.format(r.length)} opérations`;
   const amts = r.map((o) => o.amount_eur_m).filter((v) => v != null);
   $("#eStrip").innerHTML = [[nf.format(r.length), "opérations"], [fmtAmt(amts.reduce((a, b) => a + b, 0)), "montants publiés"], [nf.format(new Set(r.map((o) => o.acquirer)).size), "acquéreurs"], [nf.format(r.filter((o) => (o.amount_eur_m || 0) > 100).length), "deals > 100 M€"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
   const page = r.slice((E.page - 1) * E.per, E.page * E.per);
   $("#eTable").innerHTML = `<div class="tr head t-ops"><span>Date</span><span>Cible → acquéreur</span><span>Type</span><span>Secteur</span><span class="r">Montant</span></div>` +
     (page.map((o) => `<div class="tr row t-ops" data-op="${esc(o.id)}"><span class="dt">${fmtMonth(o.date)}</span><span class="nm">${esc(o.target)} <span class="muted">→</span> ${esc(o.acquirer || "?")}<small>${esc(o.description || "")}</small></span><span><span class="pill">${esc(o.type)}</span></span><span class="muted" style="font-size:.84rem">${esc(o.sector_raw || "")}</span><span class="r amt">${fmtAmt(o.amount_eur_m)}</span></div>`).join("") || `<div class="empty">Aucune opération pour ces filtres.</div>`);
   pager($("#ePager"), r.length, E.page, E.per, (p) => { E.page = p; renderExits(); });
-  if (hasGsap) gsap.from("#eTable .tr.row", { opacity: 0, x: -8, duration: 0.35, stagger: 0.015, ease: "power2.out" });
+  wireExports();
+  if (hasGsap) gsap.fromTo("#eTable .tr.row", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
 
 /* ================= FONDS ================= */
@@ -294,7 +305,7 @@ BUILDERS.fonds = () => {
   ["#fQ", "#fType", "#fStage", "#fSec", "#fSort", "#fDep"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
   $("#fMore").addEventListener("click", () => { FS.shown += 48; renderFonds(); });
   renderFonds();
-  if (hasGsap) gsap.from("#rail .dcard", { x: 40, opacity: 0, duration: 0.7, ease: "expo.out", stagger: 0.04, delay: 0.2 });
+  if (hasGsap) gsap.fromTo("#rail .dcard", { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "expo.out", stagger: 0.04, delay: 0.2, clearProps: "transform,opacity" });
 };
 // Position d'un libellé de stade sur l'échelle Pre-seed (0) → Growth (5).
 function stageIdx(t) {
@@ -327,6 +338,7 @@ function renderFonds() {
   });
   const so = $("#fSort").value;
   r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
+  FS.rows = r;
   $("#fCount").textContent = `${nf.format(r.length)} investisseurs`;
   $("#fGrid").innerHTML = r.slice(0, FS.shown).map((e) => {
     const ins = e.ins || {};
@@ -341,7 +353,8 @@ function renderFonds() {
     </button>`;
   }).join("") || `<div class="empty">Aucun investisseur pour ces filtres.</div>`;
   $("#fMore").hidden = r.length <= FS.shown;
-  if (hasGsap) gsap.from("#fGrid .icard", { y: 14, opacity: 0, duration: 0.45, stagger: 0.015, ease: "power2.out" });
+  wireExports();
+  if (hasGsap) gsap.fromTo("#fGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
 
 /* ================= PE WATCH ================= */
@@ -384,7 +397,7 @@ function drawGantt() {
     g.addEventListener("mouseleave", hideTip);
     g.addEventListener("click", () => openDetail({ t: "pe", id: PE.indexOf(p) }));
   });
-  if (hasGsap) gsap.from("#pGantt rect.b", { scaleX: 0, transformOrigin: "0% 50%", duration: 0.9, ease: "power3.out", stagger: 0.02 });
+  if (hasGsap) gsap.fromTo("#pGantt rect.b", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 0.9, ease: "power3.out", stagger: 0.02 });
 }
 
 /* ================= COMPARABLES ================= */
@@ -420,7 +433,7 @@ function renderComps() {
   } else $("#cPos").textContent = a.length ? "" : "Aucun deal comparable : élargissez la période ou retirez un filtre.";
   $("#cCount").textContent = `${r.length} deals`;
   $("#cList").innerHTML = r.slice().sort((u, v) => Math.abs(Math.log((u.amount_eur_m || 0.01) / (mine || p50 || 1))) - Math.abs(Math.log((v.amount_eur_m || 0.01) / (mine || p50 || 1)))).slice(0, 12).map(lrowDeal).join("");
-  if (hasGsap) gsap.from("#cDist .cpt", { attr: { cy: base }, opacity: 0, duration: 0.6, stagger: 0.004, ease: "power2.out" });
+  if (hasGsap) $$("#cDist .cpt").forEach((c, i) => gsap.fromTo(c, { attr: { cy: base }, opacity: 0 }, { attr: { cy: +c.getAttribute("cy") }, opacity: 1, duration: 0.6, delay: i * 0.004, ease: "power2.out" }));
 }
 
 /* ================= ACQUÉREURS ================= */
@@ -454,10 +467,15 @@ function openDetail(ref, push = true) {
   $("#dBody").innerHTML = html;
   $("#dBody").scrollTop = 0;
   $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false");
-  if (hasGsap) gsap.from("#dBody > *", { y: 16, opacity: 0, duration: 0.5, stagger: 0.04, ease: "power3.out", delay: 0.08 });
-  if (hasGsap) gsap.from("#dBody .hbar .t i, #dBody .qbar", { scaleX: 0, scaleY: 0, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
+  if (hasGsap) {
+    gsap.fromTo("#dBody > *", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: "power3.out", delay: 0.08, clearProps: "transform,opacity" });
+    gsap.fromTo("#dBody .hbar .t i", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
+    gsap.fromTo("#dBody .qbar", { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
+  }
+  try { history.replaceState(null, "", "#" + ref.t + ":" + encodeURIComponent(ref.id)); } catch (e) { /* hôte sans historique */ }
 }
-function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; }
+function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; try { history.replaceState(null, "", "#" + current); } catch (e) { /* hôte sans historique */ } }
+$("#dLink").addEventListener("click", () => copyText(location.href));
 $("#dClose").addEventListener("click", closeDetail);
 $("#scrim").addEventListener("click", closeDetail);
 $("#dBack").addEventListener("click", () => { stack.pop(); const prev = stack[stack.length - 1]; if (prev) openDetail(prev, false); });
@@ -529,6 +547,7 @@ function startupDetail(name) {
     ${facts4([[fmtAmt(tot), "levés (suivis)"], [deals.length, "tours suivis"], [fmtMonth(last.date), "dernier tour"], [invs.filter((i) => !isGeneric(i)).length, "investisseurs"]])}
     ${tl.length ? sec("Historique", `<div class="timeline">${tl.map((t) => `<div class="tl${t.exit ? " exit" : ""}"><div class="h">${fmtMonth(t.date)} · ${t.h}<span>${t.v}</span></div><p>${t.p}</p></div>`).join("")}</div>`) : ""}
     ${pe.length ? sec("PE Watch", pe.map((p) => `<p>${esc(p.type)} par ${esc(p.funds.join(", "))}, entrée ${fmtMonth(p.entry)}, ${esc(p.status)}. ${esc(p.description || "")}</p>`).join("")) : ""}
+    ${last.amount_eur_m ? `<div class="chips"><button class="btn" type="button" data-comps="${esc(JSON.stringify({ sec: last.sector_raw, st: last.stage_raw, amt: last.amount_eur_m }))}">Comparer ce tour (${fmtAmt(last.amount_eur_m)}, ${esc(last.stage_raw || "")}) aux deals similaires →</button></div>` : ""}
     <p class="mono muted">Source : Insights French Tech.</p>`;
 }
 function opDetail(id) {
@@ -613,11 +632,63 @@ function buildChat(animate) {
     `<div class="toolcall">⚙ insights-french-tech · find_investors<pre class="code" style="margin:0">${esc(JSON.stringify(args, null, 2))}</pre></div>`,
     `<div class="msg bot">Sur 24 mois, ${pool.length} tours seed IA / climat / énergie ont été suivis (médiane ${fmtAmt(median(amts))}). Les plus actifs :<ol>${top.map(([n, k]) => { const e = entFor(n); const v = e && e.atlas[0]; return `<li><b>${esc(n)}</b> : ${k} deal${k > 1 ? "s" : ""} comparables${v ? `, fonds en déploiement ${esc(v.name)} (${esc(v.size_label)})` : ""}.</li>`; }).join("")}</ol><p class="muted" style="margin-top:8px;font-size:.84rem">Votre montant se situe dans la fourchette haute du segment. Je peux ouvrir la fiche de chacun.</p></div>`,
   ].join("");
-  if (animate && hasGsap) gsap.from("#chat > *", { y: 14, opacity: 0, duration: 0.5, ease: "power3.out", stagger: 0.7 });
+  if (animate && hasGsap) gsap.fromTo("#chat > *", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.7, clearProps: "transform,opacity" });
 }
+
+/* ================= CETTE SEMAINE ================= */
+function buildWeek() {
+  const wk = D.filter(isNew).sort((a, b) => (b.amount_eur_m || 0) - (a.amount_eur_m || 0));
+  const amt = wk.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
+  $("#weekRange").textContent = `du ${fmtDay(WEEK_START)} au ${fmtDay(LATEST_DAY)}`;
+  if (!wk.length) { $("#weekPanel").hidden = true; return; }
+  $("#weekDeals").innerHTML = wk.slice(0, 8).map(lrowDeal).join("") + (wk.length > 8 ? `<p style="margin-top:10px"><button class="linkbtn" type="button" id="weekAll">Voir les ${wk.length} levées de la semaine →</button></p>` : "");
+  $("#weekAmt").textContent = fmtAmt(amt);
+  $("#weekSub").textContent = `annoncés sur ${wk.length} levée${wk.length > 1 ? "s" : ""}`;
+  const secs = Object.entries(wk.reduce((a, d) => ((a[d.sector_raw] = (a[d.sector_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1]);
+  const biggest = wk[0];
+  $("#weekStats").innerHTML = [[biggest ? esc(biggest.company) : "—", `plus gros tour · ${fmtAmt(biggest && biggest.amount_eur_m)}`], [esc(secs[0] ? secs[0][0] : "—"), "secteur le plus actif"], [fmtAmt(median(wk.map((d) => d.amount_eur_m).filter((v) => v != null))), "ticket médian"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  const inv = new Map();
+  wk.forEach((d) => new Set(d.investors).forEach((i) => { if (!isGeneric(i)) inv.set(i, (inv.get(i) || 0) + 1); }));
+  $("#weekInv").innerHTML = [...inv.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([n, k]) => { const e = entFor(n); return e ? `<button class="chip chip-logo" type="button" data-ent="${esc(e.key)}">${logo(n, "av xs")}${esc(n)}${k > 1 ? " · " + k : ""}</button>` : `<span class="chip" style="cursor:default">${esc(n)}</span>`; }).join("") || '<span class="muted">Investisseurs non communiqués</span>';
+  const all = $("#weekAll");
+  if (all) all.addEventListener("click", () => go("levees", { after: () => { $("#lQ").value = ""; L.week = true; L.page = 1; renderLevees(); } }));
+}
+
+/* ================= EXPORT CSV ================= */
+function downloadCSV(name, header, rows) {
+  const cell = (v) => { const s = v == null ? "" : String(v); return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const csv = "﻿" + [header, ...rows].map((r) => r.map(cell).join(";")).join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = `${name}-${LATEST_DAY}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`${rows.length} lignes exportées`);
+}
+function wireExports() {
+  const on = (id, fn) => { const b = $(id); if (b && !b._wired) { b._wired = true; b.addEventListener("click", fn); } };
+  on("#lCsv", () => downloadCSV("levees", ["Date", "Startup", "Stade", "Montant (M€)", "Secteur", "Investisseurs", "Pitch"], (L.rows || []).map((d) => [dayKey(d) || d.date, d.company, d.stage_raw, d.amount_eur_m, d.sector_raw, d.investors.join(", "), d.pitch])));
+  on("#eCsv", () => downloadCSV("exits", ["Date", "Cible", "Acquéreur", "Type", "Secteur", "Montant (M€)", "Description", "Contexte"], (E.rows || []).map((o) => [o.date, o.target, o.acquirer, o.type, o.sector_raw, o.amount_eur_m, o.description, o.context])));
+  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, e.ins ? e.ins.type : "Fonds VC", e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.atlas.map((f) => f.name).join(" | "), e.atlas.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
+}
+
+/* ================= THÈME ================= */
+(function theme() {
+  let saved = null;
+  try { saved = localStorage.getItem("ift-theme"); } catch (e) { /* stockage indisponible */ }
+  if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+  $("#themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("ift-theme", next); } catch (e) { /* stockage indisponible */ }
+  });
+})();
 
 /* ================= DÉLÉGATION DES CLICS ================= */
 document.addEventListener("click", (ev) => {
+  const cp = ev.target.closest("[data-comps]");
+  if (cp) { const c = JSON.parse(cp.dataset.comps); closeDetail(); go("comps", { after: () => { $("#cSec").value = c.sec || ""; $("#cStage").value = c.st || ""; $("#cYear").value = ""; $("#cMine").value = c.amt; renderComps(); } }); return; }
   const t = ev.target.closest("[data-ent],[data-startup],[data-op],[data-buyer],[data-go]");
   if (!t) return;
   if (t.closest(".pal")) return;
@@ -638,7 +709,7 @@ ST.forEach((s) => { const k = norm(s.name); if (seenSt.has(k)) return; seenSt.ad
 BUYERS.forEach((b) => IDX.push({ g: "Acquéreurs", n: b.name, s: `${b.ops.length} opération${b.ops.length > 1 ? "s" : ""}`, r: "", ref: { t: "buyer", id: norm(b.name), label: b.name }, k: norm(b.name), w: b.ops.length }));
 PE.forEach((p, i) => IDX.push({ g: "PE Watch", n: p.target, s: p.funds.join(", "), r: fmtAmt(p.ev_eur_m), ref: { t: "pe", id: i, label: p.target }, k: norm(p.target + " " + p.funds.join(" ")), w: 1 }));
 let palSel = 0, palRes = [];
-function openPal() { $("#pal").hidden = false; $("#palQ").value = ""; renderPal(); setTimeout(() => $("#palQ").focus(), 0); if (hasGsap) gsap.from(".pal-box", { y: -14, opacity: 0, scale: 0.98, duration: 0.35, ease: "expo.out" }); }
+function openPal() { $("#pal").hidden = false; $("#palQ").value = ""; renderPal(); setTimeout(() => $("#palQ").focus(), 0); if (hasGsap) gsap.fromTo(".pal-box", { y: -14, opacity: 0, scale: 0.98 }, { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }); }
 function closePal() { $("#pal").hidden = true; }
 function renderPal() {
   const q = norm($("#palQ").value);
@@ -674,8 +745,10 @@ $("#ct-fonds").textContent = ENTS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
 $("#footSrc").innerHTML = `Sources : <a href="${esc(RAW.meta.url)}" target="_blank" rel="noopener">Insights French Tech</a> · données jusqu'au ${fmtDay(LATEST_DAY)}, mises à jour chaque semaine. Montants annoncés, non vérifiés.`;
-const start = location.hash.replace("#", "");
+const start = decodeURIComponent(location.hash.replace("#", ""));
+const deep = start.match(/^(ent|startup|op|buyer|pe):(.+)$/);
 go(VIEWS.includes(start) ? start : "ov", { silent: true });
+if (deep) setTimeout(() => openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }), 400);
 requestAnimationFrame(moveInk);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInk);
 if (hasGsap) {
