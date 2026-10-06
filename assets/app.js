@@ -765,10 +765,6 @@ BUILDERS.europe = () => {
   $("#euMore").addEventListener("click", () => { EU.shown += 36; renderEurope(); });
   $("#euReset").addEventListener("click", () => { ["#euQ", "#euCountry", "#euStage", "#euSec", "#euSize"].forEach((s) => ($(s).value = "")); $("#euSort").value = "size_desc"; $("#euFr").checked = $("#euTicket").checked = false; EU.shown = 24; renderEurope(); });
   // matching
-  $("#emStage").innerHTML = EU_STAGES.map((s) => `<option ${s === "Seed" ? "selected" : ""}>${s}</option>`).join("");
-  $("#emCountry").innerHTML = EU_ORDER.map((c) => `<option ${c === "France" ? "selected" : ""}>${c}</option>`).join("");
-  $("#euMatchForm").addEventListener("submit", (ev) => { ev.preventDefault(); runEuMatch(true); });
-  runEuMatch(false);
   renderEurope();
   initEuMap();
   if (hasGsap) gsap.fromTo("#euCountries .bar i", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.out", stagger: 0.05, delay: 0.3 });
@@ -804,15 +800,36 @@ function renderEurope() {
   $("#euHud").innerHTML = all ? `${AF.length} fonds · utilisez les filtres pour les mettre en avant` : `<b>${r.length}</b> fonds sélectionnés sur ${AF.length}`;
   if (hasGsap) gsap.fromTo("#euGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
-function runEuMatch(animate) {
-  const s = { description: $("#emPitch").value, stage: $("#emStage").value, country: $("#emCountry").value, raise_eur_m: parseFloat($("#emAmt").value) || undefined };
-  const res = FC.matchStartup(AF, s, (f) => { const a = frActivity(f); return a ? { n12: a.n12, last: a.last } : null; }).slice(0, 9);
-  $("#euMatch").innerHTML = res.map((m) => `<button class="mcard" type="button" data-fund="${m.fund.id}">${logo(m.fund.name, "av sm")}<div style="min-width:0"><div class="nm">${esc(m.fund.name)}</div><div class="meta">${esc(m.fund.country)} · ${esc(m.fund.stage || "")} · ${esc(m.fund.size_label || "")}${m.fund.ticket ? " · ticket " + esc(m.fund.ticket) : ""}</div></div><div class="score" style="--v:${m.score}"><span>${m.score}</span></div><div class="why">↳ ${esc(m.why.slice(0, 4).join(" · "))}</div></button>`).join("") || `<div class="empty">Aucun fonds compatible.</div>`;
-  if (animate && hasGsap) gsap.fromTo("#euMatch .mcard", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.05, ease: "power3.out", clearProps: "transform,opacity" });
+// Carte : fond de carte des pays (frontières Natural Earth simplifiées) et, par-dessus, un amas de
+// points par pays (taille = taille du fonds, couleur = stade).
+const EU_HUBS = { France: [46.6, 2.4], Allemagne: [51.0, 10.3], "Pays-Bas": [52.4, 5.6], Belgique: [50.6, 4.5], Suisse: [46.8, 8.2], Autriche: [47.6, 14.3], Luxembourg: [49.75, 6.1], Irlande: [53.2, -8.0], Monaco: [43.74, 7.42] };
+const GEO = (window.INSIGHTS_VEHICLES && window.INSIGHTS_VEHICLES.geo) || [];
+const GEO_FR = { France: "France", Germany: "Allemagne", Netherlands: "Pays-Bas", Belgium: "Belgique", Switzerland: "Suisse", Austria: "Autriche", Luxembourg: "Luxembourg", Ireland: "Irlande" };
+// Fond de carte dessiné une fois dans un canevas hors écran, redessiné si la taille ou le thème change.
+function euBase(pv) {
+  const key = `${euMap.w}x${euMap.h}|${pv("--bg-3")}|${pv("--signal")}|${pv("--line-strong")}`;
+  if (euMap.base && euMap.baseKey === key) return euMap.base;
+  const dpr = Math.min(2, devicePixelRatio || 1), c = document.createElement("canvas");
+  c.width = euMap.w * dpr; c.height = euMap.h * dpr;
+  const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // graticule discret (visible sur la mer)
+  g.strokeStyle = pv("--line"); g.lineWidth = 1; g.beginPath();
+  for (let lon = -12; lon <= 24; lon += 2) { const [x1, y1] = euProject(58, lon), [x2, y2] = euProject(40, lon); g.moveTo(x1, y1); g.lineTo(x2, y2); }
+  for (let lat = 40; lat <= 58; lat += 2) { const [x1, y1] = euProject(lat, -12), [x2, y2] = euProject(lat, 24); g.moveTo(x1, y1); g.lineTo(x2, y2); }
+  g.stroke();
+  const counts = {}; AF.forEach((f) => (counts[f.country] = (counts[f.country] || 0) + 1));
+  const maxC = Math.max(1, ...Object.values(counts));
+  const path = (rings) => { g.beginPath(); for (const ring of rings) ring.forEach(([lon, lat], i) => { const [x, y] = euProject(lat, lon); i ? g.lineTo(x, y) : g.moveTo(x, y); }); };
+  for (const ctry of GEO) {
+    path(ctry.p);
+    g.globalAlpha = 1; g.fillStyle = pv("--bg-3"); g.fill();
+    const fr = GEO_FR[ctry.n], n = fr ? counts[fr] || 0 : 0;
+    if (n) { g.globalAlpha = 0.12 + 0.28 * (n / maxC); g.fillStyle = pv("--signal"); g.fill(); }
+    g.globalAlpha = 1; g.strokeStyle = pv("--line-strong"); g.lineWidth = 0.8; g.stroke();
+  }
+  euMap.base = c; euMap.baseKey = key;
+  return c;
 }
-
-// Carte schématique : un amas de points par pays (taille = taille du fonds, couleur = stade).
-const EU_HUBS = { France: [46.6, 1.6], Allemagne: [51.4, 11.6], "Pays-Bas": [53.6, 5.6], Belgique: [50.9, 2.9], Suisse: [46.5, 8.6], Autriche: [47.4, 15.0], Luxembourg: [49.3, 6.6], Irlande: [53.4, -7.4], Monaco: [43.3, 6.9] };
 function euProject(lat, lon) {
   const lon0 = -10.5, lon1 = 18.5, lat0 = 42.2, lat1 = 55.6, k = Math.cos((49 * Math.PI) / 180);
   const spanX = (lon1 - lon0) * k, spanY = lat1 - lat0;
@@ -843,10 +860,7 @@ function drawEuMap(now) {
   const fg = pv("--fg"), muted = pv("--muted"), line = pv("--line"), acc = pv("--accent"), fmono = pv("--f-mono");
   const stageCol = EU_STAGES.map((_, i) => pv("--s" + Math.min(6, i)));
   ctx.clearRect(0, 0, euMap.w, euMap.h);
-  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath();
-  for (let lon = -10; lon <= 18; lon += 2) { const [x1, y1] = euProject(55.6, lon), [x2, y2] = euProject(42.2, lon); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
-  for (let lat = 43; lat <= 55; lat += 2) { const [x1, y1] = euProject(lat, -10.5), [x2, y2] = euProject(lat, 18.5); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
-  ctx.stroke();
+  ctx.drawImage(euBase(pv), 0, 0, euMap.w, euMap.h);
   const any = !!euMap.hot;
   for (const n of euMap.nodes) {
     const w = reduce ? 0 : 1;
