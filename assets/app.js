@@ -36,7 +36,7 @@ const rawCore = (n) => IFT.coreName(String(n || "").replace(/\(.*?\)/g, " "));
 const ALIAS = new Map();
 INTL.forEach((f) => { const k = rawCore(f.name); f.aliases.concat(f.name).forEach((a) => { const ak = rawCore(a); if (ak) ALIAS.set(ak, k); }); });
 const core = (n) => { const k = rawCore(n); return ALIAS.get(k) || k; };
-const GENERIC = /^(business angels?|angels?|fondateurs?|founders?|family offices?|nc|n c|nd|non communique.*|non divulgue.*|investisseurs? historiques?|existing investors|autres?|undisclosed|management|salaries|business angels non nommes)$/;
+const GENERIC = /^(business angels?|angels?|fondateurs?|founders?|family offices?|nc|n c|nd|non communique.*|non divulgue.*|investisseurs? historiques?|existing investors|autres?|undisclosed|management|salaries|business angels non nommes|business angels? \d+|ba)$/;
 const isGeneric = (i) => GENERIC.test(norm(i));
 const fmtTicket = (t) => (t && /\d/.test(t) ? String(t).replace(/→/g, "–") + " M€" : "");
 const initials = (n) => String(n).replace(/\(.*?\)/g, "").split(/[\s\-&]+/).filter((w) => /[A-Za-zÀ-ÿ0-9]/.test(w)).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "·";
@@ -48,7 +48,7 @@ const quant = (a, q) => { a = a.slice().sort((x, y) => x - y); if (!a.length) re
 // Index investisseur (nom « cœur ») → deals
 const DBC = new Map();
 D.forEach((d) => { new Set(d.investors.map(core)).forEach((k) => { if (k) (DBC.get(k) || DBC.set(k, []).get(k)).push(d); }); });
-// Index nom de gestionnaire → véhicules en déploiement
+// Index nom de fonds → véhicules en déploiement
 const ABC = new Map();
 AF.forEach((f) => { const k = core(f.name); if (k) (ABC.get(k) || ABC.set(k, []).get(k)).push(f); });
 // Entités « fonds » : annuaire Insights + véhicules en déploiement français ou actifs en France
@@ -57,7 +57,7 @@ const mkEnt = (key, name, ins) => {
   const deals = DBC.get(key) || [];
   const vehicles = ABC.get(key) || [];
   const n24 = deals.filter((d) => d.date >= SINCE24).length;
-  // Un véhicule compte comme « en déploiement en France » s'il est français ou si son gestionnaire a investi
+  // Un véhicule compte comme « en déploiement en France » s'il est français ou si le fonds a investi
   // en France sur 24 mois ; les autres (fonds étrangers sans deal français récent) sont présentés à part.
   const veh = vehicles.filter((f) => f.country === "France" || n24 > 0);
   const foreign = vehicles.filter((f) => !veh.includes(f));
@@ -72,7 +72,7 @@ const typeFamily = (t) => { const n = norm(t);
   if (/club d investisseurs/.test(n)) return "Clubs et réseaux d'investisseurs";
   if (/business angel/.test(n)) return "Business angel";
   if (/cvc|corporate/.test(n)) return "Corporate (CVC)";
-  if (/souverain|public|institutionnel|gestionnaire d actifs|^banque$|regional/.test(n)) return "Public, souverain et institutionnel";
+  if (/souverain|public|institutionnel|asset|^banque$|regional/.test(n)) return "Public, souverain et institutionnel";
   if (/growth|hedge|private equity|^pe$|buyout/.test(n)) return "Growth et private equity";
   if (/accelerateur|studio/.test(n)) return "Accélérateur et studio";
   if (/family/.test(n)) return "Family office";
@@ -176,7 +176,7 @@ addEventListener("resize", moveInk);
 BUILDERS.ov = () => {
   const m = RAW.meta;
   const tot = D.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
-  $("#ovLede").innerHTML = `${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs suivis depuis janvier 2024. Mise à jour chaque semaine : ${D.filter(isNew).length} nouvelles levées entre le ${fmtDay(WEEK_START)} et le ${fmtDay(LATEST_DAY)}. ${DEPLOYING.length} gestionnaires ont un fonds en cours de déploiement.`;
+  $("#ovLede").innerHTML = `${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs suivis depuis janvier 2024. Mise à jour chaque semaine : ${D.filter(isNew).length} nouvelles levées entre le ${fmtDay(WEEK_START)} et le ${fmtDay(LATEST_DAY)}. ${DEPLOYING.length} fonds sont en cours de déploiement.`;
   $("#ctaUrl").textContent = "insights-french-tech.com/mcp";
   $("#topUrl").textContent = "insights-french-tech.com/mcp";
   $("#topCopy").addEventListener("click", () => copyText("https://www.insights-french-tech.com/mcp", $("#topUrl")));
@@ -291,7 +291,6 @@ function renderLevees() {
   if (L.month && r.length) $("#lTable").insertAdjacentHTML("afterbegin", `<p class="mono" style="padding:8px 0">Filtre mois : ${fmtMonth(L.month)} · <button class="linkbtn" type="button" id="clrMonth">retirer</button></p>`);
   if (L.week) $("#lTable").insertAdjacentHTML("afterbegin", `<p class="mono" style="padding:8px 0">Filtre : levées de la semaine (${fmtDay(WEEK_START)} – ${fmtDay(LATEST_DAY)}) · <button class="linkbtn" type="button" id="clrWeek">retirer</button></p>`);
   const cw = $("#clrWeek"); if (cw) cw.addEventListener("click", () => { L.week = false; renderLevees(); });
-  wireExports();
   const cm = $("#clrMonth"); if (cm) cm.addEventListener("click", () => { L.month = ""; renderLevees(); });
   pager($("#lPager"), r.length, L.page, L.per, (p) => { L.page = p; renderLevees(); $("#lTable").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); });
   if (hasGsap) gsap.fromTo("#lTable .tr.row", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.012, ease: "power2.out", clearProps: "transform,opacity" });
@@ -322,7 +321,6 @@ function renderExits() {
   $("#eTable").innerHTML = `<div class="tr head t-ops"><span>Date</span><span>Cible → acquéreur</span><span>Type</span><span>Secteur</span><span class="r">Montant</span></div>` +
     (page.map((o) => `<div class="tr row t-ops" data-op="${esc(o.id)}"><span class="dt">${fmtMonth(o.date)}</span><span class="nm">${esc(o.target)} <span class="muted">→</span> ${esc(o.acquirer || "?")}<small>${esc(o.description || "")}</small></span><span><span class="pill">${esc(o.type)}</span></span><span class="muted" style="font-size:.84rem">${esc(o.sector_raw || "")}</span><span class="r amt">${fmtAmt(o.amount_eur_m)}</span></div>`).join("") || `<div class="empty">Aucune opération pour ces filtres.</div>`);
   pager($("#ePager"), r.length, E.page, E.per, (p) => { E.page = p; renderExits(); });
-  wireExports();
   if (hasGsap) gsap.fromTo("#eTable .tr.row", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
 
@@ -342,7 +340,7 @@ BUILDERS.fonds = () => {
   $("#fSec").innerHTML = opt(SECTORS, "Tous");
   const items = railItems();
   const vcN = FUNDS_ENTS.filter((e) => typeFamily(entType(e)) === "Fonds VC").length;
-  $("#fStrip").innerHTML = [[nf.format(FUNDS_ENTS.length), "fonds et investisseurs"], [nf.format(vcN), "fonds VC"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `gestionnaires avec un fonds en déploiement · ${items.length} véhicules`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  $("#fStrip").innerHTML = [[nf.format(FUNDS_ENTS.length), "fonds et investisseurs"], [nf.format(vcN), "fonds VC"], [nf.format(ENTS.filter((e) => e.ins && e.ins.type === "CVC").length), "fonds corporate (CVC)"], [`<span style="color:var(--accent)">${nf.format(DEPLOYING.length)}</span>`, `fonds en cours de déploiement`]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
   $("#dlNote").textContent = `${items.length} véhicules qui investissent en France · faites défiler`;
   $("#foreignCount").textContent = `${FOREIGN.length} véhicule${FOREIGN.length > 1 ? "s" : ""}`;
   $("#foreignBox").hidden = !FOREIGN.length;
@@ -404,7 +402,6 @@ function renderFonds() {
     </button>`;
   }).join("") || `<div class="empty">Aucun investisseur pour ces filtres.</div>`;
   $("#fMore").hidden = r.length <= FS.shown;
-  wireExports();
   if (hasGsap) gsap.fromTo("#fGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
 
@@ -563,7 +560,7 @@ function vehicleBlock(f, foreign = false) {
     </dl>
     ${ppl.length ? `<div><div class="eyebrow" style="margin-bottom:8px">Équipe citée (${ppl.length})</div><div class="people">${ppl.map((p) => `<span class="person"><span class="av">${esc(initials(p.name))}</span>${esc(p.name)}</span>`).join("")}</div></div>` : ""}
     ${f.caveats ? `<div class="warnbox"><b>Réserves</b>${esc(f.caveats)}</div>` : ""}
-    <p class="mono muted">Fiche consultée le ${esc(f.consulted || "")} · montants affichés par le gestionnaire</p>
+    <p class="mono muted">Fiche consultée le ${esc(f.consulted || "")} · montants affichés par le fonds</p>
   </div>`;
 }
 function entDetail(key) {
@@ -582,14 +579,14 @@ function entDetail(key) {
     ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
-    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length || !e.ins ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce gestionnaire.</p>`)}
+    ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : e.foreign.length || !e.ins ? "" : sec("Fonds en cours de déploiement", `<p class="muted" style="font-size:.88rem">Aucun véhicule en cours de déploiement n'est référencé pour ce fonds.</p>`)}
     ${!e.ins && !e.intl && !e.veh.length && !e.foreign.length ? `<p class="muted" style="font-size:.86rem">Fiche construite à partir des levées suivies par Insights${entType(e) === "Business angel" ? " (investisseur individuel)" : ""}.</p>` : ""}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
     ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDeal).join("")) : ""}
     ${coTop.length ? sec("Co-investisseurs fréquents", `<div class="chips">${coTop.map(([n, k]) => { const ce = entFor(n); return ce ? `<button class="chip chip-logo" type="button" data-ent="${esc(ce.key)}">${logo(n, "av xs")}${esc(n)} · ${k}</button>` : `<span class="chip" style="cursor:default">${esc(n)} · ${k}</span>`; }).join("")}</div>`) : ""}
     ${buyer ? sec(`Comme acquéreur (${buyer.ops.length})`, buyer.ops.map(lrowOp).join("")) : ""}
-    <p class="mono muted">Source : Insights French Tech (deals France depuis 2024). Véhicules rattachés par nom de gestionnaire.</p>`;
+    <p class="mono muted">Source : Insights French Tech (deals France depuis 2024).</p>`;
 }
 function startupDetail(name) {
   const n = norm(name);
@@ -705,7 +702,7 @@ const FC = window.FundsCore;
 const EU_ORDER = ["France", "Allemagne", "Pays-Bas", "Belgique", "Suisse", "Autriche", "Luxembourg", "Irlande", "Monaco"];
 const EU_STAGES = FC.STAGES;
 const euStageColor = (s) => `var(--s${Math.max(0, EU_STAGES.indexOf(s))})`;
-// Activité française d'un fonds = celle de son gestionnaire dans Insights.
+// Activité française d'un fonds dans Insights.
 const fundEnt = (f) => ENT.get(core(f.name)) || null;
 const frActivity = (f) => { const e = fundEnt(f); if (!e || !e.deals.length) return null; const last = e.deals.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0]; return { n12: e.n12, n24: e.n24, last: `${last.company}, ${fmtMonth(last.date)}`, e }; };
 const investsFR = (f) => f.country === "France" || ((frActivity(f) || {}).n24 || 0) > 0;
@@ -735,7 +732,6 @@ BUILDERS.europe = () => {
   ["#euQ", "#euCountry", "#euStage", "#euSec", "#euSize", "#euSort", "#euFr", "#euTicket"].forEach((s) => $(s).addEventListener(s === "#euQ" ? "input" : "change", () => { EU.shown = 24; renderEurope(); }));
   $("#euMore").addEventListener("click", () => { EU.shown += 36; renderEurope(); });
   $("#euReset").addEventListener("click", () => { ["#euQ", "#euCountry", "#euStage", "#euSec", "#euSize"].forEach((s) => ($(s).value = "")); $("#euSort").value = "size_desc"; $("#euFr").checked = $("#euTicket").checked = false; EU.shown = 24; renderEurope(); });
-  $("#euCsv").addEventListener("click", () => downloadCSV("fonds-europeens", ["Fonds", "Pays", "Stade", "Taille affichée", "Taille (M€)", "Ticket", "Secteurs", "Thèse", "Géographie", "LPs", "Deals France 12 mois", "Dernier deal France"], EU.rows.map((f) => { const a = frActivity(f); return [f.name, f.country, f.stage, f.size_label, f.size_eur_m, f.ticket, (f.sectors || []).join(", "), f.thesis, f.geo_scope, f.lps, a ? a.n12 : 0, a ? a.last : ""]; })));
   // matching
   $("#emStage").innerHTML = EU_STAGES.map((s) => `<option ${s === "Seed" ? "selected" : ""}>${s}</option>`).join("");
   $("#emCountry").innerHTML = EU_ORDER.map((c) => `<option ${c === "France" ? "selected" : ""}>${c}</option>`).join("");
@@ -865,7 +861,7 @@ function fundDetail(id) {
   return `<div><div class="d-title">${logo(f.name)}<div><h2>${esc(f.name)}</h2><div class="d-tags"><span class="pill">${esc(f.country)}</span>${f.stage ? stagePill(f.stage) : ""}${fr ? '<span class="deploy-tag">INVESTIT EN FRANCE</span>' : '<span class="pill">Hors France</span>'}</div></div></div></div>
     ${facts4([[esc(f.size_label || "—"), "taille affichée"], [esc(f.ticket || "—"), "ticket initial"], [a ? a.n12 : 0, "deals FR · 12 mois"], [a ? a.n24 : 0, "deals FR · 24 mois"]])}
     ${vehicleBlock(f, !fr)}
-    ${deals.length ? sec(`Activité en France du gestionnaire (${deals.length} deals suivis)`, deals.slice(0, 6).map(lrowDeal).join("") + `<p style="margin-top:10px"><button class="btn" type="button" data-ent="${esc(e.key)}">Fiche investisseur complète : rythme, secteurs, co-investisseurs →</button></p>`) : sec("Activité en France", `<p class="muted" style="font-size:.88rem">Aucune levée française de ce gestionnaire dans Insights depuis 2024.</p>`)}
+    ${deals.length ? sec(`Activité en France (${deals.length} deals suivis)`, deals.slice(0, 6).map(lrowDeal).join("") + `<p style="margin-top:10px"><button class="btn" type="button" data-ent="${esc(e.key)}">Fiche investisseur complète : rythme, secteurs, co-investisseurs →</button></p>`) : sec("Activité en France", `<p class="muted" style="font-size:.88rem">Aucune levée française de ce fonds dans Insights depuis 2024.</p>`)}
     ${sims.length ? sec("Fonds comparables", `<div class="matchgrid">${sims.map((m) => `<button class="mcard" type="button" data-fund="${m.fund.id}">${logo(m.fund.name, "av sm")}<div style="min-width:0"><div class="nm">${esc(m.fund.name)}</div><div class="meta">${esc(m.fund.country)} · ${esc(m.fund.stage || "")} · ${esc(m.fund.size_label || "")}</div></div><div class="score" style="--v:${m.score}"><span>${m.score}</span></div></button>`).join("")}</div>`) : ""}`;
 }
 
@@ -886,24 +882,6 @@ function buildWeek() {
   $("#weekInv").innerHTML = [...inv.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([n, k]) => { const e = entFor(n); return e ? `<button class="chip chip-logo" type="button" data-ent="${esc(e.key)}">${logo(n, "av xs")}${esc(n)}${k > 1 ? " · " + k : ""}</button>` : `<span class="chip" style="cursor:default">${esc(n)}</span>`; }).join("") || '<span class="muted">Investisseurs non communiqués</span>';
   const all = $("#weekAll");
   if (all) all.addEventListener("click", () => go("levees", { after: () => { $("#lQ").value = ""; L.week = true; L.page = 1; renderLevees(); } }));
-}
-
-/* ================= EXPORT CSV ================= */
-function downloadCSV(name, header, rows) {
-  const cell = (v) => { const s = v == null ? "" : String(v); return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const csv = "﻿" + [header, ...rows].map((r) => r.map(cell).join(";")).join("\n");
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-  const a = document.createElement("a");
-  a.href = url; a.download = `${name}-${LATEST_DAY}.csv`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  toast(`${rows.length} lignes exportées`);
-}
-function wireExports() {
-  const on = (id, fn) => { const b = $(id); if (b && !b._wired) { b._wired = true; b.addEventListener("click", fn); } };
-  on("#lCsv", () => downloadCSV("levees", ["Date", "Startup", "Stade", "Montant (M€)", "Secteur", "Investisseurs", "Pitch"], (L.rows || []).map((d) => [dayKey(d) || d.date, d.company, d.stage_raw, d.amount_eur_m, d.sector_raw, d.investors.join(", "), d.pitch])));
-  on("#eCsv", () => downloadCSV("exits", ["Date", "Cible", "Acquéreur", "Type", "Secteur", "Montant (M€)", "Description", "Contexte"], (E.rows || []).map((o) => [o.date, o.target, o.acquirer, o.type, o.sector_raw, o.amount_eur_m, o.description, o.context])));
-  on("#fCsv", () => downloadCSV("investisseurs", ["Nom", "Type", "Stades", "Ticket (M€)", "Deals suivis", "Deals 12 mois", "Fonds en déploiement", "Taille", "Focus"], (FS.rows || []).map((e) => [e.name, entType(e), e.ins ? e.ins.stages : "", e.ins ? e.ins.ticket_eur_m : "", e.nb, e.n12, e.veh.map((f) => f.name).join(" | "), e.veh.map((f) => f.size_label).join(" | "), e.ins ? e.ins.focus : ""])));
 }
 
 /* ================= THÈME ================= */
@@ -982,7 +960,6 @@ $("#ct-fonds").textContent = FUNDS_ENTS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
 $("#ct-europe").textContent = AF.length;
-$("#footSrc").innerHTML = `Sources : <a href="${esc(RAW.meta.url)}" target="_blank" rel="noopener">Insights French Tech</a> · données jusqu'au ${fmtDay(LATEST_DAY)}, mises à jour chaque semaine. Montants annoncés, non vérifiés.${(RAW.meta.duplicates_merged || {}).operations || (RAW.meta.duplicates_merged || {}).deals ? ` ${RAW.meta.duplicates_merged.deals + RAW.meta.duplicates_merged.operations} doublons fusionnés automatiquement.` : ""}`;
 const start = decodeURIComponent(location.hash.replace("#", ""));
 const deep = start.match(/^(fund|ent|startup|op|buyer|pe):(.+)$/);
 go(VIEWS.includes(start) ? start : "ov", { silent: true });

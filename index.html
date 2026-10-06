@@ -376,7 +376,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .qchip:hover { border-style: solid; border-color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: .86rem; opacity: 0; transition: opacity .25s, transform .25s; z-index: 150; pointer-events: none; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
-/* ---------- v4 : bandeau MCP, semaine, export, thème ---------- */
+/* ---------- v4 : bandeau MCP, semaine, thème ---------- */
 .mcp-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px 20px; align-items: center; padding: 16px 18px; margin-bottom: 22px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 12%, var(--bg-2)), var(--bg-2) 55%); }
 .mcp-top .ic { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: var(--fg); color: var(--bg); position: relative; }
 .mcp-top .ic::after { content: ""; position: absolute; inset: -5px; border-radius: 16px; border: 1px solid var(--accent); animation: ring 2.6s ease-out infinite; }
@@ -555,7 +555,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <label class="toggle" for="lDep"><input type="checkbox" id="lDep"> Avec un fonds en déploiement</label>
       </div>
       <div class="chips" id="lStages" style="margin-bottom:14px"></div>
-      <div class="tablebar"><span class="mono muted" id="lCount"></span><button class="btn sm" type="button" id="lCsv">Exporter en CSV</button></div>
+      <div class="tablebar"><span class="mono muted" id="lCount"></span></div>
       <div class="table" id="lTable"></div>
       <div class="pager" id="lPager"></div>
     </div>
@@ -573,7 +573,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="field"><label for="eSort">Tri</label><select class="input" id="eSort"><option value="date">Plus récentes</option><option value="amt">Montant ↓</option></select></div>
       </div>
       <div class="chips" id="eTypes" style="margin-bottom:14px"></div>
-      <div class="tablebar"><span class="mono muted" id="eCount"></span><button class="btn sm" type="button" id="eCsv">Exporter en CSV</button></div>
+      <div class="tablebar"><span class="mono muted" id="eCount"></span></div>
       <div class="table" id="eTable"></div>
       <div class="pager" id="ePager"></div>
     </div>
@@ -606,7 +606,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="field"><label for="fSort">Tri</label><select class="input" id="fSort"><option value="n12">Activité 12 mois</option><option value="nb">Deals suivis</option><option value="name">Nom A→Z</option></select></div>
         <label class="toggle" for="fDep"><input type="checkbox" id="fDep"> En cours de déploiement</label>
       </div>
-      <div class="tablebar"><span class="mono muted" id="fCount"></span><button class="btn sm" type="button" id="fCsv">Exporter en CSV</button></div>
+      <div class="tablebar"><span class="mono muted" id="fCount"></span></div>
       <div class="icards" id="fGrid"></div>
       <div class="more"><button class="btn" type="button" id="fMore">Afficher plus</button></div>
     </div>
@@ -651,7 +651,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <label class="toggle" for="euFr"><input type="checkbox" id="euFr"> Investit en France</label>
           <label class="toggle" for="euTicket"><input type="checkbox" id="euTicket"> Ticket publié</label>
         </div>
-        <div class="tablebar"><span class="mono muted" id="euCount"></span><span style="display:flex;gap:8px"><button class="linkbtn" type="button" id="euReset">Réinitialiser</button><button class="btn sm" type="button" id="euCsv">Exporter en CSV</button></span></div>
+        <div class="tablebar"><span class="mono muted" id="euCount"></span><span style="display:flex;gap:8px"><button class="linkbtn" type="button" id="euReset">Réinitialiser</button></span></div>
         <div class="icards" id="euGrid"></div>
         <div class="more"><button class="btn" type="button" id="euMore">Afficher plus</button></div>
       </div>
@@ -728,7 +728,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <div><span class="n">01</span><b>Vous demandez</b>« Qui a investi en seed climat ce trimestre ? »</div>
           <div><span class="n">02</span><b>L'assistant appelle un outil</b>Il choisit search_deals, find_investors ou comparables selon la question.</div>
           <div><span class="n">03</span><b>Le serveur interroge Insights</b>Levées, fonds, exits et PE, dans leur version de la semaine.</div>
-          <div><span class="n">04</span><b>Réponse sourcée</b>Montants, dates et investisseurs, prêts à être vérifiés ou exportés.</div>
+          <div><span class="n">04</span><b>Réponse sourcée</b>Montants, dates et investisseurs, avec la source de chaque deal.</div>
         </div>
       </div>
       <div class="panel c6 reveal cfg">
@@ -757,10 +757,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 </main>
 
 <footer>
-  <div class="wrap">
-    <span id="footSrc"></span>
-    <span class="mono">Interrogeable dans Claude et ChatGPT via le serveur MCP insights-french-tech</span>
-  </div>
+  <div class="wrap"><span>Fait par Edouard pour usage personnel</span></div>
 </footer>
 
 <div class="scrim" id="scrim"></div>
