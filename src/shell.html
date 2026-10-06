@@ -1,0 +1,630 @@
+<title>Insights French Tech</title>
+<meta name="description" content="Levées, exits, fonds VC en déploiement et PE de la French Tech.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : application à onglets — barre de commande, vues en grille 12 colonnes, fiches en panneau latéral. */
+:root {
+  --bg: #0A1D30; --bg-2: #0F2740; --bg-3: #143252;
+  --line: rgba(206, 224, 242, 0.13); --line-strong: rgba(206, 224, 242, 0.26);
+  --fg: #E7EEF5; --muted: #8FA5BB; --accent: #F3B648; --accent-ink: #1A1205;
+  --signal: #72C6E3; --warn: #E9876F; --ok: #7FC79A;
+  --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6);
+  --s0: #6EC3E6; --s1: #58B5B0; --s2: #8DB86E; --s3: #C9B04C; --s4: #EE9F45; --s5: #E9785A; --s6: #D9637A;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Hanken Grotesk", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 14px; --maxw: 1320px;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #EDF1F4; --bg-2: #FFFFFF; --bg-3: #E2E9EF;
+    --line: rgba(10, 29, 48, 0.12); --line-strong: rgba(10, 29, 48, 0.24);
+    --fg: #0A1D30; --muted: #4F6478; --accent: #B9790A; --accent-ink: #FFFFFF;
+    --signal: #1D6E93; --warn: #B4452C; --ok: #2E7D4F;
+    --shadow: 0 30px 70px -35px rgba(10, 29, 48, 0.35);
+    --s0: #2F8DB8; --s1: #2A8C86; --s2: #5E8F3E; --s3: #9C8420; --s4: #C87516; --s5: #C2512F; --s6: #B23D58;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #EDF1F4; --bg-2: #FFFFFF; --bg-3: #E2E9EF;
+  --line: rgba(10, 29, 48, 0.12); --line-strong: rgba(10, 29, 48, 0.24);
+  --fg: #0A1D30; --muted: #4F6478; --accent: #B9790A; --accent-ink: #FFFFFF;
+  --signal: #1D6E93; --warn: #B4452C; --ok: #2E7D4F;
+  --shadow: 0 30px 70px -35px rgba(10, 29, 48, 0.35);
+  --s0: #2F8DB8; --s1: #2A8C86; --s2: #5E8F3E; --s3: #9C8420; --s4: #C87516; --s5: #C2512F; --s6: #B23D58;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font: 400 15px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: clamp(16px, 3.4vw, 36px); }
+.mono { font-family: var(--f-mono); font-size: 0.78rem; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.025em; line-height: 1.05; margin: 0; text-wrap: balance; }
+h3 { font-size: 1.08rem; letter-spacing: -0.01em; }
+p { margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- barre ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; gap: 16px; height: 58px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--f-display); font-weight: 700; font-size: 1.04rem; letter-spacing: -0.02em; white-space: nowrap; }
+.brand svg { width: 28px; height: 28px; flex: none; }
+.brand small { font-family: var(--f-mono); font-weight: 400; font-size: 0.64rem; color: var(--muted); letter-spacing: .1em; }
+.live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: .7rem; color: var(--muted); white-space: nowrap; }
+.live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); animation: ping 2.2s infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); } 80%, 100% { box-shadow: 0 0 0 9px transparent; } }
+.searchbtn { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; min-width: min(320px, 40vw); padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-2); color: var(--muted); cursor: pointer; font-size: .88rem; text-align: left; }
+.searchbtn:hover { border-color: var(--accent); color: var(--fg); }
+.searchbtn kbd { margin-left: auto; font-family: var(--f-mono); font-size: .68rem; border: 1px solid var(--line-strong); border-radius: 5px; padding: 1px 6px; }
+.searchbtn svg { width: 15px; height: 15px; flex: none; }
+@media (max-width: 720px) { .searchbtn { min-width: 0; } .searchbtn span, .searchbtn kbd, .top .live { display: none; } }
+.tabs { position: relative; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { position: relative; border: 0; background: none; padding: 12px 14px 13px; color: var(--muted); font-size: .9rem; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; transition: color .2s; }
+.tab:hover { color: var(--fg); }
+.tab[aria-selected="true"] { color: var(--fg); }
+.tab .ct { font-family: var(--f-mono); font-size: .66rem; padding: 1px 6px; border-radius: 99px; background: var(--bg-3); color: var(--muted); }
+.tab-ink { position: absolute; bottom: 0; height: 2px; background: var(--accent); border-radius: 2px; transition: left .45s cubic-bezier(.2,.8,.2,1), width .45s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+
+/* ---------- vues ---------- */
+main { padding-block: 28px 80px; }
+.view-head { display: flex; justify-content: space-between; align-items: end; gap: 16px 32px; flex-wrap: wrap; margin-bottom: 24px; }
+.view-head h1 { font-size: clamp(2rem, 4.4vw, 3.6rem); font-weight: 600; letter-spacing: -0.045em; line-height: .98; max-width: 18ch; }
+.view-head h1 em { font-style: normal; color: var(--accent); }
+.view-head .lede { color: var(--muted); max-width: 52ch; font-size: 1rem; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.grid > * { min-width: 0; }
+.c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+@media (max-width: 1060px) { .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; } .c3 { grid-column: span 6; } }
+@media (max-width: 560px) { .c3 { grid-column: span 12; } }
+.panel { border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); padding: 20px; }
+.ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.ph p, .ph .muted { font-size: .84rem; color: var(--muted); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: .84rem; text-decoration: underline; text-underline-offset: 3px; }
+
+/* KPI */
+.kpi { position: relative; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .3s cubic-bezier(.2,.8,.2,1); text-align: left; width: 100%; }
+.kpi:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.kpi .k { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.kpi .v { display: block; font-family: var(--f-display); font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1.05; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.kpi .s { display: block; font-size: .84rem; color: var(--muted); margin-top: 4px; }
+.kpi .deploy { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line-strong); font-size: .84rem; color: var(--accent); }
+.kpi .deploy b { font-family: var(--f-mono); font-weight: 500; }
+.kpi .deploy i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.kpi::after { content: ""; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--signal) 18%, transparent), transparent); pointer-events: none; }
+.strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); margin-bottom: 16px; }
+.strip > div { padding: 14px 18px; border-right: 1px solid var(--line); min-width: 0; }
+.strip > div:last-child { border-right: 0; }
+.strip b { display: block; font-family: var(--f-display); font-size: 1.6rem; font-weight: 500; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.strip span { font-size: .8rem; color: var(--muted); }
+@media (max-width: 700px) { .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .strip > div:nth-child(2) { border-right: 0; } .strip > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+
+/* ticker */
+.ticker { overflow: hidden; border-block: 1px solid var(--line); margin-bottom: 22px; mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.ticker ul { display: flex; gap: 34px; width: max-content; list-style: none; margin: 0; padding: 10px 0; animation: marquee 80s linear infinite; }
+.ticker:hover ul { animation-play-state: paused; }
+.ticker li { display: flex; gap: 8px; align-items: baseline; font-size: .86rem; white-space: nowrap; color: var(--muted); cursor: pointer; }
+.ticker li b { color: var(--fg); font-weight: 600; }
+.ticker li span { font-family: var(--f-mono); color: var(--accent); font-size: .8rem; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* contrôles */
+.seg { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 99px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 99px; cursor: pointer; font-size: .8rem; color: var(--muted); transition: background .2s, color .2s; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.input { background: var(--bg); border: 1px solid var(--line-strong); border-radius: 10px; padding: 9px 12px; outline: none; transition: border-color .2s, box-shadow .2s; min-width: 0; }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+.field.grow { flex: 1 1 240px; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: .86rem; color: var(--muted); cursor: pointer; padding-bottom: 9px; }
+.toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-strong); background: transparent; border-radius: 99px; padding: 5px 11px; font-size: .8rem; cursor: pointer; color: var(--muted); transition: all .2s; }
+.chip:hover { color: var(--fg); border-color: var(--fg); }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 99px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; font-weight: 500; text-decoration: none; transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .2s, background .2s; }
+.btn:hover { transform: translateY(-2px); border-color: var(--fg); }
+.btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn-primary:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .66rem; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line-strong); white-space: nowrap; }
+.pill i { width: 7px; height: 7px; border-radius: 50%; }
+.tag { display: inline-block; font-size: .72rem; padding: 2px 8px; border-radius: 6px; background: var(--bg-3); color: var(--muted); margin: 2px 4px 2px 0; }
+.deploy-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .06em; padding: 2px 8px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); white-space: nowrap; }
+.deploy-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.new-tag { font-family: var(--f-mono); font-size: .6rem; color: var(--ok); letter-spacing: .06em; margin-left: 6px; }
+.ent { color: var(--signal); cursor: pointer; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--signal) 35%, transparent); text-underline-offset: 2px; background: none; border: 0; padding: 0; font: inherit; }
+.ent:hover { text-decoration-color: var(--signal); }
+.ent.dep { color: var(--accent); text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+
+/* tables */
+.table { border-top: 1px solid var(--line); }
+.tr { display: grid; gap: 14px; align-items: center; padding: 11px 8px; border-bottom: 1px solid var(--line); transition: background .2s, padding .25s; }
+.tr.head { color: var(--muted); font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; padding-block: 8px; }
+.tr.row { cursor: pointer; }
+.tr.row:hover { background: var(--bg-3); padding-left: 14px; }
+.tr .r { text-align: right; font-family: var(--f-mono); font-size: .84rem; white-space: nowrap; }
+.tr .dt { font-family: var(--f-mono); font-size: .74rem; color: var(--muted); white-space: nowrap; }
+.tr .nm { font-weight: 600; min-width: 0; }
+.tr .nm small { display: block; font-weight: 400; color: var(--muted); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tr .inv { font-size: .8rem; color: var(--muted); min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.amt { color: var(--accent); }
+.t-deals { grid-template-columns: 64px minmax(0, 2.2fr) 92px 82px minmax(0, 1fr) minmax(0, 2.4fr); }
+.t-ops { grid-template-columns: 64px minmax(0, 2.4fr) minmax(0, 1.2fr) minmax(0, 1fr) 90px; }
+.t-acq { grid-template-columns: minmax(0, 2fr) 60px minmax(0, 2fr) minmax(0, 1.4fr) 90px; }
+@media (max-width: 860px) {
+  .tr.head { display: none; }
+  .t-deals, .t-ops, .t-acq { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .t-deals > :nth-child(1), .t-ops > :nth-child(1) { grid-column: 1 / -1; }
+  .t-deals > .inv, .t-acq > .inv { grid-column: 1 / -1; }
+}
+.pager { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.pager button { min-width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-family: var(--f-mono); font-size: .78rem; }
+.pager button[aria-current="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.pager button:disabled { opacity: .35; cursor: default; }
+.empty { padding: 36px 0; text-align: center; color: var(--muted); }
+
+/* listes compactes */
+.lrow { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 2px; border-top: 1px solid var(--line); align-items: baseline; cursor: pointer; }
+.lrow:hover .co { color: var(--accent); }
+.lrow .dt { font-family: var(--f-mono); font-size: .72rem; color: var(--muted); }
+.lrow .co { font-weight: 600; transition: color .2s; min-width: 0; overflow-wrap: anywhere; }
+.lrow .co small { font-weight: 400; color: var(--muted); margin-left: 8px; font-size: .78rem; }
+.lrow .v { font-family: var(--f-mono); font-size: .84rem; color: var(--accent); text-align: right; white-space: nowrap; }
+.lrow .sub { grid-column: 2 / -1; font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
+.lb { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.lb .rk { font-family: var(--f-mono); font-size: .7rem; color: var(--muted); }
+.lb .bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.lb .bar i { display: block; height: 100%; background: var(--signal); transform-origin: left; }
+.lb .n { font-family: var(--f-mono); font-size: .8rem; }
+
+/* graphes */
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--f-mono); font-size: .68rem; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.stagebar { display: flex; height: 46px; border-radius: 10px; overflow: hidden; gap: 2px; }
+.stagebar > div { min-width: 3px; display: flex; align-items: flex-end; padding: 6px; font-family: var(--f-mono); font-size: .68rem; color: #08131f; font-weight: 500; cursor: pointer; }
+.srow { display: grid; grid-template-columns: 12px minmax(0, 1fr) 44px 80px; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); font-size: .88rem; cursor: pointer; }
+.srow:hover { color: var(--accent); }
+.srow i { width: 10px; height: 10px; border-radius: 3px; }
+.srow .r { text-align: right; font-family: var(--f-mono); font-size: .8rem; }
+.hbar { display: grid; grid-template-columns: minmax(80px, 140px) minmax(0, 1fr) 70px; gap: 10px; align-items: center; padding: 5px 0; font-size: .86rem; cursor: pointer; }
+.hbar:hover span:first-child { color: var(--accent); }
+.hbar .t { height: 16px; background: var(--bg-3); border-radius: 4px; overflow: hidden; }
+.hbar .t i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--signal) 50%, transparent), var(--signal)); border-radius: 4px; transform-origin: left; }
+.hbar .r { text-align: right; font-family: var(--f-mono); font-size: .78rem; color: var(--muted); }
+
+/* ligne des fonds en déploiement */
+.deploy-line { position: relative; margin-bottom: 22px; }
+.deploy-line .rail { display: flex; align-items: flex-start; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 14px; scrollbar-width: thin; }
+.dcard { flex: 0 0 min(270px, 78vw); scroll-snap-align: start; border: 1px solid var(--line); border-radius: var(--r); padding: 16px; background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 9%, var(--bg-2)), var(--bg-2) 55%); cursor: pointer; text-align: left; transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s; display: flex; flex-direction: column; gap: 8px; }
+.dcard:hover { transform: translateY(-3px); border-color: var(--accent); }
+.dcard .vn { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.02em; line-height: 1.15; }
+.dcard .mg { font-size: .78rem; color: var(--muted); }
+.dcard .big { font-family: var(--f-display); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.04em; }
+.dcard .meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); }
+.dcard .act { font-family: var(--f-mono); font-size: .72rem; color: var(--ok); }
+.dcard .act.zero { color: var(--muted); }
+.rail-nav { position: absolute; right: 0; top: -46px; display: flex; gap: 6px; }
+.rail-nav button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--bg-2); cursor: pointer; }
+
+/* cartes investisseurs */
+.icards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+.icard { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); border-radius: var(--r); padding: 16px; background: var(--bg-2); cursor: pointer; text-align: left; transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s; }
+.icard:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+.icard.dep { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.ih { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.av { width: 38px; height: 38px; flex: none; border-radius: 11px; display: grid; place-items: center; font-family: var(--f-mono); font-size: .76rem; background: var(--bg-3); color: var(--signal); border: 1px solid var(--line); overflow: hidden; }
+.av.has-logo { background: #FFFFFF; padding: 5px; border-color: var(--line-strong); }
+.av img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.av.sm { width: 26px; height: 26px; border-radius: 8px; font-size: .58rem; padding: 3px; }
+.av.xs { width: 18px; height: 18px; border-radius: 5px; font-size: .5rem; padding: 2px; }
+.av.sm:not(.has-logo), .av.xs:not(.has-logo) { padding: 0; }
+.lbn { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.chip-logo { display: inline-flex; align-items: center; gap: 6px; padding-left: 5px; }
+.dcard .dtop { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.icard .nm { font-weight: 600; font-size: 1rem; line-height: 1.2; overflow-wrap: anywhere; }
+.icard .ty { font-size: .76rem; color: var(--muted); }
+.icard .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: .78rem; }
+.icard .facts b { display: block; font-family: var(--f-mono); font-weight: 500; font-size: .86rem; }
+.icard .facts span { color: var(--muted); font-size: .7rem; }
+.icard .depline { font-size: .8rem; color: var(--accent); border-top: 1px dashed var(--line-strong); padding-top: 8px; overflow-wrap: anywhere; }
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+.spark i { flex: 1; background: var(--signal); opacity: .8; border-radius: 2px 2px 0 0; min-height: 1px; }
+.more { display: flex; justify-content: center; margin-top: 18px; }
+
+/* PE gantt */
+.gantt { overflow-x: auto; }
+.gantt svg { min-width: 760px; }
+.gantt .grow { cursor: pointer; }
+.gantt .grow:hover rect.b { filter: brightness(1.15); }
+
+/* comparables */
+.pos { font-family: var(--f-display); font-size: 1.15rem; line-height: 1.4; }
+.pos b { color: var(--accent); }
+
+/* tiroir */
+.scrim { position: fixed; inset: 0; background: rgba(4, 12, 22, 0.55); backdrop-filter: blur(3px); z-index: 80; opacity: 0; pointer-events: none; transition: opacity .3s; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(760px, 100%); background: var(--bg-2); border-left: 1px solid var(--line); z-index: 90; transform: translateX(104%); transition: transform .5s cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; box-shadow: var(--shadow); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.drawer.on { transform: none; }
+.d-top { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+.d-top .crumb { font-family: var(--f-mono); font-size: .72rem; color: var(--muted); margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.iconbtn { border: 1px solid var(--line-strong); background: transparent; border-radius: 99px; width: 34px; height: 34px; cursor: pointer; font-size: 1rem; flex: none; }
+.iconbtn:disabled { opacity: .3; cursor: default; }
+.d-body { overflow-y: auto; padding: 24px 22px 48px; display: flex; flex-direction: column; gap: 22px; }
+.d-title { display: flex; gap: 14px; align-items: center; }
+.d-title .av { width: 52px; height: 52px; border-radius: 14px; font-size: .95rem; }
+.d-title h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); letter-spacing: -0.04em; line-height: 1; }
+.d-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.facts4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px; }
+.facts4 > div { padding: 12px 14px; border-right: 1px solid var(--line); min-width: 0; }
+.facts4 > div:last-child { border-right: 0; }
+.facts4 b { display: block; font-family: var(--f-display); font-size: 1.25rem; font-weight: 500; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.facts4 span { font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 560px) { .facts4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts4 > div:nth-child(2) { border-right: 0; } .facts4 > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+.d-sec h4 { font-family: var(--f-mono); font-weight: 400; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.d-sec p { overflow-wrap: anywhere; }
+.vehicle { border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); border-radius: var(--r); padding: 18px; background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 7%, var(--bg-2)), var(--bg-2) 60%); display: flex; flex-direction: column; gap: 14px; }
+.vehicle .vh { display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap; }
+.vehicle h3 { font-size: 1.3rem; letter-spacing: -0.02em; }
+.kv { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 6px 16px; font-size: .9rem; }
+.kv dt { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .kv { grid-template-columns: minmax(0, 1fr); gap: 2px; } .kv dd { margin-bottom: 8px; } }
+.people { display: flex; flex-wrap: wrap; gap: 6px; }
+.person { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border: 1px solid var(--line); border-radius: 99px; font-size: .82rem; }
+.person .av { width: 24px; height: 24px; border-radius: 50%; font-size: .58rem; }
+.warnbox { border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); background: color-mix(in srgb, var(--warn) 8%, transparent); border-radius: 12px; padding: 10px 14px; font-size: .86rem; }
+.warnbox b { color: var(--warn); font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400; display: block; margin-bottom: 4px; }
+.timeline { position: relative; display: grid; gap: 14px; padding-left: 22px; }
+.timeline::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1px; background: var(--line-strong); }
+.tl { position: relative; }
+.tl::before { content: ""; position: absolute; left: -21px; top: 6px; width: 11px; height: 11px; border-radius: 50%; background: var(--bg-2); border: 2px solid var(--signal); }
+.tl.exit::before { border-color: var(--accent); background: var(--accent); }
+.tl .h { display: flex; justify-content: space-between; gap: 10px; font-weight: 600; }
+.tl .h span { font-family: var(--f-mono); font-size: .82rem; color: var(--accent); font-weight: 400; }
+.tl p { font-size: .82rem; color: var(--muted); }
+
+/* palette */
+.pal { position: fixed; inset: 0; z-index: 120; display: grid; place-items: start center; padding: 12vh 16px 16px; background: rgba(4, 12, 22, .55); backdrop-filter: blur(4px); }
+.pal-box { width: min(620px, 100%); background: var(--bg-2); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.pal-in { display: flex; gap: 10px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.pal-in input { flex: 1; border: 0; background: none; outline: none; font-size: 1.1rem; min-width: 0; }
+.pal-list { max-height: min(56vh, 520px); overflow-y: auto; padding: 6px; margin: 0; list-style: none; }
+.pal-list .grp { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 10px 10px 4px; }
+.pal-list .it { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+.pal-list .it[aria-selected="true"] { background: var(--bg-3); }
+.pal-list .it .av { width: 28px; height: 28px; border-radius: 8px; font-size: .6rem; }
+.pal-list .it .sub { font-size: .78rem; color: var(--muted); }
+.pal-list .it .r { margin-left: auto; font-family: var(--f-mono); font-size: .74rem; color: var(--muted); }
+.pal-foot { display: flex; gap: 14px; padding: 8px 14px; border-top: 1px solid var(--line); font-family: var(--f-mono); font-size: .68rem; color: var(--muted); }
+
+.tip { position: fixed; z-index: 140; pointer-events: none; background: var(--fg); color: var(--bg); padding: 7px 10px; border-radius: 9px; font-size: .8rem; line-height: 1.35; max-width: 260px; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; }
+.tip.on { opacity: 1; transform: none; }
+.tip small { display: block; font-family: var(--f-mono); font-size: .68rem; opacity: .75; }
+footer { border-top: 1px solid var(--line); padding-block: 26px 40px; color: var(--muted); font-size: .84rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+/* ---------- MCP ---------- */
+.mcp-cta { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 32px; align-items: center; padding: 28px clamp(20px, 3vw, 36px); border-radius: 18px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 14%, var(--bg-2)), var(--bg-2) 60%); overflow: hidden; cursor: pointer; text-align: left; width: 100%; color: inherit; font: inherit; transition: border-color .3s, transform .4s cubic-bezier(.2,.8,.2,1); }
+.mcp-cta:hover { border-color: var(--accent); transform: translateY(-3px); }
+.mcp-cta h3 { font-size: clamp(1.4rem, 2.6vw, 2.1rem); letter-spacing: -0.035em; margin: 8px 0 8px; }
+.mcp-cta p { color: var(--muted); max-width: 62ch; }
+.mcp-cta code { font-family: var(--f-mono); font-size: .8rem; color: var(--accent); }
+.mcp-cta .go { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: var(--bg); font-size: 1.6rem; position: relative; flex: none; transition: transform .4s cubic-bezier(.2,.8,.2,1), background .3s; }
+.mcp-cta .go::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 1px solid var(--accent); animation: ring 2.4s ease-out infinite; }
+@keyframes ring { from { transform: scale(.85); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
+.mcp-cta:hover .go { transform: translateX(6px); background: var(--accent); color: var(--accent-ink); }
+.mcp-cta .go span { display: inline-block; animation: nudge 1.8s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(4px); } }
+.mcp-cta .chips-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+@media (max-width: 640px) { .mcp-cta { grid-template-columns: minmax(0, 1fr); } .mcp-cta .go { width: 56px; height: 56px; } }
+.flow svg { width: 100%; height: auto; display: block; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.steps > div { border-top: 2px solid var(--line-strong); padding-top: 12px; font-size: .9rem; color: var(--muted); }
+.steps b { display: block; color: var(--fg); font-family: var(--f-display); font-size: 1.02rem; margin-bottom: 4px; }
+.steps .n { font-family: var(--f-mono); font-size: .7rem; color: var(--accent); }
+@media (max-width: 760px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.urlbox { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px 10px 10px 14px; background: var(--bg); min-width: 0; }
+.urlbox code { font-family: var(--f-mono); font-size: .9rem; color: var(--accent); overflow-wrap: anywhere; flex: 1; min-width: 0; }
+.code { font-family: var(--f-mono); font-size: .78rem; line-height: 1.6; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; position: relative; }
+.copy { font-family: var(--f-mono); font-size: .7rem; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg-2); cursor: pointer; white-space: nowrap; }
+.copy:hover { border-color: var(--accent); }
+.cfg ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: .92rem; }
+.cfg ol code { font-family: var(--f-mono); font-size: .8rem; background: var(--bg-3); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+.toolgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 10px; }
+.toolc { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); }
+.toolc code { font-family: var(--f-mono); font-size: .82rem; color: var(--signal); }
+.toolc p { font-size: .84rem; color: var(--muted); margin-top: 4px; }
+.toolc .ex { font-size: .8rem; color: var(--fg); margin-top: 8px; font-style: italic; }
+.chat { display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 86%; padding: 12px 16px; border-radius: 16px; font-size: .93rem; }
+.msg.user { align-self: flex-end; background: var(--bg-3); border-bottom-right-radius: 4px; }
+.msg.bot { align-self: flex-start; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.bot ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.toolcall { align-self: flex-start; font-family: var(--f-mono); font-size: .74rem; color: var(--signal); display: flex; flex-direction: column; gap: 6px; max-width: 100%; }
+.qchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.qchip { border: 1px dashed var(--line-strong); border-radius: 99px; padding: 7px 13px; font-size: .84rem; background: transparent; cursor: pointer; color: var(--fg); }
+.qchip:hover { border-style: solid; border-color: var(--accent); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: .86rem; opacity: 0; transition: opacity .25s, transform .25s; z-index: 150; pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <a class="brand" href="#ov" aria-label="Insights French Tech, vue d'ensemble">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="29" height="29" rx="9" stroke="currentColor" stroke-width="1.5"/><path d="M8 22V14M13 22V10M18 22v-6M23 22V8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".55"/><circle cx="23" cy="8" r="2.8" fill="var(--accent)"/></svg>
+        Insights French Tech <small>INTELLIGENCE</small>
+      </a>
+      <span class="live" id="liveInfo">Live</span>
+      <button class="searchbtn" id="openPal" type="button" aria-label="Rechercher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Startup, fonds, acquéreur…</span><kbd>⌘K</kbd></button>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Vues">
+      <button class="tab" role="tab" data-view="ov">Vue d'ensemble</button>
+      <button class="tab" role="tab" data-view="levees">Levées <span class="ct" id="ct-levees"></span></button>
+      <button class="tab" role="tab" data-view="exits">Exits &amp; M&amp;A <span class="ct" id="ct-exits"></span></button>
+      <button class="tab" role="tab" data-view="fonds">Fonds VC <span class="ct" id="ct-fonds"></span></button>
+      <button class="tab" role="tab" data-view="pe">PE Watch <span class="ct" id="ct-pe"></span></button>
+      <button class="tab" role="tab" data-view="comps">Comparables</button>
+      <button class="tab" role="tab" data-view="acq">Acquéreurs <span class="ct" id="ct-acq"></span></button>
+      <button class="tab" role="tab" data-view="mcp">MCP <span class="ct" style="background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent)">IA</span></button>
+      <span class="tab-ink" id="tabInk"></span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ============ VUE D'ENSEMBLE ============ -->
+  <section class="view" id="v-ov" data-view="ov">
+    <div class="view-head">
+      <h1 class="reveal">Le capital-risque français, <em>mois par mois</em>.</h1>
+      <p class="lede reveal" id="ovLede"></p>
+    </div>
+    <div class="ticker reveal" aria-label="Dernières levées"><ul id="ticker"></ul></div>
+    <div class="grid" id="ovKpis"></div>
+    <div class="grid" style="margin-top:16px">
+      <div class="panel chart c8 reveal">
+        <div class="ph"><h3>Tendance mensuelle</h3><div class="seg" id="trendMode"><button type="button" data-m="v" aria-pressed="true">M€ levés</button><button type="button" data-m="n" aria-pressed="false">Nombre de deals</button></div></div>
+        <div id="trend"></div>
+        <div class="legend" id="trendLegend" style="margin-top:10px"></div>
+      </div>
+      <div class="panel c4 reveal">
+        <div class="ph"><h3>Par stade</h3><p id="stageNote"></p></div>
+        <div id="ovStages"></div>
+      </div>
+      <div class="panel c6 reveal">
+        <div class="ph"><h3>Capital levé par secteur</h3><div class="seg" id="secMode"><button type="button" data-m="all" aria-pressed="false">Tous</button><button type="button" data-m="noai" aria-pressed="true">Hors IA</button></div></div>
+        <div id="ovSectors"></div>
+      </div>
+      <div class="panel c6 reveal">
+        <div class="ph"><h3>Fonds en cours de déploiement</h3><button class="linkbtn" type="button" data-go="fonds">Tous les fonds →</button></div>
+        <p class="muted" style="font-size:.84rem;margin:-6px 0 8px">Véhicules en cours d'investissement, classés par deals français sur 12 mois.</p>
+        <div id="ovDeploy"></div>
+      </div>
+      <div class="panel c7 reveal">
+        <div class="ph"><h3>Dernières levées</h3><button class="linkbtn" type="button" data-go="levees">Voir tout →</button></div>
+        <div id="ovDeals"></div>
+      </div>
+      <div class="panel c5 reveal">
+        <div class="ph"><h3>Exits &amp; M&amp;A récents</h3><button class="linkbtn" type="button" data-go="exits">Voir tout →</button></div>
+        <div id="ovOps"></div>
+      </div>
+      <div class="panel c12 reveal">
+        <div class="ph"><h3>Investisseurs les plus actifs</h3><p>12 derniers mois · hors business angels</p></div>
+        <div class="grid" id="ovLeaders" style="gap:0 32px"></div>
+      </div>
+      <button class="mcp-cta c12 reveal" type="button" data-go="mcp" aria-label="Découvrir le serveur MCP">
+        <div>
+          <span class="eyebrow" style="color:var(--accent)">Nouveau · serveur MCP</span>
+          <h3>Interrogez Insights depuis Claude ou ChatGPT.</h3>
+          <p>Branchez le serveur MCP d'Insights à votre assistant : il cherche lui-même les levées, les fonds en déploiement, les comparables et les exits, avec les données de la semaine. Demandez par exemple « quels fonds ont investi en seed IA ce trimestre ? ».</p>
+          <div class="chips-row"><code id="ctaUrl"></code></div>
+        </div>
+        <span class="go" aria-hidden="true"><span>→</span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ LEVÉES ============ -->
+  <section class="view" id="v-levees" data-view="levees" hidden>
+    <div class="view-head"><h1 class="reveal">Levées de fonds</h1><p class="lede reveal">Chaque tour suivi depuis janvier 2024. Les investisseurs sont cliquables, et ceux qui gèrent un fonds en cours de déploiement apparaissent en ambre.</p></div>
+    <div class="strip reveal" id="lStrip"></div>
+    <div class="panel reveal">
+      <div class="filters">
+        <div class="field grow"><label for="lQ">Recherche</label><input class="input" id="lQ" placeholder="Startup, investisseur, techno…"></div>
+        <div class="field"><label for="lSec">Secteur</label><select class="input" id="lSec"></select></div>
+        <div class="field"><label for="lYear">Période</label><select class="input" id="lYear"></select></div>
+        <div class="field"><label for="lMin">Montant</label><select class="input" id="lMin"><option value="">Tous</option><option value="0-1">&lt; 1 M€</option><option value="1-5">1–5 M€</option><option value="5-20">5–20 M€</option><option value="20-100">20–100 M€</option><option value="100-1e9">&gt; 100 M€</option></select></div>
+        <div class="field"><label for="lSort">Tri</label><select class="input" id="lSort"><option value="date">Plus récentes</option><option value="amt">Montant ↓</option><option value="amta">Montant ↑</option></select></div>
+        <label class="toggle" for="lDep"><input type="checkbox" id="lDep"> Avec un fonds en déploiement</label>
+      </div>
+      <div class="chips" id="lStages" style="margin-bottom:14px"></div>
+      <div class="table" id="lTable"></div>
+      <div class="pager" id="lPager"></div>
+    </div>
+  </section>
+
+  <!-- ============ EXITS ============ -->
+  <section class="view" id="v-exits" data-view="exits" hidden>
+    <div class="view-head"><h1 class="reveal">Exits &amp; M&amp;A</h1><p class="lede reveal">Acquisitions, IPO, OPA et LBO de la French Tech, avec acquéreur, montant, contexte et fiche société quand elle existe.</p></div>
+    <div class="strip reveal" id="eStrip"></div>
+    <div class="panel reveal">
+      <div class="filters">
+        <div class="field grow"><label for="eQ">Recherche</label><input class="input" id="eQ" placeholder="Cible, acquéreur, contexte…"></div>
+        <div class="field"><label for="eSec">Secteur</label><select class="input" id="eSec"></select></div>
+        <div class="field"><label for="eYear">Année</label><select class="input" id="eYear"></select></div>
+        <div class="field"><label for="eSort">Tri</label><select class="input" id="eSort"><option value="date">Plus récentes</option><option value="amt">Montant ↓</option></select></div>
+      </div>
+      <div class="chips" id="eTypes" style="margin-bottom:14px"></div>
+      <div class="table" id="eTable"></div>
+      <div class="pager" id="ePager"></div>
+    </div>
+  </section>
+
+  <!-- ============ FONDS ============ -->
+  <section class="view" id="v-fonds" data-view="fonds" hidden>
+    <div class="view-head"><h1 class="reveal">Fonds VC et investisseurs</h1><p class="lede reveal">Chaque investisseur actif en France, avec son rythme réel de deals. Quand un de ses véhicules est en cours de déploiement, la fiche détaille sa thèse, son ticket, ses LPs et son équipe.</p></div>
+    <div class="strip reveal" id="fStrip"></div>
+    <div class="deploy-line reveal">
+      <div class="ph"><h3>Fonds en cours de déploiement</h3><p id="dlNote"></p></div>
+      <div class="rail-nav"><button type="button" id="railPrev" aria-label="Défiler à gauche">←</button><button type="button" id="railNext" aria-label="Défiler à droite">→</button></div>
+      <div class="rail" id="rail"></div>
+    </div>
+    <div class="panel reveal">
+      <div class="filters">
+        <div class="field grow"><label for="fQ">Recherche</label><input class="input" id="fQ" placeholder="Nom, focus, type…"></div>
+        <div class="field"><label for="fType">Type</label><select class="input" id="fType"></select></div>
+        <div class="field"><label for="fStage">Stade</label><select class="input" id="fStage"><option value="">Tous</option><option>Pre-seed</option><option>Seed</option><option>Série A</option><option>Série B</option><option>Growth</option></select></div>
+        <div class="field"><label for="fSec">Secteur investi</label><select class="input" id="fSec"></select></div>
+        <div class="field"><label for="fSort">Tri</label><select class="input" id="fSort"><option value="n12">Activité 12 mois</option><option value="nb">Deals suivis</option><option value="name">Nom A→Z</option></select></div>
+        <label class="toggle" for="fDep"><input type="checkbox" id="fDep"> En cours de déploiement</label>
+      </div>
+      <p class="mono muted" id="fCount" style="margin-bottom:12px"></p>
+      <div class="icards" id="fGrid"></div>
+      <div class="more"><button class="btn" type="button" id="fMore">Afficher plus</button></div>
+    </div>
+  </section>
+
+  <!-- ============ PE ============ -->
+  <section class="view" id="v-pe" data-view="pe" hidden>
+    <div class="view-head"><h1 class="reveal">PE Watch</h1><p class="lede reveal">Les LBO français suivis, de l'entrée à la sortie. La bande claire marque la fenêtre de sortie attendue : au-delà, la participation est en retard.</p></div>
+    <div class="strip reveal" id="pStrip"></div>
+    <div class="panel reveal">
+      <div class="filters">
+        <div class="field"><label>Statut</label><div class="seg" id="pStatus"></div></div>
+        <div class="field"><label>Maturité</label><div class="seg" id="pMat"></div></div>
+      </div>
+      <div class="gantt chart" id="pGantt"></div>
+      <div class="legend" style="margin-top:12px"><span><i style="background:var(--signal)"></i>Détention</span><span><i style="background:var(--accent)"></i>Cédée</span><span><i style="background:var(--warn)"></i>En retard sur la fenêtre</span><span><i style="background:var(--line-strong);height:8px"></i>Fenêtre de sortie</span></div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARABLES ============ -->
+  <section class="view" id="v-comps" data-view="comps" hidden>
+    <div class="view-head"><h1 class="reveal">Comparables</h1><p class="lede reveal">Situez un tour face aux deals comparables : même secteur, même tranche, même période. Entrez votre montant pour voir où il se place.</p></div>
+    <div class="grid">
+      <div class="panel c4 reveal">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="field"><label for="cSec">Secteur</label><select class="input" id="cSec"></select></div>
+          <div class="field"><label for="cStage">Stade</label><select class="input" id="cStage"><option value="">Tous</option><option>Pre-seed</option><option>Seed</option><option>Série A</option><option>Série B</option><option>Série C</option><option>Growth</option></select></div>
+          <div class="field"><label for="cYear">Période</label><select class="input" id="cYear"></select></div>
+          <div class="field"><label for="cMine">Votre montant (M€)</label><input class="input" id="cMine" type="number" min="0" step="0.1" value="3"></div>
+          <div class="field"><label for="cQ">Mot-clé</label><input class="input" id="cQ" placeholder="ex. agents, batteries, paiement"></div>
+        </div>
+      </div>
+      <div class="c8" style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="strip reveal" id="cStrip" style="margin:0"></div>
+        <div class="panel chart reveal"><div class="ph"><h3>Distribution des montants</h3><p>échelle logarithmique</p></div><div id="cDist"></div><p class="pos" id="cPos" style="margin-top:14px"></p></div>
+        <div class="panel reveal"><div class="ph"><h3>Deals comparables</h3><p id="cCount"></p></div><div id="cList"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ACQUÉREURS ============ -->
+  <section class="view" id="v-acq" data-view="acq" hidden>
+    <div class="view-head"><h1 class="reveal">Acquéreurs</h1><p class="lede reveal">Qui rachète la French Tech : corporates, ETI, fonds et SPAC, avec leur rythme et leurs secteurs de prédilection.</p></div>
+    <div class="strip reveal" id="aStrip"></div>
+    <div class="panel reveal">
+      <div class="filters"><div class="field grow"><label for="aQ">Recherche</label><input class="input" id="aQ" placeholder="Acquéreur, secteur…"></div>
+        <div class="field"><label for="aSort">Tri</label><select class="input" id="aSort"><option value="n">Nombre d'opérations</option><option value="v">Montant cumulé</option><option value="d">Plus récent</option></select></div></div>
+      <div class="table" id="aTable"></div>
+      <div class="pager" id="aPager"></div>
+    </div>
+  </section>
+  <!-- ============ MCP ============ -->
+  <section class="view" id="v-mcp" data-view="mcp" hidden>
+    <div class="view-head"><h1 class="reveal">Insights dans <em>Claude</em> et <em>ChatGPT</em>.</h1><p class="lede reveal">Le serveur MCP (Model Context Protocol) donne à votre assistant un accès direct à la base Insights. Vous posez une question en langage courant ; il choisit le bon outil, interroge les données de la semaine et vous répond en citant les deals.</p></div>
+    <div class="grid">
+      <div class="panel c12 reveal flow">
+        <div class="ph"><h3>Comment ça marche</h3><p>Une question, un appel d'outil, une réponse sourcée</p></div>
+        <svg viewBox="0 0 900 190" role="img" aria-label="Votre question part vers l'assistant, qui appelle le serveur MCP Insights, qui interroge la base mise à jour chaque semaine, puis la réponse revient.">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+          <g font-family="JetBrains Mono, monospace" font-size="11.5" fill="var(--muted)" text-anchor="middle">
+            <rect x="10" y="62" width="150" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="85" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Vous</text><text x="85" y="110">une question</text>
+            <rect x="250" y="62" width="170" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="335" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Claude · ChatGPT</text><text x="335" y="110">choisit l'outil</text>
+            <rect x="510" y="56" width="170" height="78" rx="14" fill="var(--bg-3)" stroke="var(--accent)"/><text x="595" y="88" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Serveur MCP</text><text x="595" y="107">insights-french-tech</text><text x="595" y="122">15 outils</text>
+            <rect x="760" y="62" width="130" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="825" y="91" fill="var(--accent)" font-size="14" font-family="Hanken Grotesk, sans-serif">Base Insights</text><text x="825" y="110">màj chaque lundi</text>
+            <path d="M162 84 L248 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M422 84 L508 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M682 84 L758 84" stroke="var(--muted)" marker-end="url(#ah)"/>
+            <path d="M758 108 L682 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M508 108 L422 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M248 108 L162 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/>
+            <text x="205" y="74">question</text><text x="465" y="74">tools/call</text><text x="720" y="74">requête</text><text x="465" y="128">données</text><text x="205" y="128">réponse</text>
+            <circle r="4.5" fill="var(--accent)"><animateMotion dur="3.6s" repeatCount="indefinite" path="M162 84 L758 84"/></circle>
+            <circle r="4.5" fill="var(--signal)"><animateMotion dur="3.6s" begin="1.8s" repeatCount="indefinite" path="M758 108 L162 108"/></circle>
+          </g>
+        </svg>
+        <div class="steps">
+          <div><span class="n">01</span><b>Vous demandez</b>« Qui a investi en seed climat ce trimestre ? »</div>
+          <div><span class="n">02</span><b>L'assistant appelle un outil</b>Il choisit search_deals, find_investors ou comparables selon la question.</div>
+          <div><span class="n">03</span><b>Le serveur interroge Insights</b>Levées, fonds, exits et PE, dans leur version de la semaine.</div>
+          <div><span class="n">04</span><b>Réponse sourcée</b>Montants, dates et investisseurs, prêts à être vérifiés ou exportés.</div>
+        </div>
+      </div>
+      <div class="panel c6 reveal cfg">
+        <div class="ph"><h3>Se connecter</h3><div class="seg" id="cfgTabs"><button type="button" data-c="claude" aria-pressed="true">claude.ai</button><button type="button" data-c="chatgpt" aria-pressed="false">ChatGPT</button><button type="button" data-c="desktop" aria-pressed="false">Claude Desktop</button><button type="button" data-c="code" aria-pressed="false">Claude Code</button></div></div>
+        <div class="urlbox" style="margin-bottom:14px"><code id="mcpUrl"></code><button class="copy" type="button" data-copy="mcpUrl">Copier</button></div>
+        <div data-pane="claude"><ol><li>Ouvrez <b>Paramètres → Connecteurs</b>.</li><li>Cliquez sur <b>Ajouter un connecteur personnalisé</b>.</li><li>Nom : <code>Insights French Tech</code>, URL : l'adresse ci-dessus.</li><li>Dans une conversation, activez-le depuis le menu des outils.</li></ol></div>
+        <div data-pane="chatgpt" hidden><ol><li>Ouvrez <b>Paramètres → Apps &amp; Connecteurs → Avancé</b> et activez le <b>mode développeur</b>.</li><li>Créez un connecteur avec l'adresse ci-dessus, sans authentification.</li><li>Dans une conversation, sélectionnez Insights dans le menu des outils.</li></ol></div>
+        <div data-pane="desktop" hidden><p class="muted" style="font-size:.88rem;margin-bottom:8px">Ajoutez ce bloc à <code>claude_desktop_config.json</code> (Réglages → Développeur), puis redémarrez Claude.</p><pre class="code" id="cfgDesktop"></pre><button class="copy" type="button" data-copy="cfgDesktop" style="margin-top:8px">Copier</button></div>
+        <div data-pane="code" hidden><pre class="code" id="cfgCode"></pre><button class="copy" type="button" data-copy="cfgCode" style="margin-top:8px">Copier</button></div>
+      </div>
+      <div class="panel c6 reveal">
+        <div class="ph"><h3>Exemple de conversation</h3><button class="linkbtn" type="button" id="replay">Rejouer</button></div>
+        <div class="chat" id="chat"></div>
+      </div>
+      <div class="panel c12 reveal">
+        <div class="ph"><h3>Les outils</h3><p>Votre assistant les choisit seul ; vous n'avez pas à les nommer.</p></div>
+        <div class="toolgrid" id="toolGrid"></div>
+      </div>
+      <div class="panel c12 reveal">
+        <div class="ph"><h3>Questions à essayer</h3><p>Cliquez pour copier</p></div>
+        <div class="qchips" id="qchips"></div>
+        <p class="muted" style="font-size:.84rem;margin-top:16px" id="mcpFresh"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="footSrc"></span>
+    <span class="mono">Interrogeable dans Claude et ChatGPT via le serveur MCP insights-french-tech</span>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Fiche">
+  <div class="d-top"><button class="iconbtn" id="dBack" type="button" aria-label="Fiche précédente" disabled>←</button><span class="crumb" id="dCrumb"></span><button class="iconbtn" id="dClose" type="button" aria-label="Fermer">×</button></div>
+  <div class="d-body" id="dBody"></div>
+</aside>
+<div class="pal" id="pal" hidden role="dialog" aria-label="Recherche">
+  <div class="pal-box">
+    <div class="pal-in"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="palQ" placeholder="Rechercher une startup, un fonds, un acquéreur…" autocomplete="off" aria-label="Recherche"></div>
+    <ul class="pal-list" id="palList" role="listbox"></ul>
+    <div class="pal-foot"><span>↑ ↓ naviguer</span><span>Entrée ouvrir</span><span>Échap fermer</span></div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<!--@@DATA@@-->
+<!--@@LIB@@-->
+<!--@@VEH@@-->
+<!--@@LOGOS@@-->
+<!--@@APP@@-->

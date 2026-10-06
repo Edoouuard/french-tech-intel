@@ -1,0 +1,14 @@
+{
+  "name": "french-tech-intel",
+  "private": true,
+  "description": "Insights French Tech : levées, exits, fonds VC et PE de la French Tech, avec serveur MCP.",
+  "scripts": {
+    "rebuild": "node tools/build.js",
+    "mcp:test": "node tools/test-mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^3.25.76"
+  },
+  "engines": { "node": ">=20" }
+}
