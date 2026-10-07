@@ -124,6 +124,31 @@ OPS.forEach((o) => { if (!o.acquirer || /^(nd|nc|n d|n c|non communique.*|non di
 const BUYERS = [...BUY.values()];
 // Startups
 const STI = new Map(ST.map((s) => [norm(s.name), s]));
+// Pitch en une phrase d'une startup : celui d'un de ses tours, sinon sa fiche, sinon la description d'une opération.
+const PITCH = new Map();
+D.forEach((d) => { if (d.pitch && !PITCH.has(norm(d.company))) PITCH.set(norm(d.company), d.pitch); });
+ST.forEach((x) => { if (x.pitch && !PITCH.has(norm(x.name))) PITCH.set(norm(x.name), x.pitch); });
+OPS.forEach((o) => { if (o.description && !PITCH.has(norm(o.target))) PITCH.set(norm(o.target), o.description); });
+const pitchOf = (d) => d.pitch || PITCH.get(norm(d.company)) || "";
+// Ligne de deal avec le pitch de la startup (fiches investisseur).
+const lrowDealPitch = (d) => { const p = pitchOf(d); return `<div class="lrow" data-startup="${esc(d.company)}"><span class="dt">${fmtMonth(d.date)}</span><span class="co">${esc(d.company)}<small>${esc(d.sector_raw || "")} · ${esc(d.stage_raw || "NC")}</small>${isNew(d) ? '<span class="new-tag">CETTE SEMAINE</span>' : ""}</span><span class="v">${fmtAmt(d.amount_eur_m)}</span>${p ? `<span class="pitch">${esc(p)}</span>` : ""}<span class="sub">${invLinks(d.investors) || "Investisseurs non communiqués"}</span></div>`; };
+// Thèse : déclarée (véhicules en déploiement, annuaire, profil international) et observée (calculée sur les deals).
+const pct = (n, t) => Math.round((n / t) * 100);
+function thesisBlock(e, deals) {
+  const declared = [...new Set([...e.veh.map((f) => f.thesis), ...e.foreign.map((f) => f.thesis), e.ins && e.ins.focus, e.intl && e.intl.focus].filter(Boolean))];
+  let observed = "";
+  if (deals.length >= 2) {
+    const top = (key, n) => Object.entries(deals.reduce((a, d) => { const k = key(d); if (k) a[k] = (a[k] || 0) + 1; return a; }, {})).sort((a, b) => b[1] - a[1]).slice(0, n);
+    const st = top((d) => d.stage_raw, 2), se = top((d) => (d.sector_raw && d.sector_raw !== "Autre" ? d.sector_raw : null), 3).filter(([, n]) => pct(n, deals.length) >= 8);
+    const amts = deals.map((d) => d.amount_eur_m).filter((v) => v != null);
+    const list = (arr) => arr.map(([k, n]) => `${esc(k)} (${pct(n, deals.length)} %)`).join(arr.length > 2 ? ", " : " et ").replace(/, ([^,]*)$/, " et $1");
+    observed = `D'après ses ${deals.length} deals suivis en France : ${st.length ? `surtout en ${list(st)}` : "stades non communiqués"}${se.length ? `, principalement ${list(se)}` : ""}.` +
+      (amts.length >= 2 ? ` Tour médian ${fmtAmt(median(amts))} (la moitié entre ${fmtAmt(quant(amts, 0.25))} et ${fmtAmt(quant(amts, 0.75))}).` : "") +
+      ` ${e.n12 ? `${e.n12} deal${e.n12 > 1 ? "s" : ""} sur les 12 derniers mois` : "Aucun deal sur les 12 derniers mois"}.`;
+  }
+  if (!declared.length && !observed) return "";
+  return sec("Thèse", `<div class="thesis">${declared.map((t) => `<p class="thesis-decl">${esc(t)}</p>`).join("")}${observed ? `<p class="thesis-obs"><span class="eyebrow">${declared.length ? "Ce que montrent ses deals" : "Thèse observée"}</span>${observed}</p>` : ""}</div>`);
+}
 const VEH_PEOPLE = new Map();
 AP.forEach((p) => (VEH_PEOPLE.get(p.fund_id) || VEH_PEOPLE.set(p.fund_id, []).get(p.fund_id)).push(p));
 // Logo embarqué (data URI) ou initiales en repli
@@ -607,14 +632,15 @@ function entDetail(key) {
   const buyer = BUY.get(norm(e.name));
   return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(typeLabel(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
-    ${ins.focus || ins.stages ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.focus ? `<dt>Focus</dt><dd>${esc(ins.focus)}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
+    ${thesisBlock(e, deals)}
+    ${ins.stages || (ins.sectors && ins.sectors.length) ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
     ${e.veh.length ? sec(`Fonds en cours de déploiement (${e.veh.length})`, `<div style="display:flex;flex-direction:column;gap:12px">${e.veh.map((f) => vehicleBlock(f)).join("")}</div>`) : ""}
     ${!e.ins && !e.intl && !e.veh.length && !e.foreign.length ? `<p class="muted" style="font-size:.86rem">Fiche construite à partir des levées suivies par Insights${entType(e) === "Business angel" ? " (investisseur individuel)" : ""}.</p>` : ""}
     ${deals.length ? sec("Rythme d'investissement · deals par trimestre", qChart(deals)) : ""}
     ${bySec.length ? `<div class="grid" style="gap:16px">${`<div class="c6">${sec("Secteurs", hbars(bySec))}</div><div class="c6">${sec("Stades", hbars(bySt))}</div>`}</div>` : ""}
-    ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDeal).join("")) : ""}
+    ${deals.length ? sec(`Derniers deals (${deals.length})`, deals.slice(0, 10).map(lrowDealPitch).join("")) : ""}
     ${coTop.length ? sec("Co-investisseurs fréquents", `<div class="chips">${coTop.map(([n, k]) => { const ce = entFor(n); return ce ? `<button class="chip chip-logo" type="button" data-ent="${esc(ce.key)}">${logo(n, "av xs")}${esc(n)} · ${k}</button>` : `<span class="chip" style="cursor:default">${esc(n)} · ${k}</span>`; }).join("")}</div>`) : ""}
     ${buyer ? sec(`Comme acquéreur (${buyer.ops.length})`, buyer.ops.map(lrowOp).join("")) : ""}
     <p class="mono muted">Source : Insights French Tech (deals France depuis 2024).</p>`;
