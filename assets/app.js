@@ -129,6 +129,7 @@ const PITCH = new Map();
 D.forEach((d) => { if (d.pitch && !PITCH.has(norm(d.company))) PITCH.set(norm(d.company), d.pitch); });
 ST.forEach((x) => { if (x.pitch && !PITCH.has(norm(x.name))) PITCH.set(norm(x.name), x.pitch); });
 OPS.forEach((o) => { if (o.description && !PITCH.has(norm(o.target))) PITCH.set(norm(o.target), o.description); });
+Object.entries((VEH && VEH.pitches) || {}).forEach(([k, p]) => { if (!PITCH.has(norm(k))) PITCH.set(norm(k), p); });
 const pitchOf = (d) => d.pitch || PITCH.get(norm(d.company)) || "";
 // Ligne de deal avec le pitch de la startup (fiches investisseur).
 const lrowDealPitch = (d) => { const p = pitchOf(d); return `<div class="lrow" data-startup="${esc(d.company)}"><span class="dt">${fmtMonth(d.date)}</span><span class="co">${esc(d.company)}<small>${esc(d.sector_raw || "")} · ${esc(d.stage_raw || "NC")}</small>${isNew(d) ? '<span class="new-tag">CETTE SEMAINE</span>' : ""}</span><span class="v">${fmtAmt(d.amount_eur_m)}</span>${p ? `<span class="pitch">${esc(p)}</span>` : ""}<span class="sub">${invLinks(d.investors) || "Investisseurs non communiqués"}</span></div>`; };
@@ -654,7 +655,7 @@ function startupDetail(name) {
   if (!s && !deals.length && !ops.length && !pe.length) return null;
   const tot = deals.reduce((a, d) => a + (d.amount_eur_m || 0), 0) || (s && s.total) || null;
   const last = deals[deals.length - 1] || {};
-  const pitch = (deals.find((d) => d.pitch) || {}).pitch || (s && s.pitch) || (ops[0] && ops[0].description) || "";
+  const pitch = (deals.find((d) => d.pitch) || {}).pitch || (s && s.pitch) || (ops[0] && ops[0].description) || PITCH.get(n) || "";
   const invs = [...new Set(deals.flatMap((d) => d.investors))];
   const tl = [...deals.map((d) => ({ date: d.date, h: `${esc(d.stage_raw || "Tour")}`, v: fmtAmt(d.amount_eur_m), p: invLinks(d.investors) || "Investisseurs non communiqués", exit: false })), ...ops.map((o) => ({ date: o.date, h: `${esc(o.type)} par ${esc(o.acquirer)}`, v: fmtAmt(o.amount_eur_m), p: esc(o.context || o.description || ""), exit: true }))].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
   return `<div><div class="d-title"><span class="av">${esc(initials(name))}</span><div><h2>${esc((s && s.name) || name)}</h2><div class="d-tags">${last.sector_raw || (s && s.sector_raw) ? `<span class="pill">${esc(last.sector_raw || s.sector_raw)}</span>` : ""}${stagePill(last.stage_raw || (s && s.stage_raw))}${ops.length ? '<span class="deploy-tag">EXIT</span>' : ""}</div></div></div></div>
