@@ -211,7 +211,6 @@ BUILDERS.ov = () => {
   const freshAmt = fresh.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
   const tops = fresh.slice(0, 2).map((d) => `<button class="ent" type="button" data-startup="${esc(d.company)}">${esc(d.company)}</button> (${fmtAmt(d.amount_eur_m)})`).join(" et ");
   $("#ovLede").innerHTML = `Depuis janvier 2024, ${nf.format(D.length)} levées, ${OPS.length} exits et ${ENTS.length} investisseurs passés au crible. Mis à jour le ${fmtLong(LAST_UPDATE.date)} à 8 h : ${fresh.length} nouvelles levées pour ${fmtAmt(freshAmt)}${tops ? `, dont ${tops}` : ""}.`;
-  $("#ctaUrl").textContent = "insights-french-tech.com/mcp";
   $("#topUrl").textContent = "insights-french-tech.com/mcp";
   $("#topCopy").addEventListener("click", () => copyText("https://www.insights-french-tech.com/mcp", $("#topUrl")));
   buildWeek();
@@ -679,9 +678,16 @@ async function copyText(text, node) {
   catch (e) { if (node) { const r = document.createRange(); r.selectNodeContents(node); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } toast("Sélectionné : copiez avec Ctrl+C"); }
 }
 const MCP_TOOLS = [
-  ["find_investors", "Classe /100 les investisseurs pertinents pour votre levée : secteur, stade, rythme récent, ticket, fonds en déploiement.", "Je lève 3 M€ en seed pour une IA industrielle, qui contacter ?"],
-  ["search_deals", "Levées filtrées par secteur, stade, investisseur, période ou montant.", "Les levées Série A en santé depuis juillet."],
-  ["get_investor", "Fiche complète d'un fonds : thèse, ticket, LPs, équipe, deals, co-investisseurs.", "Que fait Serena en ce moment ?"],
+  ["fundraising_brief", "Dossier de levée en un appel : comparables, tendance du secteur, shortlist notée /100, fonds européens, tour suivant.", "Je lève 3 M€ en seed pour une IA industrielle, prépare-moi le dossier."],
+  ["find_investors", "Classe /100 les investisseurs pertinents pour votre levée : secteur, stade, rythme récent, ticket, fonds en déploiement.", "Quels fonds contacter pour une Série A fintech de 8 M€ ?"],
+  ["compare_investors", "Compare 2 à 5 fonds : activité, stades, secteurs, taille de tour typique, fonds en déploiement, deals communs.", "Compare Serena, Elaia et Partech."],
+  ["co_investors", "Avec qui un fonds co-investit le plus souvent, par secteur ou stade, pour compléter un tour.", "Avec qui Kima co-investit-il en seed ?"],
+  ["follow_on_investors", "Qui entre au tour suivant après un seed ou une Série A, délai médian et taux de réinvestissement.", "Qui finance les Séries A après un seed santé ?"],
+  ["whats_new", "Ce qu'a apporté la mise à jour du lundi 8 h : levées de la semaine, investisseurs actifs, exits.", "Quoi de neuf cette semaine dans la French Tech ?"],
+  ["sector_trends", "Secteurs qui accélèrent ou ralentissent : 6 derniers mois contre les 6 précédents.", "Quels secteurs accélèrent en ce moment ?"],
+  ["likely_acquirers", "Acquéreurs déjà actifs dans le secteur d'une startup, acheteurs en série, précédents.", "Qui pourrait racheter une startup de cybersécurité ?"],
+  ["search_deals", "Levées filtrées par secteur, stade, investisseur, période ou montant, avec pagination.", "Les levées Série A en santé depuis juillet."],
+  ["get_investor", "Fiche complète d'un fonds : thèse, ticket, LPs, équipe, deals, co-investisseurs. Tolère les fautes de frappe.", "Que fait Serena en ce moment ?"],
   ["deploying_funds", "Véhicules en cours d'investissement, avec leurs deals français récents.", "Quels fonds en déploiement investissent en deeptech ?"],
   ["comparables", "Médiane, quartiles et percentile de votre montant face aux deals comparables.", "3 M€ en seed IA, c'est haut ou bas ?"],
   ["match_european_funds", "Classe /100 les fonds VC européens en déploiement pour votre levée, avec bonus s'ils investissent en France.", "Quels fonds allemands ou suisses pour ma seed deeptech ?"],
@@ -694,9 +700,11 @@ const MCP_TOOLS = [
   ["exits_and_ma", "Acquisitions, IPO, OPA et LBO avec contexte et données société.", "Les rachats de startups IA cette année."],
   ["get_acquirer", "Toutes les opérations d'un acquéreur.", "Qu'a racheté Mistral AI ?"],
   ["pe_watch", "Participations LBO et fenêtres de sortie, avec retards.", "Quelles participations PE sont en retard de sortie ?"],
-  ["list_investors", "Annuaire filtrable des investisseurs actifs en France.", "Les CVC actifs en fintech."],
+  ["list_investors · business_angels", "Annuaire filtrable des investisseurs actifs en France, et business angels individuels.", "Les CVC actifs en fintech."],
+  ["european_funds_stats", "Fonds européens en déploiement par pays, stade ou secteur.", ""],
   ["search · fetch", "Recherche globale, compatible avec la recherche approfondie de ChatGPT.", ""],
-  ["data_status", "Fraîcheur de la base et dernière mise à jour.", "De quand datent les données ?"],
+  ["data_status", "Fraîcheur de la base, dernière et prochaine mise à jour du lundi.", "De quand datent les données ?"],
+  ["4 parcours guidés", "Prompts prêts à l'emploi : préparer une levée, préparer un rendez-vous investisseur, veille de la semaine, stratégie de sortie.", ""],
 ];
 BUILDERS.mcp = () => {
   $("#mcpUrl").textContent = MCP_URL;

@@ -334,19 +334,7 @@ main { padding-block: 28px 80px; }
 footer { border-top: 1px solid var(--line); padding-block: 26px 40px; color: var(--muted); font-size: .84rem; }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 /* ---------- MCP ---------- */
-.mcp-cta { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 32px; align-items: center; padding: 28px clamp(20px, 3vw, 36px); border-radius: 18px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 14%, var(--bg-2)), var(--bg-2) 60%); overflow: hidden; cursor: pointer; text-align: left; width: 100%; color: inherit; font: inherit; transition: border-color .3s, transform .4s cubic-bezier(.2,.8,.2,1); }
-.mcp-cta:hover { border-color: var(--accent); transform: translateY(-3px); }
-.mcp-cta h3 { font-size: clamp(1.4rem, 2.6vw, 2.1rem); letter-spacing: -0.035em; margin: 8px 0 8px; }
-.mcp-cta p { color: var(--muted); max-width: 62ch; }
-.mcp-cta code { font-family: var(--f-mono); font-size: .8rem; color: var(--accent); }
-.mcp-cta .go { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: var(--bg); font-size: 1.6rem; position: relative; flex: none; transition: transform .4s cubic-bezier(.2,.8,.2,1), background .3s; }
-.mcp-cta .go::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 1px solid var(--accent); animation: ring 2.4s ease-out infinite; }
 @keyframes ring { from { transform: scale(.85); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
-.mcp-cta:hover .go { transform: translateX(6px); background: var(--accent); color: var(--accent-ink); }
-.mcp-cta .go span { display: inline-block; animation: nudge 1.8s ease-in-out infinite; }
-@keyframes nudge { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(4px); } }
-.mcp-cta .chips-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-@media (max-width: 640px) { .mcp-cta { grid-template-columns: minmax(0, 1fr); } .mcp-cta .go { width: 56px; height: 56px; } }
 .flow svg { width: 100%; height: auto; display: block; }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
 .steps > div { border-top: 2px solid var(--line-strong); padding-top: 12px; font-size: .9rem; color: var(--muted); }
@@ -525,15 +513,6 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="ph"><h3>Exits &amp; M&amp;A récents</h3><button class="linkbtn" type="button" data-go="exits">Voir tout →</button></div>
         <div id="ovOps"></div>
       </div>
-      <button class="mcp-cta c12 reveal" type="button" data-go="mcp" aria-label="Découvrir le serveur MCP">
-        <div>
-          <span class="eyebrow" style="color:var(--accent)">Nouveau · serveur MCP</span>
-          <h3>Interrogez Insights depuis Claude ou ChatGPT.</h3>
-          <p>Branchez le serveur MCP d'Insights à votre assistant : il cherche lui-même les levées, les fonds en déploiement, les comparables et les exits, avec les données de la semaine. Demandez par exemple « quels fonds ont investi en seed IA ce trimestre ? ».</p>
-          <div class="chips-row"><code id="ctaUrl"></code></div>
-        </div>
-        <span class="go" aria-hidden="true"><span>→</span></span>
-      </button>
     </div>
   </section>
 
@@ -700,7 +679,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <g font-family="JetBrains Mono, monospace" font-size="11.5" fill="var(--muted)" text-anchor="middle">
             <rect x="10" y="62" width="150" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="85" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Vous</text><text x="85" y="110">une question</text>
             <rect x="250" y="62" width="170" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="335" y="91" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Claude · ChatGPT</text><text x="335" y="110">choisit l'outil</text>
-            <rect x="510" y="56" width="170" height="78" rx="14" fill="var(--bg-3)" stroke="var(--accent)"/><text x="595" y="88" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Serveur MCP</text><text x="595" y="107">insights-french-tech</text><text x="595" y="122">20 outils</text>
+            <rect x="510" y="56" width="170" height="78" rx="14" fill="var(--bg-3)" stroke="var(--accent)"/><text x="595" y="88" fill="var(--fg)" font-size="14" font-family="Hanken Grotesk, sans-serif">Serveur MCP</text><text x="595" y="107">insights-french-tech</text><text x="595" y="122">28 outils · 4 parcours</text>
             <rect x="760" y="62" width="130" height="66" rx="14" fill="var(--bg)" stroke="var(--line-strong)"/><text x="825" y="91" fill="var(--accent)" font-size="14" font-family="Hanken Grotesk, sans-serif">Base Insights</text><text x="825" y="110">màj chaque lundi</text>
             <path d="M162 84 L248 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M422 84 L508 84" stroke="var(--muted)" marker-end="url(#ah)"/><path d="M682 84 L758 84" stroke="var(--muted)" marker-end="url(#ah)"/>
             <path d="M758 108 L682 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M508 108 L422 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/><path d="M248 108 L162 108" stroke="var(--muted)" stroke-dasharray="3 4" marker-end="url(#ah)"/>

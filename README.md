@@ -32,6 +32,8 @@ Chaque commit redéploie le site et le serveur MCP avec les nouvelles données.
 
 URL : `https://www.insights-french-tech.com/mcp` (Streamable HTTP, sans authentification). Mode d'emploi dans l'onglet « MCP » du site.
 
+28 outils (levées, investisseurs, fonds européens, exits, dossier de levée, nouveautés de la semaine, comparaison de fonds, co-investisseurs, tour suivant, tendances sectorielles, acquéreurs probables), 4 parcours guidés (`preparer_levee`, `brief_investisseur`, `veille_hebdo`, `strategie_sortie`) et la ressource `insights://methodologie`. Code dans `lib/model.js` et `lib/tools.js`.
+
 ```bash
 npm install
 npm run mcp:test                                              # test local
