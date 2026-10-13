@@ -411,7 +411,7 @@ function pubBlock(e) {
   if (!p) return "";
   const host = (() => { try { return new URL(p.src).hostname.replace(/^www\./, ""); } catch (err) { return "source"; } })();
   const kv = [["Véhicule", p.v], ["Ticket initial", p.t && fmtRange(p.t) + (p.fo ? ` · jusqu'à ${mEur(p.fo)} M€ par société` : "")], ["Stades", p.st], ["Réinvestissement", p.followon], ["Rôle", p.lead && p.lead.charAt(0).toUpperCase() + p.lead.slice(1)]].filter(([, v]) => v);
-  return sec("Ce que le fonds annonce", `${p.focus ? `<p class="thesis-decl" style="margin-bottom:12px">${esc(p.focus)}</p>` : ""}<dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+  return sec("Ce que le fonds annonce", `<dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
     <p class="muted" style="font-size:.8rem;margin-top:10px">${p.v ? `Ces informations concernent ${esc(p.v)}. ` : ""}Les deals suivis par Insights sont rattachés à ${esc(e.name)}, tous fonds confondus : ils ne se comparent pas directement à la thèse d'un véhicule.</p>
     <p class="mono muted" style="font-size:.7rem;margin-top:6px">Source : <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(host)}</a>${p.d ? " · " + esc(p.d) : ""}</p>`);
 }

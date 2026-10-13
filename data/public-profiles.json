@@ -7,7 +7,6 @@
 8
 ],
 "st": "Pré-série A → Série A",
-"focus": "Technologies de rupture issues de la recherche européenne ; une dizaine d'investissements par an",
 "src": "https://www.maddyness.com/2025/03/25/daphni-mise-200-millions-deuros-pour-transformer-des-projets-scientifiques-en-champions-de-la-tech/",
 "d": "2025-03"
 },
@@ -19,7 +18,6 @@
 2
 ],
 "fo": 5,
-"focus": "Startups issues de la recherche publique ou soutenues par elle",
 "src": "https://www.maddyness.com/2025/02/03/que-font-les-fonds-le-portrait-dui-investissement/",
 "d": "2025-02"
 },
@@ -31,7 +29,6 @@
 3
 ],
 "st": "Pre-seed → Seed",
-"focus": "Deeptech B2B aux tout premiers stades (fonds de 134 M€)",
 "src": "https://thenextweb.com/news/elaia-dts3-deep-tech-seed-fund-134m",
 "d": "2024"
 },
@@ -42,7 +39,6 @@
 null,
 15
 ],
-"focus": "IA appliquée et transition énergétique (premier closing de 200 M€)",
 "src": "https://www.maddyness.com/2025/10/01/serena-lance-un-fonds-de-200-millions-deuros-pour-miser-sur-les-prochaines-pepites-europeennes-de-lia/",
 "d": "2025-10"
 },
@@ -56,7 +52,6 @@ null,
 "st": "Amorçage",
 "lead": "lead",
 "followon": "Capacité de réinvestir sur deux ou trois tours supplémentaires",
-"focus": "Deeptech européenne protégée par la propriété intellectuelle, une vingtaine de sociétés",
 "src": "https://tech.eu/2023/06/23/supernova-s-deeptech-fund-reaches-its-first-closing-at-75-million-of-a-targeted-100-million/",
 "d": "2023-06"
 },
@@ -65,16 +60,8 @@ null,
 "v": "Alven V",
 "st": "Seed → Série A",
 "followon": "Jusqu'à 35 M€ supplémentaires pour les tours suivants du portefeuille",
-"focus": "Fonds de 250 M€",
 "src": "https://alven.co/news/alven-capital-closes-fifth-generation-fund-e250-million-hard-cap",
 "d": "2025-12"
-},
-{
-"n": "Swen Capital Partners",
-"v": "Blue Ocean",
-"focus": "Régénération des océans",
-"src": "https://www.maddyness.com/2024/03/12/que-font-les-fonds-le-portrait-de-swen-capital-partners/",
-"d": "2024-03"
 },
 {
 "n": "Isai",
@@ -83,7 +70,6 @@ null,
 1,
 3
 ],
-"focus": "Startups fondées par des entrepreneurs français ; 10 % du fonds en pre-seed (0,1 à 0,5 M€)",
 "src": "https://www.maddyness.com/2025/12/03/isai-leve-75-millions-deuros-pour-soutenir-lenvol-des-futures-pepites-de-la-french-tech/",
 "d": "2025-12"
 },
@@ -105,7 +91,6 @@ null,
 1,
 3
 ],
-"focus": "Une trentaine de sociétés sur quatre ans",
 "src": "https://tech.eu/2023/06/26/frances-frst-announce-first-close-of-new-fund-at-eur72-million/",
 "d": "2023-06"
 },
@@ -125,14 +110,12 @@ null,
 null,
 0.5
 ],
-"focus": "Véhicule d'amorçage à impact de Ventech, 1 à 2 sociétés par mois",
 "src": "https://ventechvc.com/who-we-are",
 "d": "2025"
 },
 {
 "n": "Expansion Ventures",
 "st": "Seed → Série B",
-"focus": "Startups européennes du spatial",
 "src": "https://www.frenchweb.fr/expansion-ventures-boucle-une-premiere-tranche-de-son-fonds-dedie-a-la-space-tech-europeenne/450455",
 "d": "2025"
 },
@@ -145,7 +128,6 @@ null,
 ],
 "st": "Série A",
 "followon": "Capacité de réinvestissement (follow-on)",
-"focus": "Le seed passe par un véhicule distinct, RAISE Seed for Good",
 "src": "https://www.maddyness.com/2025/03/03/que-font-les-fonds-le-portrait-de-raise-ventures/",
 "d": "2025-03"
 },
@@ -153,7 +135,6 @@ null,
 "n": "IRDI Capital Investissement",
 "v": "IRDInov 3",
 "st": "Amorçage",
-"focus": "Deeptech, notamment en santé, en Occitanie et Nouvelle-Aquitaine",
 "src": "https://www.lemondedudroit.fr/deals/86205-couderc-dinh-associes-a-conseille-irdi-capital-investissement-lancement-deux-nouveaux-fonds-regionaux-irdinov-3-aelis-innovation.html",
 "d": "2023"
 },
@@ -175,28 +156,18 @@ null,
 2,
 10
 ],
-"focus": "Une douzaine d'entreprises du Grand Ouest, en minoritaire",
 "src": "https://www.lejournaldesentreprises.com/article/epopee-gestion-annonce-un-nouveau-tour-de-table-de-84-millions-deuros-1565038"
 },
 {
 "n": "Crédit Mutuel Innovation",
 "st": "Série A → Série B",
-"focus": "Montant moyen prévu d'environ 5 M€ par tour",
 "src": "https://siecledigital.fr/2023/05/26/credit-mutuel-innovation-double-ses-investissements-annuels-destines-aux-start-up-innovantes/",
 "d": "2023-05"
-},
-{
-"n": "Kurma Partners",
-"v": "Biofund IV",
-"focus": "Fonds de 215 M€",
-"src": "https://www.maddyness.com/2024/10/03/kurma-partners-relance-un-fonds-pour-mener-les-biotechs-vers-le-succes-industriel/",
-"d": "2024-10"
 },
 {
 "n": "Nord France Amorçage",
 "st": "Amorçage",
 "followon": "En 2024 : 10 réinvestissements pour 5 nouveaux dossiers",
-"focus": "Amorçage en Hauts-de-France, capital porté à 50 M€",
 "src": "https://delibinternet.hautsdefrance.fr/Docs/CommissionPermanente/2025/06/19/DELIBERATION/2025.00884_annexe.PDF",
 "d": "2025-06"
 },
@@ -208,7 +179,6 @@ null,
 ],
 "st": "Seed → Série A",
 "lead": "lead ou co-lead",
-"focus": "Investit dans les startups passées par son accélérateur",
 "src": "https://www.maddyness.com/2025/10/23/que-font-les-fonds-le-portrait-de-tomcat/",
 "d": "2025-10"
 },
@@ -216,7 +186,6 @@ null,
 "n": "Headline",
 "v": "Headline Europe VIII",
 "st": "Seed → Série A",
-"focus": "Fonds européen de 400 M$, priorité à l'IA",
 "src": "https://tech.eu/2026/10/01/mistral-and-black-forest-labs-backer-headline-closes-400m-european-fund/",
 "d": "2026-10"
 },
@@ -224,7 +193,6 @@ null,
 "n": "Breega",
 "v": "Europe Seed III",
 "st": "Amorçage",
-"focus": "Objectif de 150 M€, jusqu'à 200 M€",
 "src": "https://www.maddyness.com/2023/10/18/breega-fonds-startups-europe-amorcage/",
 "d": "2023-10"
 },
@@ -235,7 +203,6 @@ null,
 0.5,
 1.5
 ],
-"focus": "Participations minoritaires, en fonds propres ou quasi-fonds propres",
 "src": "https://www.ventures.inco-group.co/",
 "d": "2024"
 },
