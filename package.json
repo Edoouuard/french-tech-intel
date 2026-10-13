@@ -8,7 +8,10 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
+    "@vercel/analytics": "^2.0.1",
     "zod": "^3.25.76"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

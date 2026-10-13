@@ -27,5 +27,6 @@ const body = shell
   .replace("<!--@@LOGOS@@-->", '<script src="assets/logos.js"></script>')
   .replace("<!--@@APP@@-->", '<script src="assets/app.js"></script>');
 const split = body.indexOf("</style>") + "</style>".length;
-fs.writeFileSync(indexPath, head + body.slice(0, split) + "\n</head>\n<body>\n" + body.slice(split).trimStart() + "\n</body>\n</html>\n");
+const analytics = `\n<script>\n  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n</script>\n<script defer src="/_vercel/insights/script.js"></script>`;
+fs.writeFileSync(indexPath, head + body.slice(0, split) + analytics + "\n</head>\n<body>\n" + body.slice(split).trimStart() + "\n</body>\n</html>\n");
 console.log(`index.html régénéré · ${data.length} lignes de données conservées`);
