@@ -2274,7 +2274,6 @@
 "Lakestar",
 "Accel",
 "Creandum",
-"Hexa",
 "Bpifrance"
 ],
 "note": "Extension de la Série B (37 M€ en sept. 2023), menée par Eight Roads (nouvel entrant). Les sources qualifient Lakestar, Accel, Creandum, Hexa et Bpifrance d'investisseurs historiques.",
@@ -2283,10 +2282,12 @@
 {
 "s": "Command AI",
 "r": "2026-06",
-"statut": "inconnu",
-"deja": [],
-"note": "Seul un récapitulatif hebdomadaire mentionne le tour (classé Série A), sans historique des tours antérieurs.",
-"src": "https://lespepitestech.com/blog/2026/06/22/797-millions-deuros-leves-par-les-startups-francaises-semaine-25-2026"
+"statut": "verifie",
+"deja": [
+"Expeditions Fund"
+],
+"note": "Tour de 32 M€ décrit comme une Série A et mené par Blossom Capital. Selon CFNews, les historiques Eurazeo et Frst n'ont pas participé, contrairement au fonds historique polonais Expeditions Fund. Saab est nouveau.",
+"src": "https://www.cfnews.net/Acces-libre/Comand-AI-valide-sa-projection-a-l-international-712398"
 },
 {
 "s": "OpsMill",
@@ -2338,10 +2339,14 @@
 {
 "s": "AQEMIA",
 "r": "2024-01",
-"statut": "inconnu",
-"deja": [],
-"note": "Wendel Growth est cité comme lead de l'extension de Série A. Aucune source trouvée sur la présence antérieure d'Elaia, Eurazeo ou Bpifrance.",
-"src": "https://www.caplight.com/investor/wendelgroup"
+"statut": "verifie",
+"deja": [
+"Bpifrance",
+"Elaia",
+"Eurazeo"
+],
+"note": "Extension de la Série A menée par Wendel Growth, avec les investisseurs historiques Bpifrance Large Venture, Eurazeo et Elaia.",
+"src": "https://www.lemondedudroit.fr/deals/91156-goodwin-conseille-aqemia-extension-serie-a-a-60-millions-euros.html"
 },
 {
 "s": "Gradium",
@@ -2464,10 +2469,14 @@
 {
 "s": "auum",
 "r": "2025-04",
-"statut": "inconnu",
-"deja": [],
-"note": "La recherche n'a renvoyé aucun résultat pertinent sur cette levée.",
-"src": ""
+"statut": "verifie",
+"deja": [
+"Starquest Capital",
+"Founders Future",
+"Groupe SEB"
+],
+"note": "Investisseurs historiques : Starquest, Founders Future et Groupe SEB. Nouveaux : Blast Club et Swen Capital Partners.",
+"src": "https://seedtable.com/companies/auum/funding-rounds/series-b-2025-04"
 },
 {
 "s": "Robeauté",
@@ -2480,10 +2489,10 @@
 {
 "s": "Green-Got",
 "r": "2026-06",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Levée de 8 M€ en crowdfunding sur Crowdcube confirmée. Aucun investisseur nommé ni historique exploitable.",
-"src": "https://sifted.eu/articles/green-got-8m-crowdfund"
+"note": "Troisième campagne Crowdcube, après 1,9 M€ et 5,2 M€. La foule est un investisseur collectif, pas un investisseur identifiable : rien n'est retenu dans deja.",
+"src": "https://www.maddyness.com/uk/2026/06/17/green-got-raises-e8-million-in-52-minutes-to-build-its-sustainable-neobank/"
 },
 {
 "s": "CILcare",
@@ -2514,7 +2523,6 @@
 "r": "2024-05",
 "statut": "verifie",
 "deja": [
-"Innovacom",
 "Thibaud Elziere"
 ],
 "note": "Le tour de 2020 (3 M€) réunissait Innovacom et Thibaud Elzière. Le tour 2024 est présenté comme une augmentation de capital auprès des historiques. Howzat Partners n'est pas mentionné.",
@@ -2762,8 +2770,7 @@
 "statut": "verifie",
 "deja": [
 "Northzone",
-"Project A",
-"Anterra Capital"
+"Project A"
 ],
 "note": "Série B menée par Breega. Bpifrance et Breega sont nouveaux. Northzone, Anterra et Project A sont les historiques qui renforcent leur participation.",
 "src": "https://www.maddyness.com/uk/2025/03/18/dalma-raises-e20-million-and-welcomes-its-first-french-investors/"
@@ -2820,7 +2827,6 @@
 "statut": "verifie",
 "deja": [
 "Creadev",
-"QIA",
 "Temasek",
 "ABC Impact",
 "ADM"
@@ -2842,7 +2848,6 @@
 "statut": "verifie",
 "deja": [
 "BNP Paribas Développement",
-"Bpifrance",
 "MIG Capital",
 "SOSV"
 ],
@@ -2975,10 +2980,10 @@
 {
 "s": "NanoXplore",
 "r": "2026-01",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Tour de 20 M€ (déc. 2025) auprès de MBDA et du Fonds Innovation Défense ; aucun historique des investisseurs trouvé.",
-"src": "https://www.eu-startups.com/2025/12/french-chipmaker-nanoxplore-raises-e20-million-to-expand-into-defence-and-strengthen-europes-electronic-sovereignty"
+"note": "Le ministère des Armées décrit MBDA et le Fonds Innovation Défense comme entrant au capital.",
+"src": "https://www.lemondedudroit.fr/deals/102444-racine-accompagne-nanoxplore-dans-sa-levee-de-fonds-de-20-meur-aupres-de-mbda-et-bpifrance.html"
 },
 {
 "s": "Kemiwatt",
@@ -3001,10 +3006,10 @@
 {
 "s": "PyannoteAI",
 "r": "2025-04",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Seed 8,1 M€ mené par Crane et Serena ; aucun tour antérieur identifié.",
-"src": "https://www.maddyness.com/2025/04/07/ia-vocale-pyannoteai-plateforme-utilisee-par-kyutai-leve-9-millions-de-dollars/"
+"note": "Seed de 8,1 M€ mené par Crane et Serena. C'est le premier tour : aucun investisseur antérieur mentionné.",
+"src": "https://www.jonesday.com/de/practices/experience/2025/04/serena-capital-and-crane-venture-partners-lead-$9-million-seed-financing-of-pyannoteai"
 },
 {
 "s": "Bfore.ai",
@@ -3022,10 +3027,10 @@
 {
 "s": "ZML",
 "r": "2026-07",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Aucun résultat pertinent.",
-"src": ""
+"note": "Pré-seed et seed de 20 M$ menés par 20VC. C'est le premier financement de la société, fondée en 2024.",
+"src": "https://nordic9.com/news/zml-raised-a-20-million-pre-seed-and-seed-led/"
 },
 {
 "s": "METRON",
@@ -3185,10 +3190,10 @@
 {
 "s": "Futurail",
 "r": "2025-09",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Seed co-mené par Asterion et Leap435 ; financement total 7,5 M€ mais investisseurs antérieurs non identifiés.",
-"src": "https://railwaynews.net/futurails-driverless-trains-europe-us-rollout.html"
+"note": "CFNews classe l'opération en 1er tour (« Des VCs mènent le train de Futurail ») : tous les fonds sont nouveaux.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Des-VCs-menent-le-train-de-Futurail-542332"
 },
 {
 "s": "SeqOne",
@@ -3278,9 +3283,9 @@
 {
 "s": "Tsuga",
 "r": "2025-11",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Seed de 8,7 M€ mené par General Catalyst avec Singular ; aucun tour antérieur identifié.",
+"note": "Seed mené par General Catalyst avec Singular. C'est le premier tour connu.",
 "src": "https://pulse2.com/tsuga-e8-7-million-raised-to-help-enterprises-manage-rapidly-increasing-data-volumes"
 },
 {
@@ -3294,10 +3299,10 @@
 {
 "s": "Le Drive tout nu",
 "r": "2025-06",
-"statut": "inconnu",
+"statut": "verifie",
 "deja": [],
-"note": "Aucune source directe sur ce tour.",
-"src": "https://www.cbinsights.com/company/le-drive-tout-nu/financials"
+"note": "Tours antérieurs de 2022 (Makesense, Colam Impact, France Active, Fondation Carasso, Maif Impact) et crowdfunding en 2024. Ni SWEN ni BNP Paribas n'y figurent.",
+"src": "https://www.maddyness.com/2024/03/15/crowdfunding-le-drive-tout-nu-collecte-12-million-deuros-via-crowdcube-avant-de-boucler-un-nouveau-tour-de-table/"
 },
 {
 "s": "SiteFlow",
