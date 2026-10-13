@@ -408,8 +408,59 @@ const isSpecialist = (e, sec) => {
 // Sélection de fonds : mémorisée dans le navigateur, partageable par lien.
 const MINE = new Set((() => { try { return JSON.parse(localStorage.getItem("ift-selection") || "[]"); } catch (e) { return []; } })());
 const saveMine = () => { try { localStorage.setItem("ift-selection", JSON.stringify([...MINE])); } catch (e) { /* stockage indisponible */ } };
+// Profil public (site du fonds, communiqués, presse) rapproché de ce que montrent ses deals.
+const PUB = new Map();
+(window.IFT_PUBLIC || []).forEach((p) => { const e = entFor(p.n); if (e) PUB.set(e.key, p); });
+// Familles de secteurs : une thèse « DeepTech » couvre aussi la robotique, le quantique, le spatial…
+const SEC_FAMILY = { DeepTech: ["DeepTech", "Robotics", "Quantique", "Semi-conducteurs", "SpaceTech", "Aerospace", "3D", "Defense", "Industry 4.0"], GreenTech: ["GreenTech", "Energy", "Circular Economy", "AgriTech"], Energy: ["Energy", "GreenTech"], HealthTech: ["HealthTech", "MedTech", "Biotech"], MedTech: ["MedTech", "HealthTech"], Biotech: ["Biotech", "MedTech"], FinTech: ["FinTech", "InsurTech"], "Cybersécurité": ["Cybersécurité", "Cybersecurity"], SpaceTech: ["SpaceTech", "Aerospace"], "Industry 4.0": ["Industry 4.0", "Robotics"] };
+const mEur = (v) => String(+(+v).toFixed(2)).replace(".", ",");
+const fmtRange = (t) => (t ? `${mEur(t[0])}–${mEur(t[1])} M€` : "");
+function crossCheck(e) {
+  const p = PUB.get(e.key);
+  if (!p) return null;
+  const pr = profile(e), rows = [];
+  if (p.t) {
+    const m = pr.med, coinv = /co-invest/i.test(p.lead || "");
+    rows.push({ k: "Ticket", short: "ticket", decl: `${fmtRange(p.t)} par premier ticket${p.fo ? `, jusqu'à ${mEur(p.fo)} M€ par société` : ""}`, obs: m != null ? `Tour médian ${fmtAmt(m)}` : "Pas assez de tours au montant connu",
+      v: m == null ? "na" : m < p.t[0] ? "gap" : m <= p.t[1] * 4 || coinv ? "ok" : "gap",
+      note: m == null ? "" : m < p.t[0] ? "Ses tours sont plus petits que son ticket minimum déclaré : thèse récente ou montants partiels." : m <= p.t[1] * 4 ? "Son ticket peut peser une part importante des tours auxquels il participe." : coinv ? "Tours bien plus gros que son ticket, ce qui est cohérent avec un rôle de co-investisseur." : "Tours bien plus gros que son ticket : il y entre plutôt en minoritaire." });
+  }
+  if (p.st) {
+    const parts = p.st.split(/→/).flatMap((x) => (/amor/i.test(x) ? [0, 1] : [stageIdx(x)])).filter((i) => i >= 0), staged = e.deals.filter((d) => stageIdx(d.stage_raw || "") >= 0);
+    if (parts.length) {
+      const lo = Math.min(...parts), hi = Math.max(...parts), inR = staged.filter((d) => { const i = stageIdx(d.stage_raw); return i >= lo && i <= hi; }).length;
+      const dom = Object.entries(staged.reduce((a, d) => ((a[d.stage_raw] = (a[d.stage_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1])[0];
+      let ok = staged.length >= 3 ? inR / staged.length >= 0.6 : null;
+      const out = Object.entries(staged.filter((d) => { const i = stageIdx(d.stage_raw); return i < lo || i > hi; }).reduce((a, d) => ((a[d.stage_raw] = (a[d.stage_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1])[0];
+      // Des deals plus tardifs que la fourchette s'expliquent par une politique de réinvestissement déclarée.
+      const later = out && stageIdx(out[0]) > hi && (p.followon || p.fo) && inR / staged.length >= 0.3;
+      if (ok === false && later) ok = true;
+      rows.push({ k: "Stades", short: "stade", decl: p.st, obs: staged.length ? `${pct(inR, staged.length)} % de ses deals dans cette fourchette${dom ? ` · surtout ${dom[0]}` : ""}` : "Stades non communiqués", v: ok == null ? "na" : ok ? "ok" : "gap", note: later && inR / staged.length < 0.6 ? `Présent aussi en ${out[0]} : cohérent avec ses réinvestissements dans les tours suivants.` : ok === false && out ? `Une bonne part de ses deals sort de la fourchette annoncée, surtout en ${out[0]}.` : "" });
+    }
+  }
+  if (p.sec && p.sec.length) {
+    const fam = new Set(p.sec.flatMap((s) => SEC_FAMILY[s] || [s]));
+    const n = e.deals.filter((d) => fam.has(d.sector_raw)).length, base = [...fam].reduce((a, s) => a + (SEC_SHARE.get(s) || 0), 0), sh = n / (e.deals.length || 1);
+    const ok = e.deals.length >= 3 ? sh >= 0.5 || (sh >= 0.1 && sh >= 2 * base) : null;
+    rows.push({ k: "Secteurs", short: "secteurs", decl: p.sec.join(", "), obs: e.deals.length ? `${Math.round(sh * 100)} % de ses deals (marché : ${Math.round(base * 100)} %)` : "—", v: ok == null ? "na" : ok ? "ok" : "gap", note: ok === false ? "Plus généraliste en pratique que sa thèse affichée." : "" });
+  }
+  if (p.followon || p.fo) {
+    // Fenêtre courte (deals depuis 2024) : l'absence de réinvestissement visible n'est pas un écart.
+    rows.push({ k: "Réinvestissement", short: "suivi", decl: p.followon || `Jusqu'à ${mEur(p.fo)} M€ par société en cumulé`, obs: pr.fo != null ? `${pct(pr.re, pr.cos)} % de ses startups financées sur plusieurs tours` : "Pas assez de startups suivies", v: pr.fo > 0 ? "ok" : "na", note: pr.fo === 0 ? "Aucun réinvestissement visible depuis 2024 : la plupart des tours suivants tombent au-delà de cette fenêtre." : "" });
+  }
+  if (p.lead) rows.push({ k: "Rôle", decl: p.lead.charAt(0).toUpperCase() + p.lead.slice(1), obs: "Non observable dans les levées publiées", v: "na", note: "" });
+  return { p, rows };
+}
+const xLine = (x) => { const r = x.rows.filter((r) => r.v !== "na" && r.short); return r.length ? `<div class="xline" title="Profil public du fonds comparé à ses deals">Public vs deals : ${r.map((r) => `<span class="${r.v}">${r.short} ${r.v === "ok" ? "✓" : "≠"}</span>`).join(" · ")}</div>` : ""; };
+function pubBlock(e) {
+  const x = crossCheck(e);
+  if (!x) return "";
+  const host = (() => { try { return new URL(x.p.src).hostname.replace(/^www\./, ""); } catch (err) { return "source"; } })();
+  return sec("Profil public et deals observés", `${x.p.focus ? `<p class="thesis-decl" style="margin-bottom:12px">${esc(x.p.focus)}</p>` : ""}<div class="xtab">${x.rows.map((r) => `<div class="xrow"><span class="xk">${esc(r.k)}</span><span><small>Déclaré</small>${esc(r.decl)}</span><span><small>Observé</small>${esc(r.obs)}${r.note ? `<em>${esc(r.note)}</em>` : ""}</span><span class="xv ${r.v}">${r.v === "ok" ? "Cohérent" : r.v === "gap" ? "Écart" : "—"}</span></div>`).join("")}</div>
+    <p class="mono muted" style="font-size:.7rem;margin-top:8px">Source : <a href="${esc(x.p.src)}" target="_blank" rel="noopener">${esc(host)}</a> · ${esc(x.p.d)}${x.p.q === "annuaire" ? " · annuaire tiers, à confirmer auprès du fonds" : ""}</p>`);
+}
 const FONDS_PARAMS = [["q", "#fQ"], ["type", "#fType"], ["stade", "#fStage"], ["secteur", "#fSec"], ["taille", "#fSize"], ["tri", "#fSort"]];
-const FONDS_FLAGS = [["specialistes", "#fSpec"], ["deploiement", "#fDep"]];
+const FONDS_FLAGS = [["specialistes", "#fSpec"], ["deploiement", "#fDep"], ["public", "#fPub"]];
 // Lien de la liste affichée : filtres en cours et, le cas échéant, la sélection.
 function fondsHash(withSel) {
   const u = new URLSearchParams();
@@ -453,7 +504,7 @@ BUILDERS.fonds = () => {
   const rail = $("#rail");
   $("#railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: "smooth" }));
   $("#railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
-  ["#fQ", "#fType", "#fStage", "#fSec", "#fSize", "#fSort", "#fDep", "#fSpec", "#fMine"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
+  ["#fQ", "#fType", "#fStage", "#fSec", "#fSize", "#fSort", "#fDep", "#fSpec", "#fMine", "#fPub"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
   $("#fShare").addEventListener("click", () => copyText(location.href.split("#")[0] + fondsHash(true)));
   $("#fShared").addEventListener("click", (ev) => {
     const b = ev.target.closest("[data-shared]");
@@ -487,7 +538,7 @@ function stageCovers(e, stg) {
 }
 function renderFonds() {
   const q = norm($("#fQ").value), ty = $("#fType").value, stg = $("#fStage").value, sec = $("#fSec").value, dep = $("#fDep").checked;
-  const spec = $("#fSpec").checked, band = SIZE_BANDS[$("#fSize").value], mine = $("#fMine").checked;
+  const spec = $("#fSpec").checked, band = SIZE_BANDS[$("#fSize").value], mine = $("#fMine").checked, pubOnly = $("#fPub").checked;
   $("#fSpec").parentElement.style.opacity = sec ? "" : ".5";
   $("#fSpec").parentElement.title = sec ? `${sec} pèse au moins 40 % de ses deals, ou 20 % et 2,5 fois son poids sur le marché (3 deals minimum)` : "Choisissez d'abord un secteur";
   let r = FUNDS_ENTS.filter((e) => {
@@ -498,6 +549,7 @@ function renderFonds() {
     if (sec && !e.deals.some((d) => d.sector_raw === sec) && !(e.ins && e.ins.sectors.includes(sec))) return false;
     if (sec && spec && !isSpecialist(e, sec)) return false;
     if (band) { const m = profile(e).med; if (m == null || m < band[0] || m >= band[1]) return false; }
+    if (pubOnly && !PUB.has(e.key)) return false;
     if (FS.shared && !FS.shared.has(e.key)) return false;
     if (!FS.shared && mine && !MINE.has(e.key)) return false;
     if (q && !norm([e.name, e.ins && e.ins.focus, e.ins && e.ins.type, e.veh.map((f) => f.name + " " + (f.thesis || "")).join(" ")].join(" ")).includes(q)) return false;
@@ -517,11 +569,13 @@ function renderFonds() {
     const ins = e.ins || {};
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
+    const pb = PUB.get(e.key), xc = pb && crossCheck(e);
     const pr = profile(e), fs = sec && pr.bySec.get(sec) ? { sec, share: pr.bySec.get(sec) / e.deals.length } : pr.top;
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
       <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div><span class="star${MINE.has(e.key) ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.key)}" aria-pressed="${MINE.has(e.key)}" title="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}" aria-label="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}">${MINE.has(e.key) ? "★" : "☆"}</span></div>
-      <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket déclaré</span></div></div>
+      <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${pb && pb.t ? fmtRange(pb.t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket déclaré</span></div></div>
       <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="${pr.fo != null ? `${pr.re} startup${pr.re > 1 ? "s" : ""} sur ${pr.cos} financée${pr.re > 1 ? "s" : ""} sur plusieurs tours` : "Pas assez de deals suivis"}"><b>${pr.fo != null ? pct(pr.re, pr.cos) + " %" : "—"}</b><span>réinvestit</span></div><div title="Part de ses deals dans ce secteur"><b>${fs ? Math.round(fs.share * 100) + " %" : "—"}</b><span>${fs ? esc(fs.sec) : "secteur n°1"}</span></div></div>
+      ${xc ? xLine(xc) : ""}
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
       ${e.veh.length ? `<div class="depline">● En déploiement : ${e.veh.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
@@ -700,8 +754,9 @@ function entDetail(key) {
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
   return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(typeLabel(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
-    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
+    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [PUB.get(e.key) && PUB.get(e.key).t ? fmtRange(PUB.get(e.key).t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${thesisBlock(e, deals)}
+    ${pubBlock(e)}
     ${ins.stages || (ins.sectors && ins.sectors.length) ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}

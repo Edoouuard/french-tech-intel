@@ -1,0 +1,713 @@
+[
+{
+"n": "Daphni",
+"t": [
+0.5,
+8
+],
+"st": "Seed → Série A",
+"sec": [
+"DeepTech",
+"GreenTech"
+],
+"focus": "Technologies de rupture issues de la recherche européenne (fonds Blue, 260 M€)",
+"src": "https://www.maddyness.com/2025/03/25/daphni-mise-200-millions-deuros-pour-transformer-des-projets-scientifiques-en-champions-de-la-tech/",
+"d": "2025-03",
+"q": "presse"
+},
+{
+"n": "UI Investissement",
+"t": [
+0.2,
+2
+],
+"fo": 5,
+"st": "Amorçage → Série A",
+"sec": [
+"DeepTech",
+"HealthTech"
+],
+"focus": "Pertinence Invest : startups issues de la recherche publique",
+"src": "https://www.maddyness.com/2025/02/03/que-font-les-fonds-le-portrait-dui-investissement/",
+"d": "2025-02",
+"q": "presse"
+},
+{
+"n": "Go Capital",
+"t": [
+0.3,
+2
+],
+"fo": 6,
+"st": "Amorçage",
+"focus": "Amorçage dans le Grand Ouest, minoritaire, réinvestit en plusieurs tranches",
+"src": "https://www.caissedesdepots.fr/sites/default/files/2020-03/cp_bpi_pia_go_capital.pdf",
+"d": "2020-03",
+"q": "presse"
+},
+{
+"n": "Newfund",
+"t": [
+0.23,
+1.85
+],
+"st": "Pre-seed → Seed",
+"lead": "lead",
+"followon": "Réinvestit dans les tours suivants",
+"focus": "Fonds « first check » : apporte souvent le premier argent institutionnel",
+"src": "https://vc4a.com/newfund",
+"d": "2024",
+"q": "annuaire"
+},
+{
+"n": "Elaia",
+"t": [
+0.3,
+3
+],
+"st": "Pre-seed → Série A",
+"sec": [
+"DeepTech",
+"IA",
+"Cybersécurité"
+],
+"focus": "Deeptech B2B ; fonds DTS3 (seed, 134 M€) et fonds Alpha (série A)",
+"src": "https://thenextweb.com/news/elaia-dts3-deep-tech-seed-fund-134m",
+"d": "2024",
+"q": "presse"
+},
+{
+"n": "Ring Capital",
+"t": [
+5,
+10
+],
+"st": "Série A → Série B",
+"focus": "Tech à impact, entre série A et B",
+"src": "https://techcrunch.com/2018/01/19/french-vc-firm-ring-capital-raises-170-million-fund/",
+"d": "2018-01",
+"q": "presse"
+},
+{
+"n": "Serena",
+"t": [
+0.1,
+15
+],
+"st": "Pre-seed → Série A",
+"lead": "lead ou co-lead",
+"sec": [
+"IA",
+"Energy"
+],
+"focus": "Fonds IV (200 M€) : IA appliquée et transition énergétique",
+"src": "https://www.maddyness.com/2025/10/01/serena-lance-un-fonds-de-200-millions-deuros-pour-miser-sur-les-prochaines-pepites-europeennes-de-lia/",
+"d": "2025-10",
+"q": "presse"
+},
+{
+"n": "Supernova Invest",
+"t": [
+1,
+30
+],
+"st": "Amorçage → Growth",
+"lead": "lead",
+"followon": "Réinvestit sur 2 à 3 tours",
+"sec": [
+"DeepTech"
+],
+"focus": "Deeptech : Supernova Innovation 3 (amorçage, 1 à 3 M€, lead) et un fonds growth de 145 M€ (8 à 30 M€ dans des tours de 20 à 200 M€)",
+"src": "https://www.optionfinance.fr/actualites/un-premier-fonds-europeen-dedie.html",
+"d": "2021-11",
+"q": "presse"
+},
+{
+"n": "Partech",
+"t": [
+0.3,
+3
+],
+"st": "Pre-seed → Growth",
+"lead": "lead ou co-investissement",
+"followon": "Suit ses participations jusqu'en série B",
+"focus": "Plusieurs véhicules : Entrepreneur IV (pre-seed/seed, 0,3–3 M€, 120 M€), Venture et Growth",
+"src": "https://tech.eu/2022/12/05/partech-fourth-seed-fund",
+"d": "2022-12",
+"q": "presse"
+},
+{
+"n": "Alven",
+"t": [
+0.1,
+15
+],
+"st": "Seed → Série A",
+"followon": "Réserve 35 M€ pour les tours suivants",
+"focus": "Fonds V (250 M€), généraliste tech",
+"src": "https://alven.co/news/alven-capital-closes-fifth-generation-fund-e250-million-hard-cap",
+"d": "2025-12",
+"q": "presse"
+},
+{
+"n": "Super Capital VC",
+"t": [
+0.03,
+0.5
+],
+"st": "Pre-seed → Série A",
+"sec": [
+"SaaS",
+"IA",
+"FinTech"
+],
+"focus": "Startups françaises déjà génératrices de revenus",
+"src": "https://www.maddyness.com/2024/05/06/que-font-les-fonds-le-portrait-de-super-capital-vc/",
+"d": "2024-05",
+"q": "presse"
+},
+{
+"n": "Seventure Partners",
+"t": [
+0.5,
+10
+],
+"fo": 20,
+"st": "Seed → Growth",
+"sec": [
+"Biotech",
+"HealthTech",
+"FoodTech"
+],
+"focus": "Sciences de la vie et technologies numériques",
+"src": "https://beta.motherbase.ai/corporate/51740-seventure-partners",
+"d": "2023",
+"q": "annuaire"
+},
+{
+"n": "Swen Capital Partners",
+"st": "Seed → Série B",
+"sec": [
+"GreenTech"
+],
+"focus": "Fonds Blue Ocean : régénération des océans, climat",
+"src": "https://www.maddyness.com/2024/03/12/que-font-les-fonds-le-portrait-de-swen-capital-partners/",
+"d": "2024-03",
+"q": "presse"
+},
+{
+"n": "Speedinvest",
+"t": [
+0.6,
+2
+],
+"fo": 10,
+"st": "Pre-seed → Seed",
+"lead": "lead",
+"followon": "Mène 85 % de ses premiers tours ; plus de 100 réinvestissements par an",
+"focus": "Fonds IV : environ 0,6 M€ en pre-seed, 1,5 à 2 M€ en seed",
+"src": "https://tech.eu/2022/12/13/speedinvest-brings-a-fresh-eur500-million-to-the-pre-seed-and-seed-round-table",
+"d": "2022-12",
+"q": "presse"
+},
+{
+"n": "Isai",
+"t": [
+1,
+3
+],
+"st": "Pre-seed → Série A",
+"focus": "ISAI Venture IV : entrepreneurs français ; 10 % du fonds en pre-seed (0,1 à 0,5 M€)",
+"src": "https://www.maddyness.com/2025/12/03/isai-leve-75-millions-deuros-pour-soutenir-lenvol-des-futures-pepites-de-la-french-tech/",
+"d": "2025-12",
+"q": "presse"
+},
+{
+"n": "EIC Fund",
+"t": [
+0.5,
+15
+],
+"st": "Seed → Série B",
+"sec": [
+"DeepTech"
+],
+"focus": "Volet capital de l'EIC Accelerator (ticket moyen ~4 M€)",
+"src": "https://www.fi-compass.eu/sites/default/files/publications/Equity%20and%20grants%20for%20innovation%202021-2027.pdf",
+"d": "2021",
+"q": "presse"
+},
+{
+"n": "Asterion Ventures",
+"t": [
+0.5,
+2
+],
+"st": "Pre-seed → Seed",
+"lead": "lead ou co-lead",
+"sec": [
+"GreenTech"
+],
+"focus": "Impact et climat, une vingtaine de deals par an, tours jusqu'à 5 M€",
+"src": "https://www.maddyness.com/2023/01/23/que-font-les-fonds-le-portrait-dasterion-ventures/",
+"d": "2023-01",
+"q": "presse"
+},
+{
+"n": "Axeleo Capital",
+"t": [
+0.5,
+3
+],
+"fo": 10,
+"st": "Pre-seed → Série A",
+"sec": [
+"SaaS",
+"GreenTech",
+"Industry 4.0"
+],
+"focus": "Fonds Digital (pre-seed/seed) et Greentech Industry (série A–B, 3 à 10 M€)",
+"src": "https://f4.fund/firms/axeleo-capital",
+"d": "2025",
+"q": "annuaire"
+},
+{
+"n": "XAnge",
+"t": [
+0.5,
+10
+],
+"st": "Seed → Série B",
+"focus": "Tech et impact (santé, climat), certifié B Corp",
+"src": "https://www.maddyness.com/base-fonds-investissements/xange/",
+"d": "2025",
+"q": "annuaire"
+},
+{
+"n": "Frst",
+"t": [
+1,
+3
+],
+"st": "Pre-seed → Seed",
+"followon": "Garde une capacité de réinvestissement importante",
+"focus": "Signe souvent avant même la création de la société",
+"src": "https://tech.eu/2023/06/26/frances-frst-announce-first-close-of-new-fund-at-eur72-million/",
+"d": "2023-06",
+"q": "presse"
+},
+{
+"n": "Wind",
+"t": [
+0.5,
+5
+],
+"fo": 10,
+"st": "Seed → Série B",
+"sec": [
+"DeepTech",
+"GreenTech"
+],
+"focus": "Deeptech et climat (Wind II, article 9)",
+"src": "https://www.maddyness.com/base-fonds-investissements/wind/",
+"d": "2026",
+"q": "annuaire"
+},
+{
+"n": "Ventech",
+"t": [
+0.5,
+5
+],
+"st": "Seed → Série A",
+"focus": "Généraliste tech européenne (Ventech VI, 175 M€)",
+"src": "https://ventechvc.com/who-we-are",
+"d": "2025",
+"q": "fonds"
+},
+{
+"n": "AFI Ventures",
+"t": [
+0.1,
+0.5
+],
+"st": "Pre-seed → Seed",
+"sec": [
+"GreenTech"
+],
+"focus": "Véhicule d'amorçage à impact de Ventech, 1 à 2 deals par mois",
+"src": "https://ventechvc.com/who-we-are",
+"d": "2025",
+"q": "fonds"
+},
+{
+"n": "Expansion Ventures",
+"t": [
+0.5,
+2
+],
+"st": "Seed → Série B",
+"sec": [
+"SpaceTech",
+"Aerospace"
+],
+"focus": "Spatial européen ; ticket initial moyen d'environ 1 M€",
+"src": "https://www.frenchweb.fr/expansion-ventures-boucle-une-premiere-tranche-de-son-fonds-dedie-a-la-space-tech-europeenne/450455",
+"d": "2025",
+"q": "presse"
+},
+{
+"n": "Raise",
+"t": [
+1,
+5
+],
+"st": "Série A",
+"followon": "Capacité de réinvestissement dans les tours suivants",
+"focus": "RAISE Ventures ; le seed passe par Seed for Good",
+"src": "https://www.maddyness.com/2025/03/03/que-font-les-fonds-le-portrait-de-raise-ventures/",
+"d": "2025-03",
+"q": "presse"
+},
+{
+"n": "Purple Fund",
+"t": [
+0.17,
+0.85
+],
+"st": "Pre-seed → Série A",
+"focus": "Fonds de Laurent Ritter (cofondateur de Voodoo)",
+"src": "https://superscout.co/investor/purple",
+"d": "2024",
+"q": "annuaire"
+},
+{
+"n": "Sofinnova Partners",
+"st": "Seed → Crossover",
+"lead": "lead",
+"sec": [
+"Biotech",
+"MedTech"
+],
+"focus": "Sciences de la vie ; mène historiquement les seed et séries A ; crossover de 15 à 40 M€ par société",
+"src": "https://www.fiercebiotech.com/biotech/sofinnova-raises-eu275m-crossover-fund-to-back-late-stage-firms",
+"d": "2021",
+"q": "presse"
+},
+{
+"n": "360 Capital",
+"t": [
+0.2,
+2
+],
+"st": "Pre-seed → Seed",
+"sec": [
+"DeepTech",
+"SaaS"
+],
+"focus": "360 Square II : deeptech, logiciel B2B et tech grand public (France, Italie, Espagne)",
+"src": "https://www.frenchweb.fr/le-pari-des-vc-sur-la-climate-tech-360-capital-leve-140-millions-deuros-pour-accelerer-linnovation/450424",
+"d": "2024",
+"q": "presse"
+},
+{
+"n": "Demeter",
+"t": [
+1,
+5
+],
+"st": "Seed → Série A",
+"lead": "lead",
+"followon": "Suit parfois jusqu'en série B, toujours minoritaire",
+"sec": [
+"GreenTech",
+"Energy"
+],
+"focus": "Transition énergétique et écologique",
+"src": "https://www.maddyness.com/?p=1366401",
+"d": "2024",
+"q": "presse"
+},
+{
+"n": "IRDI Capital Investissement",
+"t": [
+0.2,
+15
+],
+"st": "Amorçage → Growth",
+"sec": [
+"DeepTech",
+"HealthTech"
+],
+"focus": "IRDInov 3 : amorçage deeptech, surtout santé, en Occitanie et Nouvelle-Aquitaine",
+"src": "https://www.lemondedudroit.fr/deals/86205-couderc-dinh-associes-a-conseille-irdi-capital-investissement-lancement-deux-nouveaux-fonds-regionaux-irdinov-3-aelis-innovation.html",
+"d": "2023",
+"q": "presse"
+},
+{
+"n": "Ovni Capital",
+"t": [
+0.25,
+2
+],
+"fo": 4,
+"st": "Pre-seed → Seed",
+"lead": "lead",
+"focus": "Fonds « media-led » ; cherche désormais à mener ses tours seed (~2 M€)",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Levee-de-fonds/Ovni-Capital-fait-atterrir-son-premier-fonds-530625",
+"d": "2025",
+"q": "presse"
+},
+{
+"n": "Evolem Start",
+"t": [
+0.3,
+1.5
+],
+"st": "Pre-seed → Série A",
+"focus": "Holding de Bruno Rousset, startups en phase d'accélération commerciale",
+"src": "https://www.cfnews.net/L-actualite/Exclusif-CFNEWS/Evolem-lance-Evolem-Start-266294",
+"d": "2018",
+"q": "presse"
+},
+{
+"n": "Épopée Gestion",
+"t": [
+2,
+10
+],
+"st": "Série A → Growth",
+"focus": "Épopée Transitions I : une douzaine d'entreprises du Grand Ouest, minoritaire",
+"src": "https://www.lejournaldesentreprises.com/article/epopee-gestion-annonce-un-nouveau-tour-de-table-de-84-millions-deuros-1565038",
+"d": "2024",
+"q": "presse"
+},
+{
+"n": "Crédit Mutuel Innovation",
+"t": [
+1,
+20
+],
+"st": "Série A → Série B",
+"sec": [
+"DeepTech",
+"HealthTech"
+],
+"focus": "Numérique, santé et deeptech ; ticket moyen ~5 M€",
+"src": "https://siecledigital.fr/2023/05/26/credit-mutuel-innovation-double-ses-investissements-annuels-destines-aux-start-up-innovantes/",
+"d": "2023-05",
+"q": "presse"
+},
+{
+"n": "Kurma Partners",
+"t": [
+2,
+10
+],
+"st": "Seed → Série B",
+"lead": "lead",
+"sec": [
+"Biotech",
+"MedTech"
+],
+"focus": "Biotech et medtech (Biofund IV, 215 M€) : 2–5 M€ en seed, 8–10 M€ en série A/B",
+"src": "https://www.maddyness.com/2024/10/03/kurma-partners-relance-un-fonds-pour-mener-les-biotechs-vers-le-succes-industriel/",
+"d": "2024-10",
+"q": "presse"
+},
+{
+"n": "Nord France Amorçage",
+"t": [
+0.1,
+0.3
+],
+"st": "Amorçage",
+"followon": "En 2024 : 10 réinvestissements pour 5 nouveaux dossiers",
+"focus": "Amorçage en Hauts-de-France (50 M€)",
+"src": "https://delibinternet.hautsdefrance.fr/Docs/CommissionPermanente/2025/06/19/DELIBERATION/2025.00884_annexe.PDF",
+"d": "2025-06",
+"q": "fonds"
+},
+{
+"n": "EQT Ventures",
+"t": [
+1,
+50
+],
+"st": "Seed → Série B",
+"lead": "lead",
+"focus": "Peut prendre l'intégralité d'un tour",
+"src": "https://tech.eu/2022/11/09/eqt-ventures-goes-for-the-hat-trick-announces-final-close-at-eur11-billion/",
+"d": "2022-11",
+"q": "presse"
+},
+{
+"n": "Finovam Gestion",
+"t": [
+0.1,
+0.5
+],
+"st": "Amorçage",
+"focus": "Finovam 2 : amorçage en Hauts-de-France",
+"src": "https://www.lejournaldesentreprises.com/article/finovam-gestion-lance-un-nouveau-fonds-dinvestissement-dans-les-hauts-de-france-1245744",
+"d": "2021",
+"q": "presse"
+},
+{
+"n": "Breizh Up",
+"t": [
+0.1,
+0.75
+],
+"st": "Amorçage",
+"lead": "co-investissement",
+"focus": "Fonds de la Région Bretagne, co-investit avec des investisseurs privés",
+"src": "https://www.maddyness.com/2021/11/29/que-font-les-fonds-portrait-breizh-up/",
+"d": "2023-05",
+"q": "presse"
+},
+{
+"n": "Index Ventures",
+"t": [
+0.5,
+13
+],
+"st": "Seed → Growth",
+"focus": "Seed via Index Origin (0,5–3 M$) ; séries A autour de 10–15 M$",
+"src": "https://techcrunch.com/2021/07/22/index-ventures-trio-of-new-funds-leads-to-3-billion-and-more-tiktok",
+"d": "2021-07",
+"q": "presse"
+},
+{
+"n": "Tomcat Invest",
+"t": [
+0.5,
+2.5
+],
+"st": "Seed → Série A",
+"lead": "lead ou co-lead",
+"focus": "Investit dans les startups passées par son accélérateur (fonds II : 80–100 M€)",
+"src": "https://www.maddyness.com/2025/10/23/que-font-les-fonds-le-portrait-de-tomcat/",
+"d": "2025-10",
+"q": "presse"
+},
+{
+"n": "Headline",
+"t": [
+1,
+15
+],
+"st": "Seed → Série A",
+"followon": "Réserve une part importante pour réinvestir",
+"sec": [
+"IA"
+],
+"focus": "Fonds européen VIII (400 M$), priorité à l'IA",
+"src": "https://tech.eu/2026/10/01/mistral-and-black-forest-labs-backer-headline-closes-400m-european-fund/",
+"d": "2026-10",
+"q": "presse"
+},
+{
+"n": "Starquest Capital",
+"st": "Seed → Série B",
+"sec": [
+"GreenTech",
+"Energy",
+"Industry 4.0"
+],
+"focus": "Climat, énergie et ressources, innovation industrielle",
+"src": "https://www.maddyness.com/2023/03/13/que-font-les-fonds-starquest/",
+"d": "2023-03",
+"q": "presse"
+},
+{
+"n": "Eiffel Investment Group",
+"t": [
+5,
+50
+],
+"st": "Growth",
+"sec": [
+"GreenTech",
+"Energy"
+],
+"focus": "Eiffel Essentiel : growth minoritaire dans des PME-ETI de la transition énergétique",
+"src": "https://www.eib.org/fr/press/all/2021-055-eiffel-investment-group-reunit-300meur-avec-le-soutien-de-la-bei-pour-le-1er-closing-d-eiffel-essentiel-un-fonds-de-growth-capital-dedie-aux-entreprises-de-la-transition-energetique-et-ecologique",
+"d": "2021",
+"q": "presse"
+},
+{
+"n": "The Moon Venture",
+"t": [
+0.25,
+1
+],
+"fo": 4,
+"st": "Seed → Série A",
+"focus": "Club d'investisseurs (Soul Invest), dès 500 € par membre",
+"src": "https://hub.waveup.com/funds/the-moon-venture",
+"d": "2024",
+"q": "annuaire"
+},
+{
+"n": "Breega",
+"t": [
+0.5,
+10
+],
+"st": "Seed → Série A",
+"sec": [
+"FinTech",
+"Crypto & Web3"
+],
+"focus": "Europe Seed III (amorçage) et Venture II (série A, fintech et web3)",
+"src": "https://www.maddyness.com/2023/10/18/breega-fonds-startups-europe-amorcage/",
+"d": "2023-10",
+"q": "presse"
+},
+{
+"n": "Blast Club",
+"t": [
+0.7,
+2
+],
+"st": "Seed → Série A",
+"lead": "co-investissement",
+"focus": "Club de plus de 14 000 membres, tickets collectifs par deal",
+"src": "https://onelink.econocom.com/wp-content/uploads/2023/03/Les_Echos_20230320110000.pdf",
+"d": "2023-03",
+"q": "presse"
+},
+{
+"n": "Inco Ventures",
+"t": [
+0.5,
+1.5
+],
+"st": "Seed → Série A",
+"sec": [
+"GreenTech"
+],
+"focus": "Impact (économie inclusive et durable), participations minoritaires",
+"src": "https://www.ventures.inco-group.co/",
+"d": "2024",
+"q": "fonds"
+},
+{
+"n": "Omnes",
+"t": [
+3,
+5
+],
+"fo": 15,
+"st": "Série A → Série C",
+"sec": [
+"DeepTech",
+"Energy"
+],
+"focus": "Deeptech et transition énergétique (Omnes Real Tech 2)",
+"src": "https://www.omnescapital.com/?p=2453",
+"d": "2025",
+"q": "fonds"
+}
+]
