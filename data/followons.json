@@ -3335,5 +3335,1004 @@
 ],
 "note": "CFNews : medtech déjà accompagnée par Sofinnova et Andera ; série B antérieure menée par USVP et Andera avec Sofinnova.",
 "src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/5eme-tour/HighLife-draine-de-nouveaux-capitaux-735042 ; https://www.lemondedudroit.fr/deals/62064-orrick-conseille-highlife.html"
+},
+{
+"s": "Enersweet",
+"r": "2026-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Ring Capital entre comme minoritaire ; aucune source sur les actionnaires en capital antérieurs (seulement la dette Pictet).",
+"src": "https://finyear.com/enersweet-leve-45-millions-deuros-et-accueille-ring-capital"
+},
+{
+"s": "Chargepoly",
+"r": "2026-08",
+"statut": "inconnu",
+"deja": [],
+"note": "Meridiam mène le tour (nouveau). Les sources écrivent « Fidève Groupe », qualifié d'investisseur existant et de partenaire historique depuis 2020-2021 et en Série A 2023 ; c'est sans doute la même entité que « Fidèle Groupe » dans la liste. (Retiré par prudence : rattachement à l'investisseur de la liste non certain.)",
+"src": "https://www.chargepoly.com/wp-content/uploads/2024/07/CP_ChargepolyPressRelease_levege-de-fonds_VF.pdf"
+},
+{
+"s": "Prophesee",
+"r": "2026-06",
+"statut": "verifie",
+"deja": [
+"360 Capital",
+"IbioNext",
+"Robert Bosch Venture Capital"
+],
+"note": "Le tour de 2026 n'est confirmé que par un agrégateur. 360 Capital, iBionext et Robert Bosch VC sont cités comme investisseurs historiques dans les tours précédents (Série B, 28 M$, 50 M€). « Supernova Invest » figure aussi dans l'historique, mais je ne l'ai pas inclus : son nom ne correspond pas exactement à « Supernova Capital ». Rien sur Critical Path Ventures.",
+"src": "https://www.lemondedudroit.fr/deals/83813-bird-bird-conseille-prophesee-dans-le-cadre-d-une-nouvelle-levee-de-fonds-de-50-millions-d-euros.html"
+},
+{
+"s": "Happydemics",
+"r": "2024-12",
+"statut": "verifie",
+"deja": [
+"Adelie"
+],
+"note": "Adelie Capital, déjà entré en 2020, remet au pot ; Wille Finance est nouveau.",
+"src": "https://www.maddyness.com/2024/12/03/happydemics-leve-13-millions-deuros-pour-confirmer-sa-place-de-reference-de-la-mesure-defficacite-publicitaire/"
+},
+{
+"s": "Neosilver",
+"r": "2024-09",
+"statut": "verifie",
+"deja": [],
+"note": "Premier tour (CFNews : « premier tour ») ; c'est le premier investissement du fonds Mirova MILE, avec la Banque des Territoires.",
+"src": "https://www.banquedesterritoires.fr/mirova-sassocie-la-banque-des-territoires-pour-son-premier-investissement-de-son-fonds-impact"
+},
+{
+"s": "YesWeHack",
+"r": "2024-06",
+"statut": "verifie",
+"deja": [
+"Bpifrance",
+"Open CNP",
+"Eiffel Investment Group"
+],
+"note": "Wendel mène le tour ; Adelie et Seventure sont nouveaux ; Bpifrance, Open CNP et Eiffel réinvestissent.",
+"src": "https://www.silicon.co.uk/press-release/yeswehack-raises-26-million-euros-to-accelerate-its-growth-and-international-expansion"
+},
+{
+"s": "Airthium",
+"r": "2024-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Investisseurs du tour confirmés (CFNews, CB Insights), mais aucune information sur les tours antérieurs.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/Amorcage/Airthium-chauffe-par-un-amorcage-478186"
+},
+{
+"s": "Aerix Systems",
+"r": "2026-03",
+"statut": "verifie",
+"deja": [],
+"note": "Le tour de 2024 (1,6 M€) réunissait Bacs-Innov, Techno'Start, Defense Angels, Insead Angels et Badge ; Odyssée Venture est nouveau.",
+"src": "https://www.lejournaldesentreprises.com/breve/aerix-systems-leve-5-millions-deuros-pour-financer-une-pre-serie-industrielle-de-ses-drones-2138586"
+},
+{
+"s": "Green Spot Technologies",
+"r": "2025-11",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour Seed Plus avec Team for the Planet et l'EIC ; aucun historique fiable des tours antérieurs.",
+"src": "https://www.lemondedudroit.fr/deals/101597-solegal-conseille-green-spot-technologies-leveedefonds-seed-plus.html"
+},
+{
+"s": "Space Cargo",
+"r": "2025-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Expansion Ventures mène le tour, avec Eurazeo. Un ancien article cite Eurazeo et Expansion pour une « phase 1 », sans date d'entrée au capital claire : doute, donc rien retenu. Les sources qualifient le tour de Série A.",
+"src": "https://chronicle.lu/category/space/56784-new-luxembourg-headquarters-record-funding-for-space-cargo-unlimited"
+},
+{
+"s": "Enrise",
+"r": "2025-06",
+"statut": "inconnu",
+"deja": [],
+"note": "Funding.tech mentionne un tour de 2,2 M€ en 2024 avec Asterion Ventures et Ring Capital, ce qui contredit Le Journal des Entreprises (500 k€ en 2024 auprès de Pascal Marguet). Contradiction, donc rien retenu.",
+"src": "https://www.lejournaldesentreprises.com/article/lexpert-en-autoconsommation-enrise-leve-8-millions-deuros-pour-tripler-de-taille-2120752"
+},
+{
+"s": "Ostrea",
+"r": "2025-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Deuxième levée après une première en 2023, dont les investisseurs ne sont pas précisés.",
+"src": "https://www.lejournaldesentreprises.com/breve/ostrea-leve-5-millions-deuros-pour-accelerer-sa-production-et-viser-linternational-2115494"
+},
+{
+"s": "Signadori Bio",
+"r": "2026-05",
+"statut": "verifie",
+"deja": [
+"Sofinnova Partners",
+"Invivo Partners"
+],
+"note": "Extension de seed : Taiho Ventures est nouveau, Sofinnova et Invivo sont des investisseurs existants.",
+"src": "https://sofinnovapartners.com/news/signadori-bio-raises-eur11-million-seed-round-advance-next-generation"
+},
+{
+"s": "Horizom",
+"r": "2026-09",
+"statut": "inconnu",
+"deja": [],
+"note": "« Deuxième investissement » de SWEN Terra : on ne sait pas s'il s'agit du deuxième investissement du fonds ou d'un réinvestissement dans Horizom. Ambigu.",
+"src": "https://www.optionfinance.fr/info-financiere-en-continu/d/2026-09-18-swen-capital-partners-investit-dans-horizom-pour-developper-la-filiere-du-bambou-en-france.html"
+},
+{
+"s": "Najar",
+"r": "2024-10",
+"statut": "inconnu",
+"deja": [],
+"note": "CB Insights mentionne Portage dans un seed de 2023, mais selon Maddyness c'est 13books qui a amené Portage. Contradiction.",
+"src": "https://www.maddyness.com/?p=1402230"
+},
+{
+"s": "Ramify",
+"r": "2024-06",
+"statut": "verifie",
+"deja": [
+"AG2R La Mondiale",
+"Newfund"
+],
+"note": "Amorçage de 2022 avec Newfund, Apicil, AG2R La Mondiale et Crédit Agricole Brie Picardie. Ce dernier est une entité différente de Credit Agricole CIB, que je n'ai pas inclus. 13books et Fidelity sont nouveaux.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Des-fonds-britanniques-en-serie-A-pour-Ramify-489017"
+},
+{
+"s": "NEoT",
+"r": "2024-04",
+"statut": "verifie",
+"deja": [
+"EDF Pulse Ventures"
+],
+"note": "Une source indique que NEoT appartient à Forsee Power, Mitsui et EDF Pulse Ventures (actionnaires fondateurs). Rien d'explicite sur une présence antérieure de 3i, Mirova ou Banque des Territoires.",
+"src": "https://www.vcbacked.co/company/neot"
+},
+{
+"s": "Tereos",
+"r": "2024-01",
+"statut": "inconnu",
+"deja": [],
+"note": "Aucune source sur une levée de 4 M€ liée à Co-op ; le nom renvoie peut-être à une autre entité.",
+"src": "https://www.linklaters.com/fr-fr/about-us/news-and-deals/deals/2024/june/linklaters-advises-tereos-on-its-300m-high-yield-offering"
+},
+{
+"s": "Spark Cleantech",
+"r": "2025-12",
+"statut": "verifie",
+"deja": [
+"Asterion Ventures"
+],
+"note": "Asterion avait apporté 1,4 M€ lors du premier tour de 2023 (« long-standing investor »). 360 Capital et Taranis mènent le tour (nouveaux). Les sources parlent d'une Série A.",
+"src": "https://seedtable.com/companies/spark/funding-rounds/series-a-2025-12"
+},
+{
+"s": "ArcaScience",
+"r": "2025-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Les investisseurs du tour sont listés, mais pas l'historique des tours antérieurs.",
+"src": "https://funding.tech.eu/companies/863C9D03-D487-4627-AEB7-679BCD2E5C0E"
+},
+{
+"s": "Fabriq",
+"r": "2025-06",
+"statut": "verifie",
+"deja": [
+"OSS Ventures"
+],
+"note": "OSS Ventures est qualifié d'investisseur historique ; Expedition Capital est un nouvel actionnaire.",
+"src": "https://www.maddyness.com/2025/06/04/la-startup-fabriq-se-tourne-vers-le-private-equity-et-leve-20-millions-deuros/"
+},
+{
+"s": "Renaissance Fusion",
+"r": "2025-03",
+"statut": "verifie",
+"deja": [
+"Lowercarbon Capital"
+],
+"note": "Lowercarbon avait investi dans le tour de 15 M€ de janvier 2023 ; le fonds du Crédit Mutuel mène le tour.",
+"src": "https://www.lejournaldesentreprises.com/article/renaissance-fusion-leve-32-millions-deuros-2114998"
+},
+{
+"s": "MindDay",
+"r": "2026-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Impactivist et INCO rejoignent le tour aux côtés des investisseurs historiques, dont Mutuelles Impact, fonds géré par XAnge. (Retiré par prudence : rattachement à l'investisseur de la liste non certain.)",
+"src": "https://www.xange.vc/press/mindday-raises-2m-2026"
+},
+{
+"s": "Lupin Dental",
+"r": "2026-08",
+"statut": "inconnu",
+"deja": [],
+"note": "Fynveur mène le tour (nouveau). Des « actionnaires existants » participent sans être nommés ; Bpifrance intervient en prêt.",
+"src": "https://theaiinsider.tech/2026/08/28/lupin-dental-announces-e15m-in-series-a-funding-for-robotic-dental-procedure-system/"
+},
+{
+"s": "Agicap",
+"r": "2024-11",
+"statut": "verifie",
+"deja": [],
+"note": "AVP est nouveau ; les tours précédents réunissaient BlackFin, Partech et Greenoaks.",
+"src": "https://www.lejournaldesentreprises.com/article/la-fintech-lyonnaise-agicap-leve-45-millions-deuros-2107243"
+},
+{
+"s": "Sinay",
+"r": "2024-08",
+"statut": "verifie",
+"deja": [
+"Shift4Good"
+],
+"note": "Shift4Good a investi dans Sinay en avril 2023 (article Seventure). Rien sur les autres investisseurs avant 2024.",
+"src": "https://www.seventure.fr"
+},
+{
+"s": "Provectio",
+"r": "2024-04",
+"statut": "verifie",
+"deja": [],
+"note": "Entrée de Generis Capital Partners comme minoritaire lors de cette levée.",
+"src": "https://www.solutions-numeriques.com/communiques/provectio-annonce-une-levee-de-fonds-de-35-millions-deuros"
+},
+{
+"s": "CardioParc",
+"r": "2024-01",
+"statut": "verifie",
+"deja": [],
+"note": "Citizen Capital et la Banque des Territoires « deviennent » actionnaires (nouveaux) ; les historiques sont les fondateurs.",
+"src": "https://www.banquedesterritoires.fr/sites/default/files/2024-01/CP%20BANQUE%20DES%20TERRITOIRES%20LEVEE%20DE%20FONDS%20CARDIOPARC%2017012024.pdf"
+},
+{
+"s": "Verley",
+"r": "2026-02",
+"statut": "verifie",
+"deja": [
+"Founders Future",
+"Sofinnova Partners",
+"Sparkfood",
+"Captech Santé Nutrition"
+],
+"note": "Alven mène le tour, avec Blast et Bpifrance comme nouveaux ; les investisseurs historiques sont Sofinnova, Sparkfood, Captech Santé et Founders Future.",
+"src": "https://www.goodwinlaw.com/en/news-and-events/news/2026/02/announcements-lifesciences-alven-invests-in-32-million-series-a-financing-of-verley"
+},
+{
+"s": "Probabl",
+"r": "2025-10",
+"statut": "inconnu",
+"deja": [],
+"note": "La recherche n'a rien donné de pertinent.",
+"src": ""
+},
+{
+"s": "MagREEsource",
+"r": "2025-07",
+"statut": "verifie",
+"deja": [
+"Finindus"
+],
+"note": "Finindus est cité dans la levée de 5 M€ de janvier 2023. La date d'entrée d'Innovacom n'est pas claire.",
+"src": "https://www.metal-powder.tech/?p=275681"
+},
+{
+"s": "Fairly Made",
+"r": "2025-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Les investisseurs menant le tour sont listés, mais pas l'historique.",
+"src": "https://fashionunited.com/news/business/traceability-platform-fairly-made-secures-15-million-euros-in-funding/2025040365276"
+},
+{
+"s": "Maki",
+"r": "2025-01",
+"statut": "inconnu",
+"deja": [],
+"note": "Seule la Série A de 29 M$ (janvier 2025) a été trouvée, sans détail des investisseurs.",
+"src": "https://finder.techleap.nl/news/feed/maki-raises-29m-for-u-s-expansion"
+},
+{
+"s": "Bionyra Pharma",
+"r": "2026-06",
+"statut": "verifie",
+"deja": [
+"Sofinnova Partners"
+],
+"note": "Sofinnova a cofondé la société et apporté le seed. Les autres participent à ce tour inaugural, qualifié de Série A (165 M$).",
+"src": "https://sofinnovapartners.com/news/bionyra-pharma-launches-with-usd165-million-oversubscribed-series-a-to-advance-clinical-stage-pipeline-of-next-generation-biologics-for-immune-mediated-inflammatory-diseases"
+},
+{
+"s": "Devialet",
+"r": "2024-11",
+"statut": "verifie",
+"deja": [
+"Korelya Capital"
+],
+"note": "Korelya Capital avait participé à la Série C de 100 M€ en 2016.",
+"src": "https://www.maddyness.com/2016/11/29/musique-jay-z-et-fleur-pellerin-un-nouveau-mix-dactionnaires-detonnant-pour-devialet/"
+},
+{
+"s": "Calyxia",
+"r": "2024-09",
+"statut": "verifie",
+"deja": [
+"Astanor Ventures"
+],
+"note": "Astanor était seul investisseur de la Série A de 2021. Lombard Odier et Bpifrance Large Venture sont nouveaux.",
+"src": "https://vs-a.fr/wp-content/uploads/2024/09/Viguie-Schmidt-Associes-VSA-conseille-Astanor-dans-le-cadre-de-la-levee-de-fonds-de-35-millions-de-dollars-de-Calyxia.pdf"
+},
+{
+"s": "3Deus Dynamics",
+"r": "2024-05",
+"statut": "verifie",
+"deja": [
+"Elkem"
+],
+"note": "Elkem est qualifié d'investisseur de longue date (Elkem Silicones était déjà présent à l'amorçage).",
+"src": "https://www.pulsalys.fr/sites/pulsalys/files/2024-05/Communiqu%C3%A9%20de%20presse%20lev%C3%A9e%20de%20fonds_vF.pdf"
+},
+{
+"s": "Photoroom",
+"r": "2024-02",
+"statut": "verifie",
+"deja": [
+"Balderton Capital",
+"Y Combinator"
+],
+"note": "Le tour est mené par Balderton, investisseur existant ; Aglaé est nouveau ; Y Combinator poursuit son soutien.",
+"src": "https://tech.eu/2024/02/27/photoroom-raises-43m-in-series-b-round"
+},
+{
+"s": "Naboo",
+"r": "2026-02",
+"statut": "verifie",
+"deja": [
+"Isai",
+"Notion Capital",
+"Ternel"
+],
+"note": "Lightspeed mène le tour, avec la participation des investisseurs existants Notion Capital, ISAI et Ternel.",
+"src": "https://www.businesstravelnewseurope.com/Meetings/Event-tech-platform-Naboo-raises-70M-in-Series-B-funding-round"
+},
+{
+"s": "Vesto",
+"r": "2025-11",
+"statut": "verifie",
+"deja": [
+"Banque des Territoires",
+"Inco Ventures"
+],
+"note": "Citizen Capital mène le tour ; la Banque des Territoires et INCO Ventures sont qualifiés d'investisseurs historiques.",
+"src": "https://www.banquedesterritoires.fr/vesto-leve-64-meu-aupres-de-citizen-capital-de-la-banque-des-territoires-et-de-inco-ventures-pour"
+},
+{
+"s": "iNGage",
+"r": "2025-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Seul un titre CFNews (« amorçage ») a été trouvé, sans investisseurs ni historique.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/Amorcage/iNGage-capte-un-amorcage-542969"
+},
+{
+"s": "Powesco",
+"r": "2025-04",
+"statut": "inconnu",
+"deja": [],
+"note": "White Summit Capital devient majoritaire ; aucune info sur les actionnaires antérieurs.",
+"src": "https://www.paulhastings.com/news/paul-hastings-advises-enerlis-on-white-summit-capitals-investment-in-powesco"
+},
+{
+"s": "Netri",
+"r": "2025-02",
+"statut": "inconnu",
+"deja": [],
+"note": "Les investisseurs du tour sont listés, sans historique des tours précédents.",
+"src": "https://www.cbinsights.com/company/netri/financials"
+},
+{
+"s": "Noa",
+"r": "2026-06",
+"statut": "verifie",
+"deja": [],
+"note": "Levée faite au lancement de la startup ; tous les investisseurs sont nouveaux.",
+"src": "https://www.maddyness.com/2026/06/01/noa-leve-5-millions-deuros-pour-creer-une-marque-premium-de-fitness-en-ligne/"
+},
+{
+"s": "Uptale",
+"r": "2024-12",
+"statut": "verifie",
+"deja": [],
+"note": "Première levée en capital ; auparavant, seulement une dette d'Inveready.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Uptale-visualise-une-premiere-levee-de-fonds-510440"
+},
+{
+"s": "Samp",
+"r": "2024-09",
+"statut": "verifie",
+"deja": [
+"HTGF (High-Tech Gruenderfonds)",
+"Innovacom"
+],
+"note": "L'amorçage de 2022 (environ 3,2 à 4 M€) s'est fait auprès d'Innovacom, avec ENGIE New Ventures et High-Tech Gründerfonds.",
+"src": "https://www.frenchweb.fr/tag/samp"
+},
+{
+"s": "Eyco",
+"r": "2024-05",
+"statut": "inconnu",
+"deja": [],
+"note": "Le tour de 16 M€ est documenté, mais pas l'historique (dates contradictoires : 2023 ou 2024).",
+"src": "https://www.lejournaldesentreprises.com/breve/la-start-up-aixoise-eyco-leve-16-millions-deuros-2096099"
+},
+{
+"s": "IB2",
+"r": "2024-02",
+"statut": "inconnu",
+"deja": [],
+"note": "Aucune source sur une présence d'Otium avant 2024.",
+"src": "https://finance.yahoo.com/news/ib2-secures-8-million-euro-185200310.html"
+},
+{
+"s": "Parallel",
+"r": "2026-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Série A de 20 M$ menée par Index Ventures (tech.eu) ; rien sur Frst, Hexa ou Y Combinator ni sur l'historique.",
+"src": "https://www.indexventures.com/companies/parallel-web-systems/"
+},
+{
+"s": "Aive",
+"r": "2025-11",
+"statut": "verifie",
+"deja": [
+"BNP Paribas Développement"
+],
+"note": "BNP Paribas Développement est qualifié d'investisseur existant dès la Série A de juin 2025 (12 M€, Invus en chef de file). Je n'ai pas retenu Invus : il n'est pas sûr que le tour de novembre soit distinct de celui de juin.",
+"src": "https://www.actuia.com/actualite/post-production-video-automatisee-aive-leve-12-millions-deuros/"
+},
+{
+"s": "Les Nouvelles Fermes",
+"r": "2025-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Le tour de 2021 réunissait IRDI, Banque des Territoires, Crédit Agricole Aquitaine et CIC, aucun ne figure dans la liste ; les listes d'investisseurs de 2025 se contredisent.",
+"src": "https://www.cbinsights.com/company/les-nouvelles-fermes/financials"
+},
+{
+"s": "Orasio",
+"r": "2025-05",
+"statut": "verifie",
+"deja": [],
+"note": "Tour d'amorçage, le premier.",
+"src": "https://www.maddyness.com/?p=1418013"
+},
+{
+"s": "Spore.Bio",
+"r": "2025-02",
+"statut": "verifie",
+"deja": [
+"LocalGlobe",
+"No Label Ventures",
+"Famille C"
+],
+"note": "Singular mène le tour ; LocalGlobe, No Label et Famille C sont des investisseurs existants.",
+"src": "https://startuprise.co.uk/spore-bio-raises-23mn-in-series-a-round-funding/"
+},
+{
+"s": "Pivot",
+"r": "2026-05",
+"statut": "verifie",
+"deja": [
+"Hedosophia",
+"Visionaries Club",
+"Emblem"
+],
+"note": "Forestay et Notion Capital mènent le tour ; Hedosophia, Visionaries Club et Emblem sont des investisseurs existants.",
+"src": "https://globenewswire.com/news-release/2026/05/21/3299278/0/en/pivot-raises-40-million-series-b-to-replace-legacy-procurement-software-with-an-enterprise-ai-operating-system.html"
+},
+{
+"s": "Wiremind",
+"r": "2026-10",
+"statut": "verifie",
+"deja": [],
+"note": "Premier tour externe après 12 ans d'autofinancement ; les trois investisseurs sont nouveaux.",
+"src": "https://dealroom.co/news/160115-wiremind-raises-35m-in-first-funding-round-led-by-seaya-andromeda/"
+},
+{
+"s": "Cobl AI",
+"r": "2026-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour de 6 M€ mené par Eurazeo (souvent classé seed). Aucune source ne distingue les investisseurs historiques des nouveaux.",
+"src": "https://www.lemondeinformatique.fr/actualites/lire-telex-coblai-leve-6-meteuro-pour-automatiser-les-plaquettes-commerciales-quera-livre-tsim-un-simulateur-open-source-pour-le-quantique-intel-partenaire-de-terafab-d-elon-musk-99849.html"
+},
+{
+"s": "Actionable",
+"r": "2026-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Aucun résultat pertinent sur cette levée.",
+"src": ""
+},
+{
+"s": "Tallano Technologies",
+"r": "2026-07",
+"statut": "verifie",
+"deja": [
+"Mirova",
+"Bpifrance",
+"Karista"
+],
+"note": "CFNEWS titre « Tallano Technologies soutenu par ses historiques » : levée de 10 M€ auprès des actionnaires historiques via les fonds MEAC (Mirova), EcoTechnologie 2 (Bpifrance) et PRVF (Karista).",
+"src": "https://www.trysignalbase.com/news/funding/tallano-technologies-secures-100m"
+},
+{
+"s": "Fasst",
+"r": "2024-11",
+"statut": "inconnu",
+"deja": [],
+"note": "Série B confirmée par Seedtable, mais aucun historique des tours précédents.",
+"src": "https://seedtable.com/startups/fasst"
+},
+{
+"s": "Zelok",
+"r": "2024-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Investisseurs du tour confirmés (CB Insights), mais aucune source sur les investisseurs antérieurs.",
+"src": "https://www.cbinsights.com/company/zelok/financials"
+},
+{
+"s": "inHEART",
+"r": "2024-05",
+"statut": "verifie",
+"deja": [
+"Elaia"
+],
+"note": "Vesalius mène, Elaia co-mène. Elaia avait déjà investi lors d'une levée antérieure de 3,7 M€ (avec Aquitaine Science Transfert).",
+"src": "https://therecursive.com/inheart-secures-11m-to-fast-track-innovation-in-cardiac-solutions/"
+},
+{
+"s": "Elixir Aircraft",
+"r": "2024-02",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour de 13 M€ mené par Innovacom et Bpifrance (Amorçage Industriel). Innovacom n'est dit actionnaire de longue date qu'à propos du tour de 2026 : rien d'explicite sur une présence avant 2024.",
+"src": "https://www.lejournaldesentreprises.com/article/elixir-aircraft-leve-encore-13-millions-deuros-et-boucle-son-financement-cinq-ans-de-40-millions-2090276"
+},
+{
+"s": "Dionymer",
+"r": "2026-02",
+"statut": "verifie",
+"deja": [
+"IRDI Capital Investissement",
+"Aquiti Gestion"
+],
+"note": "CFNEWS « Dionymer accueille quatre fonds supplémentaires » : l'amorçage de 1,5 M€ s'était fait auprès d'Aquiti Gestion, Irdi, AFI Ventures et ResiliAnce. Quatre nouveaux fonds entrent en 2026.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Dionymer-accueille-quatre-fonds-supplementaires-558062"
+},
+{
+"s": "Zadient Technologies",
+"r": "2025-11",
+"statut": "inconnu",
+"deja": [],
+"note": "Investissement de l'EIC Fund (STEP Scale-up) confirmé. Aucun historique des tours précédents.",
+"src": "https://eic.ec.europa.eu/news/first-eic-step-scale-investments-disbursed-2025-11-24_en"
+},
+{
+"s": "RDS",
+"r": "2025-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Série A de 14 M€ menée par le fonds SPI de Bpifrance. Les tours antérieurs ne sont pas détaillés.",
+"src": "https://seedtable.com/companies/rds/funding-rounds/series-a-2025-09"
+},
+{
+"s": "Kyron.bio",
+"r": "2025-05",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour seed de 5,5 M€ mené par HCVC. Un pré-seed de 1,2 M€ est mentionné, sans nom d'investisseurs.",
+"src": "https://siliconcanals.com/french-female-led-kyron-bio-raises-e5-5m/"
+},
+{
+"s": "Circle Safe",
+"r": "2025-02",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour mené par Odyssée Venture et Région Sud Investissement avec Bpifrance « et des actionnaires historiques », non nommés.",
+"src": "https://www.lejournaldesentreprises.com/article/circle-safe-leve-8-millions-deuros-pour-certifier-son-dispositif-medical-2117713"
+},
+{
+"s": "Semble",
+"r": "2026-06",
+"statut": "verifie",
+"deja": [
+"Mercia Ventures",
+"Octopus Ventures"
+],
+"note": "Tour de juin 2026 (présenté comme une Série C de 30 M£) mené par Revaia, Partech nouvel entrant. Mercia et Octopus sont des investisseurs existants (Série B 2024).",
+"src": "https://cityam.com/semble-secures-30m-series-c"
+},
+{
+"s": "Spiko",
+"r": "2026-10",
+"statut": "verifie",
+"deja": [
+"Index Ventures",
+"Speedinvest",
+"White Star Capital"
+],
+"note": "Série B menée par NEA. Investisseurs existants : Index Ventures, Speedinvest, White Star Capital. Nouveaux : Bpifrance, Flourish, Shapers, etc.",
+"src": "https://thenextweb.com/news/spiko-90m-series-b-nea-tokenised-cash-funds"
+},
+{
+"s": "SURGAR",
+"r": "2024-09",
+"statut": "verifie",
+"deja": [
+"Crédit Agricole Centre France"
+],
+"note": "Le Monde du Droit qualifie UI Investissement, Crédit Agricole Centre France et Bio Jag de partenaires historiques. Les autres sources citent plutôt Crédit Agricole Capital Innovation.",
+"src": "https://www.lemondedudroit.fr/deals/94912-chammas-marcheteau-conseille-bpifrance-xange-et-elaia-dans-la-levee-de-fonds-de-11-millions-d-euros-de-surgar.html"
+},
+{
+"s": "Yumgo",
+"r": "2024-06",
+"statut": "inconnu",
+"deja": [],
+"note": "Levée de 3 M€ (Blast Club, Bpifrance, 50 Partners). Une levée antérieure de 1,6 M€ en 2022 est citée, sans investisseurs nommés.",
+"src": "https://www.entreprises.cci-paris-idf.fr/actualites/creez-un-impact-ecologique-avec-une-belle-performance-commerciale"
+},
+{
+"s": "Diamfab",
+"r": "2024-03",
+"statut": "verifie",
+"deja": [],
+"note": "Présenté comme le premier tour de table (8,7 M€) de la start-up : tous les investisseurs sont nouveaux.",
+"src": "https://www.lejournaldesentreprises.com/article/la-deeptech-du-diamant-semi-conducteur-diamfab-leve-87-millions-deuros-2092722"
+},
+{
+"s": "BaCta",
+"r": "2026-03",
+"statut": "inconnu",
+"deja": [],
+"note": "Seed de 7 M€ mené par LocalGlobe et Daphni. Un amorçage de 2,1 M€ en 2024 est cité, sans détail des investisseurs.",
+"src": "https://raising.fi/news/bacta-seed-march-2026"
+},
+{
+"s": "Infinite Orbits",
+"r": "2025-11",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour mené par Matterwave et Wind Capital. Un tour de 12 M€ en mai 2024 est mentionné, sans liste d'investisseurs.",
+"src": "https://sifted.eu/articles/infinite-orbits-raises-40m-european-expansion"
+},
+{
+"s": "Defacto",
+"r": "2025-09",
+"statut": "verifie",
+"deja": [
+"Citi Venture",
+"Northzone",
+"Heaadline",
+"GFC"
+],
+"note": "Hogan Lovells : Northzone, Citi Ventures et Headline sont des investisseurs existants, La Maison Partners est nouvel entrant. Global Founders Capital était au capital depuis le seed et l'extension de 2023.",
+"src": "https://hlc.com/fr/news/hogan-lovells-conseille-northzone-citi-ventures-headline-et-la-maison-partners-dans-le-cadre-de-la-levee-de-fonds-de-16-millions-deuros-de-defacto"
+},
+{
+"s": "Thunder Code",
+"r": "2025-06",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour seed de 9 M$ mené par Silicon Badia. Aucun tour antérieur documenté explicitement.",
+"src": "https://techcrunch.com/2025/06/03/one-of-africas-most-successful-founders-is-back-with-a-new-ai-startup-and-already-raised-9m"
+},
+{
+"s": "Comet",
+"r": "2025-03",
+"statut": "verifie",
+"deja": [
+"Daphni",
+"Otium Capital",
+"FJ Labs",
+"Kima Ventures"
+],
+"note": "FrenchWeb : investisseurs historiques Daphni, Otium, FJ Labs et Kima Ventures, rejoints par Founders Future et Tomcat.",
+"src": "https://www.frenchweb.fr/comet-leve-10-millions-deuros-et-nomme-laurent-potel-a-sa-tete"
+},
+{
+"s": "Agriodor",
+"r": "2026-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour mené par Crédit Mutuel Impact « avec des actionnaires historiques », non nommés.",
+"src": "https://www.lemondedudroit.fr/deals/103989-alerion-avocats-a-conseille-credit-mutuel-impact-dans-le-cadre-de-sa-prise-de-participation-au-capital-dagriodor.html"
+},
+{
+"s": "Delos",
+"r": "2026-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Seed de 2,5 M€ en avril 2025, investisseurs non nommés.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Delos-recrute-pour-une-serie-A-730587"
+},
+{
+"s": "Xpln.ai",
+"r": "2024-10",
+"statut": "inconnu",
+"deja": [],
+"note": "Série A avec Ventech et Spring Invest. Aucun investisseur historique identifié.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Xpln.ai-se-mesure-a-deux-fonds-502507"
+},
+{
+"s": "Overseed",
+"r": "2024-07",
+"statut": "inconnu",
+"deja": [],
+"note": "Amorçage de 2,5 M€ en 2022, sans précision des participants. UI Investissement participe au tour de 2024 sans être explicitement qualifié d'historique.",
+"src": "https://www.lemondedudroit.fr/deals/93911-taylor-wessing-a-conseille-overseed-levee-fonds-de-6-7-millions-euros.html"
+},
+{
+"s": "Carbonfact",
+"r": "2024-04",
+"statut": "verifie",
+"deja": [
+"Alven",
+"Y Combinator"
+],
+"note": "Série A menée par l'investisseur existant Alven, avec Y Combinator, existant aussi. Headline est nouvel entrant.",
+"src": "https://www.carbonfact.com/blog/platform/funding-announcement"
+},
+{
+"s": "NeoCem",
+"r": "2024-01",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour de 23 M€ (Rev3, Finorpa, NFA, CBGreen, banques). Aucun historique antérieur trouvé.",
+"src": "https://www.lejournaldesentreprises.com/article/posos-neocem-le-fourgon-les-start-up-suivre-dans-les-hauts-de-france-en-2025-2104577"
+},
+{
+"s": "Pennylane",
+"r": "2026-01",
+"statut": "verifie",
+"deja": [
+"Sequoia Capital",
+"DST Global",
+"CapitalG",
+"Meritech Capital"
+],
+"note": "Tour mené par TCV, avec Blackstone, aux côtés des investisseurs existants Sequoia, DST Global, CapitalG et Meritech.",
+"src": "https://www.bloomberg.com/news/articles/2026-01-20/tcv-blackstone-back-startup-pennylane-at-4-25-billion-value"
+},
+{
+"s": "Volta",
+"r": "2025-10",
+"statut": "verifie",
+"deja": [
+"Emblem"
+],
+"note": "Extension de 5 M€ menée par RTP Global. Selon funding.tech.eu (source unique), Emblem était au pré-seed de novembre 2024.",
+"src": "https://funding.tech.eu/companies/BE256185-DFD7-450F-B49A-B414A1228C7E"
+},
+{
+"s": "Solarock",
+"r": "2025-07",
+"statut": "inconnu",
+"deja": [],
+"note": "Investisseurs du tour confirmés. Rien sur leur présence antérieure.",
+"src": "https://vestbee.com/insights/articles/solarock-secures-7-m"
+},
+{
+"s": "Faume",
+"r": "2025-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Seedtable cite Daphni parmi les investisseurs de Faume (tours 2021-2022), mais sans attribution explicite à un tour antérieur.",
+"src": "https://www.lemondedudroit.fr/deals/98670-goodwin-conseille-daphni-et-bpifrance-dans-le-cadre-de-la-levee-de-fonds-de-8-millions-deuros-de-faume.html"
+},
+{
+"s": "Pathway",
+"r": "2025-01",
+"statut": "inconnu",
+"deja": [],
+"note": "Seed de 10 M$ mené par TQ Ventures (décembre 2024). Aucun tour antérieur documenté.",
+"src": "https://cxotoday.com/media-coverage/pathway-secures-10-million-led-by-tq-ventures-to-advance-the-development-of-live-ai/"
+},
+{
+"s": "Ascendance Flight Technologies",
+"r": "2026-07",
+"statut": "verifie",
+"deja": [
+"M Capital Partners"
+],
+"note": "Une levée antérieure de 21 M€ cite comme investisseurs historiques Habert Dassault Finance, Céleste, IRDI et M-Capital. Dassault Aviation n'est pas retenu, faute de certitude sur l'entité.",
+"src": "https://nordic9.com/news/ascendance-flight-technologies-closed-a-14m-s/"
+},
+{
+"s": "AdipoPharma",
+"r": "2024-11",
+"statut": "verifie",
+"deja": [
+"Newton Biocapital",
+"Good Growth Capital"
+],
+"note": "Série A de janvier 2023 menée par Newton Biocapital II avec Good Growth Capital. Sambrinvest et Okeanos apparaissent en 2024.",
+"src": "https://www.satt.fr/wp-content/uploads/2023/01/CP_Adipopharma_levee-fonds_startup-conectus.pdf"
+},
+{
+"s": "wattalps",
+"r": "2024-08",
+"statut": "verifie",
+"deja": [
+"EIT InnoEnergy",
+"Eximium",
+"EIC Fund"
+],
+"note": "Investisseurs existants : EIT InnoEnergy, Eximium et EIC Fund. Supernova et Move Energy mènent le tour comme nouveaux entrants.",
+"src": "https://mercomindia.com/funding-ma-roundup-battery-startup-wattalps-secures-12-million"
+},
+{
+"s": "Towt",
+"r": "2024-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Investissement de Crédit Mutuel Impact et Atlante dans SO TOWT. Aucun historique fiable.",
+"src": "https://www.lemondedudroit.fr/deals/93383-wfw-conseille-credit-mutuel-impact-et-atlante-gestion-dans-le-cadre-de-leur-investissement-dans-so-towt.html"
+},
+{
+"s": "Nexess",
+"r": "2024-01",
+"statut": "verifie",
+"deja": [
+"Seventure Partners"
+],
+"note": "CFNEWS : une levée antérieure de 2,5 M€ s'était faite auprès de Seventure et Paca Invest. L'équivalence Paca Invest / Région Sud Investissement n'est pas retenue, faute de certitude. Rôle antérieur d'Innovacom non confirmé.",
+"src": "https://www.cfnews.net/L-actualite/Exclusif-CFNEWS/Nexess-securise-son-deploiement-avec-155703"
+},
+{
+"s": "Meelo",
+"r": "2026-02",
+"statut": "verifie",
+"deja": [],
+"note": "Isalt entre comme nouvel actionnaire minoritaire. Le premier tour de 3 M€ s'était fait avec Odyssée Venture et Bpifrance.",
+"src": "https://www.cfnews.net/L-actualite/Capital-developpement/Operations/Augmentation-de-capital/Meelo-se-risque-a-une-nouvelle-augmentation-de-capital-560676"
+},
+{
+"s": "EverZom",
+"r": "2025-10",
+"statut": "inconnu",
+"deja": [],
+"note": "5 M€ levés auparavant auprès de « fonds européens et Bpifrance », non nommés précisément.",
+"src": "https://www.lejournaldesentreprises.com/article/everzom-leve-10-millions-deuros-pour-industrialiser-ses-biotherapies-2128530"
+},
+{
+"s": "Khimod",
+"r": "2025-07",
+"statut": "verifie",
+"deja": [],
+"note": "Entrée du fonds SPI (Bpifrance) et d'Audacia. L'actionnaire historique est Alcen, absent de la liste.",
+"src": "https://www.mcdermottlaw.com/news/mcdermott-conseille-khimod-dans-le-cadre-dune-nouvelle-levee-de-fonds/"
+},
+{
+"s": "Ensol",
+"r": "2025-04",
+"statut": "inconnu",
+"deja": [],
+"note": "Aucune source sur les investisseurs.",
+"src": "https://www.lejournaldesentreprises.com/breve/lentreprise-aubagnaise-ensol-ouvre-un-entrepot-bordeaux-2120181"
+},
+{
+"s": "Formance",
+"r": "2025-01",
+"statut": "verifie",
+"deja": [],
+"note": "Série A de 21 M$ co-menée par PayPal Ventures et Portage. Le tour de 2022 réunissait Frst, Hoxton, YC et des business angels, sans PayPal ni Portage.",
+"src": "https://newsroom.paypal-corp.com/2025-01-29-PayPal-Ventures-Invests-in-Formance"
+},
+{
+"s": "AlpSemi",
+"r": "2026-06",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour mené par Yotta. Aucun historique antérieur trouvé.",
+"src": "https://www.lejournaldesentreprises.com/article/alpsemi-leve-17-millions-deuros-pour-deployer-son-electronique-destinee-aux-reseaux-electriques-2145630"
+},
+{
+"s": "Kapsera",
+"r": "2024-11",
+"statut": "verifie",
+"deja": [
+"Demeter"
+],
+"note": "Série A de 4,2 M€ avec la Banque des Territoires, The Yield Lab Europe et l'actionnaire historique Demeter.",
+"src": "https://www.lemondedudroit.fr/deals/96477-chammas-marcheteau-conseille-kapsera-dans-sa-levee-de-fonds-en-serie-a-de-4-2-millions-d-euros.html"
+},
+{
+"s": "Greenscope",
+"r": "2024-09",
+"statut": "inconnu",
+"deja": [],
+"note": "Sources contradictoires : un communiqué parle d'une « première levée », CFNEWS d'un tour intermédiaire auprès des historiques.",
+"src": "https://www.cfnews.net/L-actualite/Capital-innovation/Operations/1er-tour/Greenscope-opte-pour-un-tour-intermediaire-496261"
+},
+{
+"s": "Qommute",
+"r": "2024-05",
+"statut": "verifie",
+"deja": [],
+"note": "Levée de 2,4 M€ marquant l'entrée du fonds Re-Sources Capital (nouvel investisseur).",
+"src": "https://www.lejournaldesentreprises.com/article/qommute-vise-une-place-de-leader-europeen-2120173"
+},
+{
+"s": "GREENERWAVE",
+"r": "2024-02",
+"statut": "verifie",
+"deja": [],
+"note": "Premier tour après un amorçage d'environ 1 M€ (CNRS et business angels) : tous les investisseurs sont nouveaux.",
+"src": "https://cm.twobirds.com/en/news-and-deals/2024/france/bird-and-bird-conseille-greenerwave-dans-le-cadre-de-sa-levee-de-fonds-de-15-millions-d-euros"
+},
+{
+"s": "GitGuardian",
+"r": "2026-02",
+"statut": "verifie",
+"deja": [
+"Balderton Capital",
+"Bpifrance",
+"Eurazeo",
+"Sapphire Ventures"
+],
+"note": "Série C de 50 M$ menée par Insight Partners avec Quadrille. Investisseurs existants : Balderton, BPI, Eurazeo, Fly Ventures, Sapphire.",
+"src": "https://sdtimes.com/gitguardian-raises-50m-series-c-to-address-non-human-identities-crisis-and-ai-agent-security-gap/"
+},
+{
+"s": "Filigran",
+"r": "2025-10",
+"statut": "verifie",
+"deja": [
+"Accel",
+"Insight Partners"
+],
+"note": "Tour de 2025 mené par Eurazeo avec Deutsche Telekom. Accel et Insight Partners sont des investisseurs existants (Série B menée par Insight).",
+"src": "https://filigran.io/our-investors/"
+},
+{
+"s": "Genesis AI",
+"r": "2025-07",
+"statut": "inconnu",
+"deja": [],
+"note": "Tour de 105 M$ co-mené par Eclipse et Khosla, souvent qualifié de seed. Aucun tour antérieur documenté.",
+"src": "https://sifted.eu/articles/genesis-ai-105m-round"
+},
+{
+"s": "Pennylane",
+"r": "2025-04",
+"statut": "verifie",
+"deja": [
+"DST"
+],
+"note": "Meritech et CapitalG sont des primo-investisseurs. Les historiques Sequoia et DST remettent au pot.",
+"src": "https://www.maddyness.com/2025/04/07/pennylane-leve-75-millions-deuros-a-lapproche-de-la-reforme-de-la-facturation-electronique/"
+},
+{
+"s": "Edumapper",
+"r": "2025-02",
+"statut": "verifie",
+"deja": [],
+"note": "Premier tour de table de 5 M€ : aucun investisseur antérieur.",
+"src": "https://www.maddyness.com/2025/02/27/les-fondateurs-de-meilleursagents-lancent-une-plateforme-pour-aiguiller-les-futurs-etudiants/"
+},
+{
+"s": "Morpho",
+"r": "2026-06",
+"statut": "verifie",
+"deja": [
+"Ribbit Capital"
+],
+"note": "Tour de 175 M$ co-mené par Paradigm, a16z et Ribbit. Ribbit avait mené le tour précédent. Rôle antérieur des autres non confirmé.",
+"src": "https://www.fortune.com/2026/06/09/morpho-fundraise-a16z-crypto-paradigm-ribbit-capital-175-million/"
 }
 ]
