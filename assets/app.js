@@ -385,15 +385,16 @@ function renderExits() {
 /* ================= FONDS ================= */
 const FS = { shown: 36, shared: null };
 // Profil d'investissement observé sur les levées suivies : taille médiane des tours,
-// réinvestissement (startups financées sur au moins 2 tours) et secteur dominant.
+// stade et secteur dominants. Pas de taux de réinvestissement : la base ne couvre que
+// les levées depuis 2024, trop peu de startups y ont deux tours pour le mesurer.
 const profile = (e) => {
   if (e._p) return e._p;
   const amts = e.deals.map((d) => d.amount_eur_m).filter((v) => v != null);
-  const byCo = new Map(), bySec = new Map();
-  e.deals.forEach((d) => { const c = norm(d.company); byCo.set(c, (byCo.get(c) || new Set()).add(d.date + "|" + (d.stage_raw || ""))); if (d.sector_raw) bySec.set(d.sector_raw, (bySec.get(d.sector_raw) || 0) + 1); });
-  const cos = byCo.size, re = [...byCo.values()].filter((v) => v.size > 1).length;
+  const bySec = new Map(), bySt = new Map();
+  e.deals.forEach((d) => { if (d.sector_raw) bySec.set(d.sector_raw, (bySec.get(d.sector_raw) || 0) + 1); if (d.stage_raw && d.stage_raw !== "NC") bySt.set(d.stage_raw, (bySt.get(d.stage_raw) || 0) + 1); });
   const top = [...bySec.entries()].sort((a, b) => b[1] - a[1])[0];
-  return (e._p = { med: amts.length >= 3 ? median(amts) : null, cos, re, fo: cos >= 3 ? re / cos : null, bySec, top: top && e.deals.length >= 3 ? { sec: top[0], share: top[1] / e.deals.length } : null });
+  const stTop = [...bySt.entries()].sort((a, b) => b[1] - a[1])[0], nSt = [...bySt.values()].reduce((a, b) => a + b, 0);
+  return (e._p = { med: amts.length >= 3 ? median(amts) : null, bySec, top: top && e.deals.length >= 3 ? { sec: top[0], share: top[1] / e.deals.length } : null, stage: stTop && nSt >= 3 ? { st: stTop[0], share: stTop[1] / nSt } : null });
 };
 const SIZE_BANDS = { "0-1": [0, 1], "1-5": [1, 5], "5-20": [5, 20], "20-50": [20, 50], "50-": [50, Infinity] };
 // Spécialiste : le secteur pèse au moins 40 % de ses deals, ou au moins 20 % et 2,5 fois son poids
@@ -444,10 +445,7 @@ function crossCheck(e) {
     const ok = e.deals.length >= 3 ? sh >= 0.5 || (sh >= 0.1 && sh >= 2 * base) : null;
     rows.push({ k: "Secteurs", short: "secteurs", decl: p.sec.join(", "), obs: e.deals.length ? `${Math.round(sh * 100)} % de ses deals (marché : ${Math.round(base * 100)} %)` : "—", v: ok == null ? "na" : ok ? "ok" : "gap", note: ok === false ? "Plus généraliste en pratique que sa thèse affichée." : "" });
   }
-  if (p.followon || p.fo) {
-    // Fenêtre courte (deals depuis 2024) : l'absence de réinvestissement visible n'est pas un écart.
-    rows.push({ k: "Réinvestissement", short: "suivi", decl: p.followon || `Jusqu'à ${mEur(p.fo)} M€ par société en cumulé`, obs: pr.fo != null ? `${pct(pr.re, pr.cos)} % de ses startups financées sur plusieurs tours` : "Pas assez de startups suivies", v: pr.fo > 0 ? "ok" : "na", note: pr.fo === 0 ? "Aucun réinvestissement visible depuis 2024 : la plupart des tours suivants tombent au-delà de cette fenêtre." : "" });
-  }
+  if (p.followon || p.fo) rows.push({ k: "Réinvestissement", decl: p.followon || `Jusqu'à ${mEur(p.fo)} M€ par société en cumulé`, obs: "Non mesurable : la base ne suit les levées que depuis 2024", v: "na", note: "" });
   if (p.lead) rows.push({ k: "Rôle", decl: p.lead.charAt(0).toUpperCase() + p.lead.slice(1), obs: "Non observable dans les levées publiées", v: "na", note: "" });
   return { p, rows };
 }
@@ -557,7 +555,7 @@ function renderFonds() {
   });
   const so = $("#fSort").value;
   const nullLast = (f) => (a, b) => { const x = f(a), y = f(b); return x == null ? (y == null ? b.nb - a.nb : 1) : y == null ? -1 : y - x || b.nb - a.nb; };
-  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : so === "size" ? nullLast((e) => profile(e).med) : so === "fo" ? nullLast((e) => profile(e).fo) : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
+  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : so === "size" ? nullLast((e) => profile(e).med) : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
   FS.rows = r;
   $("#fCount").textContent = `${nf.format(r.length)} investisseurs`;
   $("#fMineN").textContent = MINE.size ? `(${MINE.size})` : "";
@@ -574,7 +572,7 @@ function renderFonds() {
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
       <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div><span class="star${MINE.has(e.key) ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.key)}" aria-pressed="${MINE.has(e.key)}" title="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}" aria-label="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}">${MINE.has(e.key) ? "★" : "☆"}</span></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${pb && pb.t ? fmtRange(pb.t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket déclaré</span></div></div>
-      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="${pr.fo != null ? `${pr.re} startup${pr.re > 1 ? "s" : ""} sur ${pr.cos} financée${pr.re > 1 ? "s" : ""} sur plusieurs tours` : "Pas assez de deals suivis"}"><b>${pr.fo != null ? pct(pr.re, pr.cos) + " %" : "—"}</b><span>réinvestit</span></div><div title="Part de ses deals dans ce secteur"><b>${fs ? Math.round(fs.share * 100) + " %" : "—"}</b><span>${fs ? esc(fs.sec) : "secteur n°1"}</span></div></div>
+      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div><div title="Part de ses deals dans ce secteur"><b>${fs ? Math.round(fs.share * 100) + " %" : "—"}</b><span>${fs ? esc(fs.sec) : "secteur n°1"}</span></div></div>
       ${xc ? xLine(xc) : ""}
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
