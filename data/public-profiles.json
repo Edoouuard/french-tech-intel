@@ -216,5 +216,71 @@ null,
 "st": "Série A",
 "src": "https://www.omnescapital.com/?p=2453",
 "d": "2025"
+},
+{
+"n": "Citizen Capital",
+"v": "Citizen Capital Impact Initiative",
+"t": [
+0.5,
+2.5
+],
+"st": "Seed → Série A",
+"src": "https://www.citizencapital.fr/wp-content/uploads/2024/02/CITIZEN-CAPITAL-RAPPORT-DE-MISSION-WEB-Doubles-pages.pdf",
+"d": "2024-02"
+},
+{
+"n": "Citizen Capital",
+"v": "Citizen Capital III",
+"t": [
+3,
+10
+],
+"st": "Série B → Growth",
+"src": "https://www.citizencapital.fr/wp-content/uploads/2024/02/CITIZEN-CAPITAL-RAPPORT-DE-MISSION-WEB-Doubles-pages.pdf",
+"d": "2024-02"
+},
+{
+"n": "Teampact Ventures",
+"v": "Teampact Fund I",
+"t": [
+0.75,
+1
+],
+"st": "Amorçage → Série A",
+"src": "https://www.maddyness.com/?p=1384375",
+"d": "2024"
+},
+{
+"n": "Ring Capital",
+"v": "Ring Altitude II",
+"t": [
+5,
+20
+],
+"lead": "minoritaire",
+"src": "https://www.newprivatemarkets.com/in-brief-ring-seeks-e300m-for-the-intersection-of-digital-and-impact/",
+"d": "2023"
+},
+{
+"n": "Ternel",
+"v": "Fonds de 120 M€",
+"t": [
+0.5,
+5
+],
+"st": "Seed → Série A",
+"src": "https://vestbee.com/insights/articles/french-vc-ternel-launches-120-m-fund",
+"d": "2024"
+},
+{
+"n": "Techstars",
+"v": "Programme d'accélération",
+"t": [
+0.22,
+0.22
+],
+"cur": "$",
+"src": "https://dabafinance.com/fr/nouvelles/techstars-matches-y-combinator-with-updated-220k-investment-terms",
+"d": "2025-04"
 }
 ]
