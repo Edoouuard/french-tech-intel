@@ -384,28 +384,18 @@ function renderExits() {
 
 /* ================= FONDS ================= */
 const FS = { shown: 36, shared: null };
-// Profil d'investissement observé sur les levées suivies : taille médiane des tours,
-// stade et secteur dominants. Pas de taux de réinvestissement : la base ne couvre que
+// Profil d'investissement observé sur les levées suivies : taille médiane des tours et
+// stade dominant. Pas de taux de réinvestissement : la base ne couvre que
 // les levées depuis 2024, trop peu de startups y ont deux tours pour le mesurer.
 const profile = (e) => {
   if (e._p) return e._p;
   const amts = e.deals.map((d) => d.amount_eur_m).filter((v) => v != null);
-  const bySec = new Map(), bySt = new Map();
-  e.deals.forEach((d) => { if (d.sector_raw) bySec.set(d.sector_raw, (bySec.get(d.sector_raw) || 0) + 1); if (d.stage_raw && d.stage_raw !== "NC") bySt.set(d.stage_raw, (bySt.get(d.stage_raw) || 0) + 1); });
-  const top = [...bySec.entries()].sort((a, b) => b[1] - a[1])[0];
+  const bySt = new Map();
+  e.deals.forEach((d) => { if (d.stage_raw && d.stage_raw !== "NC") bySt.set(d.stage_raw, (bySt.get(d.stage_raw) || 0) + 1); });
   const stTop = [...bySt.entries()].sort((a, b) => b[1] - a[1])[0], nSt = [...bySt.values()].reduce((a, b) => a + b, 0);
-  return (e._p = { med: amts.length >= 3 ? median(amts) : null, bySec, top: top && e.deals.length >= 3 ? { sec: top[0], share: top[1] / e.deals.length } : null, stage: stTop && nSt >= 3 ? { st: stTop[0], share: stTop[1] / nSt } : null });
+  return (e._p = { med: amts.length >= 3 ? median(amts) : null, stage: stTop && nSt >= 3 ? { st: stTop[0], share: stTop[1] / nSt } : null });
 };
 const SIZE_BANDS = { "0-1": [0, 1], "1-5": [1, 5], "5-20": [5, 20], "20-50": [20, 50], "50-": [50, Infinity] };
-// Spécialiste : le secteur pèse au moins 40 % de ses deals, ou au moins 20 % et 2,5 fois son poids
-// sur le marché (3 deals minimum dans le secteur). Faute de 3 deals suivis, on retient sa thèse
-// déclarée si elle tient en deux secteurs au plus.
-const SEC_SHARE = new Map(SECTORS.map((s) => [s, D.filter((d) => d.sector_raw === s).length / D.length]));
-const isSpecialist = (e, sec) => {
-  const n = profile(e).bySec.get(sec) || 0, sh = n / (e.deals.length || 1);
-  if (n >= 3 && (sh >= 0.4 || (sh >= 0.2 && sh >= 2.5 * (SEC_SHARE.get(sec) || 0)))) return true;
-  return e.deals.length < 3 && !!(e.ins && e.ins.sectors.length <= 2 && e.ins.sectors.includes(sec));
-};
 // Sélection de fonds : mémorisée dans le navigateur, partageable par lien.
 const MINE = new Set((() => { try { return JSON.parse(localStorage.getItem("ift-selection") || "[]"); } catch (e) { return []; } })());
 const saveMine = () => { try { localStorage.setItem("ift-selection", JSON.stringify([...MINE])); } catch (e) { /* stockage indisponible */ } };
@@ -413,20 +403,20 @@ const saveMine = () => { try { localStorage.setItem("ift-selection", JSON.string
 const PUB = new Map();
 (window.IFT_PUBLIC || []).forEach((p) => { const e = entFor(p.n); if (e) PUB.set(e.key, p); });
 const mEur = (v) => String(+(+v).toFixed(2)).replace(".", ",");
-const fmtRange = (t) => (t ? `${mEur(t[0])}–${mEur(t[1])} M€` : "");
+const fmtRange = (t) => (!t ? "" : t[0] == null ? `jusqu'à ${mEur(t[1])} M€` : `${mEur(t[0])}–${mEur(t[1])} M€`);
 // Ce que le fonds annonce publiquement, pour le véhicule décrit par la source. Pas de comparaison
 // avec ses deals : ceux-ci sont rattachés à la société de gestion, tous véhicules confondus.
 function pubBlock(e) {
   const p = PUB.get(e.key);
   if (!p) return "";
   const host = (() => { try { return new URL(p.src).hostname.replace(/^www\./, ""); } catch (err) { return "source"; } })();
-  const kv = [["Véhicule", p.v], ["Ticket initial", p.t && fmtRange(p.t) + (p.fo ? ` · jusqu'à ${mEur(p.fo)} M€ par société` : "")], ["Stades", p.st], ["Secteurs", p.sec && p.sec.join(", ")], ["Réinvestissement", p.followon], ["Rôle", p.lead && p.lead.charAt(0).toUpperCase() + p.lead.slice(1)]].filter(([, v]) => v);
+  const kv = [["Véhicule", p.v], ["Ticket initial", p.t && fmtRange(p.t) + (p.fo ? ` · jusqu'à ${mEur(p.fo)} M€ par société` : "")], ["Stades", p.st], ["Réinvestissement", p.followon], ["Rôle", p.lead && p.lead.charAt(0).toUpperCase() + p.lead.slice(1)]].filter(([, v]) => v);
   return sec("Ce que le fonds annonce", `${p.focus ? `<p class="thesis-decl" style="margin-bottom:12px">${esc(p.focus)}</p>` : ""}<dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
     <p class="muted" style="font-size:.8rem;margin-top:10px">${p.v ? `Ces informations concernent ${esc(p.v)}. ` : ""}Les deals suivis par Insights sont rattachés à ${esc(e.name)}, tous fonds confondus : ils ne se comparent pas directement à la thèse d'un véhicule.</p>
-    <p class="mono muted" style="font-size:.7rem;margin-top:6px">Source : <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(host)}</a> · ${esc(p.d)}${p.q === "annuaire" ? " · annuaire tiers, à confirmer auprès du fonds" : ""}</p>`);
+    <p class="mono muted" style="font-size:.7rem;margin-top:6px">Source : <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(host)}</a>${p.d ? " · " + esc(p.d) : ""}</p>`);
 }
 const FONDS_PARAMS = [["q", "#fQ"], ["type", "#fType"], ["stade", "#fStage"], ["secteur", "#fSec"], ["taille", "#fSize"], ["tri", "#fSort"]];
-const FONDS_FLAGS = [["specialistes", "#fSpec"], ["deploiement", "#fDep"], ["public", "#fPub"]];
+const FONDS_FLAGS = [["deploiement", "#fDep"], ["public", "#fPub"]];
 // Lien de la liste affichée : filtres en cours et, le cas échéant, la sélection.
 function fondsHash(withSel) {
   const u = new URLSearchParams();
@@ -470,7 +460,7 @@ BUILDERS.fonds = () => {
   const rail = $("#rail");
   $("#railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: "smooth" }));
   $("#railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
-  ["#fQ", "#fType", "#fStage", "#fSec", "#fSize", "#fSort", "#fDep", "#fSpec", "#fMine", "#fPub"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
+  ["#fQ", "#fType", "#fStage", "#fSec", "#fSize", "#fSort", "#fDep", "#fMine", "#fPub"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
   $("#fShare").addEventListener("click", () => copyText(location.href.split("#")[0] + fondsHash(true)));
   $("#fShared").addEventListener("click", (ev) => {
     const b = ev.target.closest("[data-shared]");
@@ -504,16 +494,13 @@ function stageCovers(e, stg) {
 }
 function renderFonds() {
   const q = norm($("#fQ").value), ty = $("#fType").value, stg = $("#fStage").value, sec = $("#fSec").value, dep = $("#fDep").checked;
-  const spec = $("#fSpec").checked, band = SIZE_BANDS[$("#fSize").value], mine = $("#fMine").checked, pubOnly = $("#fPub").checked;
-  $("#fSpec").parentElement.style.opacity = sec ? "" : ".5";
-  $("#fSpec").parentElement.title = sec ? `${sec} pèse au moins 40 % de ses deals, ou 20 % et 2,5 fois son poids sur le marché (3 deals minimum)` : "Choisissez d'abord un secteur";
+  const band = SIZE_BANDS[$("#fSize").value], mine = $("#fMine").checked, pubOnly = $("#fPub").checked;
   let r = FUNDS_ENTS.filter((e) => {
     const type = typeFamily(entType(e));
     if (ty && type !== ty) return false;
     if (dep && !e.veh.length) return false;
     if (stg && !stageCovers(e, stg)) return false;
     if (sec && !e.deals.some((d) => d.sector_raw === sec) && !(e.ins && e.ins.sectors.includes(sec))) return false;
-    if (sec && spec && !isSpecialist(e, sec)) return false;
     if (band) { const m = profile(e).med; if (m == null || m < band[0] || m >= band[1]) return false; }
     if (pubOnly && !PUB.has(e.key)) return false;
     if (FS.shared && !FS.shared.has(e.key)) return false;
@@ -536,11 +523,11 @@ function renderFonds() {
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
     const pb = PUB.get(e.key);
-    const pr = profile(e), fs = sec && pr.bySec.get(sec) ? { sec, share: pr.bySec.get(sec) / e.deals.length } : pr.top;
+    const pr = profile(e);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
       <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div><span class="star${MINE.has(e.key) ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.key)}" aria-pressed="${MINE.has(e.key)}" title="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}" aria-label="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}">${MINE.has(e.key) ? "★" : "☆"}</span></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${pb && pb.t ? fmtRange(pb.t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span${pb && pb.t && pb.v ? ` title="Ticket annoncé pour ${esc(pb.v)}"` : ""}>ticket ${pb && pb.t && pb.v && pb.v.length <= 20 ? esc(pb.v) : pb && pb.t ? "annoncé" : "déclaré"}</span></div></div>
-      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div><div title="Part de ses deals dans ce secteur"><b>${fs ? Math.round(fs.share * 100) + " %" : "—"}</b><span>${fs ? esc(fs.sec) : "secteur n°1"}</span></div></div>
+      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
       ${e.veh.length ? `<div class="depline">● En déploiement : ${e.veh.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
