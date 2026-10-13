@@ -11,6 +11,10 @@ const shell = fs.readFileSync(path.join(root, "src/shell.html"), "utf8");
 const pub = JSON.parse(fs.readFileSync(path.join(root, "data/public-profiles.json"), "utf8"));
 fs.writeFileSync(path.join(root, "assets/public-profiles.js"), "// Généré par tools/build.js depuis data/public-profiles.json : ne pas modifier à la main.\nwindow.IFT_PUBLIC=" + JSON.stringify(pub) + ";\n");
 
+// Réinvestissements vérifiés (investisseurs déjà au capital lors d'une levée) : data/followons.json → assets/followons.js
+const fol = JSON.parse(fs.readFileSync(path.join(root, "data/followons.json"), "utf8"));
+fs.writeFileSync(path.join(root, "assets/followons.js"), "// Généré par tools/build.js depuis data/followons.json : ne pas modifier à la main.\nwindow.IFT_FOLLOWONS=" + JSON.stringify(fol) + ";\n");
+
 const data = html.split("\n").filter((l) => /^var [A-Z][A-Z0-9_]*_BASE\s*=/.test(l));
 if (!data.some((l) => l.startsWith("var LD_BASE"))) throw new Error("LD_BASE introuvable dans index.html");
 
@@ -19,7 +23,7 @@ const head = `<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\
 const body = shell
   .replace("<!--@@DATA@@-->", () => DATA)
   .replace("<!--@@LIB@@-->", '<script src="assets/insights-lib.js"></script>')
-  .replace("<!--@@VEH@@-->", '<script src="assets/vehicles.js"></script>\n<script src="assets/public-profiles.js"></script>')
+  .replace("<!--@@VEH@@-->", '<script src="assets/vehicles.js"></script>\n<script src="assets/public-profiles.js"></script>\n<script src="assets/followons.js"></script>')
   .replace("<!--@@LOGOS@@-->", '<script src="assets/logos.js"></script>')
   .replace("<!--@@APP@@-->", '<script src="assets/app.js"></script>');
 const split = body.indexOf("</style>") + "</style>".length;
