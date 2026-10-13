@@ -409,11 +409,27 @@ const pubTicket = (e) => {
   if (v.length === 1) return { t: v[0].t, cur: v[0].cur, label: v[0].v };
   return { t: [Math.min(...v.map((p) => p.t[0] ?? p.t[1])), Math.max(...v.map((p) => p.t[1]))], label: `${v.length} fonds` };
 };
+// Réinvestissements : pour chaque levée vérifiée (Série A et plus), les investisseurs du tour déjà au
+// capital, d'après une source. Un fonds n'est compté que sur ses levées vérifiées.
+const FOL = new Map();
+(window.IFT_FOLLOWONS || []).filter((f) => f.statut !== "inconnu").forEach((f) => FOL.set(norm(f.s) + "|" + f.r, { ...f, keys: new Set((f.deja || []).map(core)) }));
+const follow = (e) => {
+  if (e._f) return e._f;
+  const rows = e.deals.map((d) => ({ d, f: FOL.get(norm(d.company) + "|" + d.date) })).filter((x) => x.f);
+  const re = rows.filter((x) => x.f.keys.has(e.key));
+  return (e._f = { tot: rows.length, re });
+};
 const TICKET_BANDS = { "0-0.5": [0, 0.5], "0.5-2": [0.5, 2], "2-5": [2, 5], "5-": [5, Infinity] };
 const mEur = (v) => String(+(+v).toFixed(2)).replace(".", ",");
 const fmtRange = (t, cur) => { if (!t) return ""; const u = cur === "$" ? " M$" : " M€", f = (v) => (v < 1 ? Math.round(v * 1000) + (cur === "$" ? " k$" : " k€") : mEur(v) + u); return t[0] == null ? `jusqu'à ${f(t[1])}` : t[0] === t[1] ? f(t[0]) : t[1] < 1 ? `${Math.round(t[0] * 1000)}–${f(t[1])}` : `${mEur(t[0])}–${mEur(t[1])}${u}`; };
 // Ce que le fonds annonce publiquement, pour le véhicule décrit par la source. Pas de comparaison
 // avec ses deals : ceux-ci sont rattachés à la société de gestion, tous véhicules confondus.
+function foBlock(e) {
+  const f = follow(e);
+  if (!f.tot) return "";
+  const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (err) { return ""; } };
+  return sec("Réinvestissements", `<p style="font-size:.92rem;margin-bottom:10px">Sur ${f.tot} levée${f.tot > 1 ? "s" : ""} vérifiée${f.tot > 1 ? "s" : ""} (Série A et plus), ${esc(e.name)} était déjà au capital dans <b>${f.re.length}</b>.</p>${f.re.map(({ d, f: x }) => `<div class="lrow" data-startup="${esc(d.company)}"><span class="dt">${fmtMonth(d.date)}</span><span class="co">${esc(d.company)}<small>${esc(d.stage_raw || "")}</small></span><span class="v">${fmtAmt(d.amount_eur_m)}</span><span class="sub">${esc(x.note)}${x.src ? ` · <a href="${esc(x.src)}" target="_blank" rel="noopener">${esc(host(x.src))}</a>` : ""}</span></div>`).join("")}<p class="muted" style="font-size:.78rem;margin-top:8px">Les levées de seed et pre-seed ne sont pas vérifiées : elles sont rarement précédées d'un tour institutionnel.</p>`);
+}
 function pubBlock(e) {
   const list = PUB.get(e.key);
   if (!list) return "";
@@ -522,7 +538,7 @@ function renderFonds() {
   });
   const so = $("#fSort").value;
   const nullLast = (f) => (a, b) => { const x = f(a), y = f(b); return x == null ? (y == null ? b.nb - a.nb : 1) : y == null ? -1 : y - x || b.nb - a.nb; };
-  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : so === "size" ? nullLast((e) => profile(e).med) : so === "ticket" ? nullLast((e) => (pubTicket(e) ? pubTicket(e).t[1] : null)) : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
+  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : so === "size" ? nullLast((e) => profile(e).med) : so === "ticket" ? nullLast((e) => (pubTicket(e) ? pubTicket(e).t[1] : null)) : so === "fo" ? nullLast((e) => { const f = follow(e); return f.tot >= 3 ? f.re.length / f.tot + f.tot / 1e4 : null; }) : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
   FS.rows = r;
   $("#fCount").textContent = `${nf.format(r.length)} investisseurs`;
   $("#fMineN").textContent = MINE.size ? `(${MINE.size})` : "";
@@ -535,11 +551,12 @@ function renderFonds() {
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
     const pt = pubTicket(e);
+    const fo = follow(e);
     const pr = profile(e);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
       <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div><span class="star${MINE.has(e.key) ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.key)}" aria-pressed="${MINE.has(e.key)}" title="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}" aria-label="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}">${MINE.has(e.key) ? "★" : "☆"}</span></div>
       <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${pt ? fmtRange(pt.t, pt.cur) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span${pt && pt.label ? ` title="Ticket annoncé : ${esc(pt.label)}"` : ""}>ticket ${pt && pt.label && pt.label.length <= 20 ? esc(pt.label) : pt ? "annoncé" : "déclaré"}</span></div></div>
-      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div></div>
+      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="${fo.tot ? `Déjà au capital dans ${fo.re.length} de ses ${fo.tot} levées vérifiées (Série A et plus)` : "Aucune levée vérifiée"}"><b>${fo.tot >= 3 ? `${fo.re.length} / ${fo.tot}` : "—"}</b><span>réinvestissements</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
       ${e.veh.length ? `<div class="depline">● En déploiement : ${e.veh.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
@@ -720,6 +737,7 @@ function entDetail(key) {
   return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(typeLabel(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
     ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [pubTicket(e) ? fmtRange(pubTicket(e).t, pubTicket(e).cur) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${thesisBlock(e, deals)}
+    ${foBlock(e)}
     ${pubBlock(e)}
     ${ins.stages || (ins.sectors && ins.sectors.length) ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
