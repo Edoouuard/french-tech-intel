@@ -209,7 +209,7 @@ function go(view, opts = {}) {
   moveInk();
   const t = $(`.tab[data-view="${view}"]`), bar = $("#tabs");
   if (t && (t.offsetLeft < bar.scrollLeft || t.offsetLeft + t.offsetWidth > bar.scrollLeft + bar.clientWidth)) bar.scrollTo({ left: t.offsetLeft - 24, behavior: "smooth" });
-  if (!opts.silent) { try { history.replaceState(null, "", "#" + view); } catch (e) { /* hôte sans historique */ } window.scrollTo({ top: 0, behavior: "instant" }); reveal($("#v-" + view)); }
+  if (!opts.silent) { try { history.replaceState(null, "", view === "fonds" ? fondsHash(true) : "#" + view); } catch (e) { /* hôte sans historique */ } window.scrollTo({ top: 0, behavior: "instant" }); reveal($("#v-" + view)); }
 }
 $$(".tab").forEach((t) => t.addEventListener("click", () => go(t.dataset.view)));
 addEventListener("resize", moveInk);
@@ -383,7 +383,58 @@ function renderExits() {
 }
 
 /* ================= FONDS ================= */
-const FS = { shown: 36 };
+const FS = { shown: 36, shared: null };
+// Profil d'investissement observé sur les levées suivies : taille médiane des tours et
+// stade dominant. Pas de taux de réinvestissement : la base ne couvre que
+// les levées depuis 2024, trop peu de startups y ont deux tours pour le mesurer.
+const profile = (e) => {
+  if (e._p) return e._p;
+  const amts = e.deals.map((d) => d.amount_eur_m).filter((v) => v != null);
+  const bySt = new Map();
+  e.deals.forEach((d) => { if (d.stage_raw && d.stage_raw !== "NC") bySt.set(d.stage_raw, (bySt.get(d.stage_raw) || 0) + 1); });
+  const stTop = [...bySt.entries()].sort((a, b) => b[1] - a[1])[0], nSt = [...bySt.values()].reduce((a, b) => a + b, 0);
+  return (e._p = { med: amts.length >= 3 ? median(amts) : null, stage: stTop && nSt >= 3 ? { st: stTop[0], share: stTop[1] / nSt } : null });
+};
+const SIZE_BANDS = { "0-1": [0, 1], "1-5": [1, 5], "5-20": [5, 20], "20-50": [20, 50], "50-": [50, Infinity] };
+// Sélection de fonds : mémorisée dans le navigateur, partageable par lien.
+const MINE = new Set((() => { try { return JSON.parse(localStorage.getItem("ift-selection") || "[]"); } catch (e) { return []; } })());
+const saveMine = () => { try { localStorage.setItem("ift-selection", JSON.stringify([...MINE])); } catch (e) { /* stockage indisponible */ } };
+// Profil public (site du fonds, communiqués, presse) rapproché de ce que montrent ses deals.
+const PUB = new Map();
+(window.IFT_PUBLIC || []).forEach((p) => { const e = entFor(p.n); if (e) PUB.set(e.key, p); });
+const mEur = (v) => String(+(+v).toFixed(2)).replace(".", ",");
+const fmtRange = (t) => (!t ? "" : t[0] == null ? `jusqu'à ${mEur(t[1])} M€` : `${mEur(t[0])}–${mEur(t[1])} M€`);
+// Ce que le fonds annonce publiquement, pour le véhicule décrit par la source. Pas de comparaison
+// avec ses deals : ceux-ci sont rattachés à la société de gestion, tous véhicules confondus.
+function pubBlock(e) {
+  const p = PUB.get(e.key);
+  if (!p) return "";
+  const host = (() => { try { return new URL(p.src).hostname.replace(/^www\./, ""); } catch (err) { return "source"; } })();
+  const kv = [["Véhicule", p.v], ["Ticket initial", p.t && fmtRange(p.t) + (p.fo ? ` · jusqu'à ${mEur(p.fo)} M€ par société` : "")], ["Stades", p.st], ["Réinvestissement", p.followon], ["Rôle", p.lead && p.lead.charAt(0).toUpperCase() + p.lead.slice(1)]].filter(([, v]) => v);
+  return sec("Ce que le fonds annonce", `<dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+    <p class="muted" style="font-size:.8rem;margin-top:10px">${p.v ? `Ces informations concernent ${esc(p.v)}. ` : ""}Les deals suivis par Insights sont rattachés à ${esc(e.name)}, tous fonds confondus : ils ne se comparent pas directement à la thèse d'un véhicule.</p>
+    <p class="mono muted" style="font-size:.7rem;margin-top:6px">Source : <a href="${esc(p.src)}" target="_blank" rel="noopener">${esc(host)}</a>${p.d ? " · " + esc(p.d) : ""}</p>`);
+}
+const FONDS_PARAMS = [["q", "#fQ"], ["type", "#fType"], ["stade", "#fStage"], ["secteur", "#fSec"], ["taille", "#fSize"], ["tri", "#fSort"]];
+const FONDS_FLAGS = [["deploiement", "#fDep"], ["public", "#fPub"]];
+// Lien de la liste affichée : filtres en cours et, le cas échéant, la sélection.
+function fondsHash(withSel) {
+  const u = new URLSearchParams();
+  FONDS_PARAMS.forEach(([k, sel]) => { const v = $(sel).value; if (v && !(k === "tri" && v === "n12")) u.set(k, v); });
+  FONDS_FLAGS.forEach(([k, sel]) => { if ($(sel).checked) u.set(k, "1"); });
+  const keys = withSel ? [...(FS.shared || ($("#fMine").checked ? MINE : []))] : [];
+  if (keys.length) u.set("selection", keys.join("|"));
+  const qs = u.toString();
+  return "#fonds" + (qs ? "?" + qs : "");
+}
+function applyFondsParams(qs) {
+  const u = new URLSearchParams(qs);
+  FONDS_PARAMS.forEach(([k, sel]) => { if (u.has(k)) $(sel).value = u.get(k); });
+  FONDS_FLAGS.forEach(([k, sel]) => { $(sel).checked = u.get(k) === "1"; });
+  const keys = (u.get("selection") || "").split("|").filter((k) => ENT.has(k));
+  FS.shared = keys.length ? new Set(keys) : null;
+  renderFonds();
+}
 const quarterKeys = (() => { const out = []; for (let y = 2024; y <= +LATEST.slice(0, 4); y++) for (let q = 1; q <= 4; q++) { const k = `${y}-Q${q}`; if (`${y}-${String(q * 3 - 2).padStart(2, "0")}` <= LATEST) out.push(k); } return out; })();
 const qOf = (ym) => `${ym.slice(0, 4)}-Q${Math.ceil(+ym.slice(5, 7) / 3)}`;
 const spark = (deals) => { const c = Object.fromEntries(quarterKeys.map((k) => [k, 0])); deals.forEach((d) => { const k = qOf(d.date || "0000-01"); if (k in c) c[k]++; }); const mx = Math.max(1, ...Object.values(c)); return `<div class="spark" title="Deals par trimestre depuis 2024">${quarterKeys.map((k) => `<i style="height:${(c[k] / mx) * 100}%"></i>`).join("")}</div>`; };
@@ -409,7 +460,16 @@ BUILDERS.fonds = () => {
   const rail = $("#rail");
   $("#railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: "smooth" }));
   $("#railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: "smooth" }));
-  ["#fQ", "#fType", "#fStage", "#fSec", "#fSort", "#fDep"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
+  ["#fQ", "#fType", "#fStage", "#fSec", "#fSize", "#fSort", "#fDep", "#fMine", "#fPub"].forEach((s) => $(s).addEventListener(s === "#fQ" ? "input" : "change", () => { FS.shown = 36; renderFonds(); }));
+  $("#fShare").addEventListener("click", () => copyText(location.href.split("#")[0] + fondsHash(true)));
+  $("#fShared").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-shared]");
+    if (!b) return;
+    if (b.dataset.shared === "add") { FS.shared.forEach((k) => MINE.add(k)); saveMine(); $("#fMine").checked = true; toast(`${FS.shared.size} fonds ajoutés à votre sélection`); }
+    FS.shared = null;
+    renderFonds();
+  });
+  $("#fGrid").addEventListener("keydown", (ev) => { if ((ev.key === "Enter" || ev.key === " ") && ev.target.matches(".star")) { ev.preventDefault(); ev.stopPropagation(); ev.target.click(); } });
   $("#fMore").addEventListener("click", () => { FS.shown += 48; renderFonds(); });
   renderFonds();
   if (hasGsap) gsap.fromTo("#rail .dcard", { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "expo.out", stagger: 0.04, delay: 0.2, clearProps: "transform,opacity" });
@@ -434,31 +494,45 @@ function stageCovers(e, stg) {
 }
 function renderFonds() {
   const q = norm($("#fQ").value), ty = $("#fType").value, stg = $("#fStage").value, sec = $("#fSec").value, dep = $("#fDep").checked;
+  const band = SIZE_BANDS[$("#fSize").value], mine = $("#fMine").checked, pubOnly = $("#fPub").checked;
   let r = FUNDS_ENTS.filter((e) => {
     const type = typeFamily(entType(e));
     if (ty && type !== ty) return false;
     if (dep && !e.veh.length) return false;
     if (stg && !stageCovers(e, stg)) return false;
     if (sec && !e.deals.some((d) => d.sector_raw === sec) && !(e.ins && e.ins.sectors.includes(sec))) return false;
+    if (band) { const m = profile(e).med; if (m == null || m < band[0] || m >= band[1]) return false; }
+    if (pubOnly && !PUB.has(e.key)) return false;
+    if (FS.shared && !FS.shared.has(e.key)) return false;
+    if (!FS.shared && mine && !MINE.has(e.key)) return false;
     if (q && !norm([e.name, e.ins && e.ins.focus, e.ins && e.ins.type, e.veh.map((f) => f.name + " " + (f.thesis || "")).join(" ")].join(" ")).includes(q)) return false;
     return true;
   });
   const so = $("#fSort").value;
-  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
+  const nullLast = (f) => (a, b) => { const x = f(a), y = f(b); return x == null ? (y == null ? b.nb - a.nb : 1) : y == null ? -1 : y - x || b.nb - a.nb; };
+  r.sort(so === "name" ? (a, b) => a.name.localeCompare(b.name) : so === "nb" ? (a, b) => b.nb - a.nb : so === "size" ? nullLast((e) => profile(e).med) : (a, b) => b.n12 - a.n12 || b.nb - a.nb);
   FS.rows = r;
   $("#fCount").textContent = `${nf.format(r.length)} investisseurs`;
+  $("#fMineN").textContent = MINE.size ? `(${MINE.size})` : "";
+  $("#fShare").textContent = FS.shared || (mine && MINE.size) ? "Partager la sélection" : "Partager cette liste";
+  $("#fShared").hidden = !FS.shared;
+  if (FS.shared) $("#fShared").innerHTML = `<span><b>Sélection partagée</b> · ${FS.shared.size} fonds</span><button class="btn sm" type="button" data-shared="add">Ajouter à ma sélection</button><button class="btn sm" type="button" data-shared="close">Voir tous les fonds</button>`;
+  if (current === "fonds" && !$("#drawer").classList.contains("on")) { try { history.replaceState(null, "", fondsHash(true)); } catch (err) { /* hôte sans historique */ } }
   $("#fGrid").innerHTML = r.slice(0, FS.shown).map((e) => {
     const ins = e.ins || {};
     const a0 = e.veh[0];
     const sects = (ins.sectors && ins.sectors.length ? ins.sectors : a0 ? a0.sectors : []).slice(0, 4);
+    const pb = PUB.get(e.key);
+    const pr = profile(e);
     return `<button class="icard${e.veh.length ? " dep" : ""}" type="button" data-ent="${esc(e.key)}">
-      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div></div>
-      <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span>ticket</span></div></div>
+      <div class="ih">${logo(e.name)}<div style="min-width:0"><div class="nm">${esc(e.name)}</div>${baTag(e)}<div class="ty"${isPerson(e) ? " hidden" : ""}>${esc(typeLabel(e))}${e.intl ? " · " + esc(e.intl.hq) : ""}${ins.stages ? " · " + esc(ins.stages.replace(/→/g, " → ")) : a0 && a0.stage ? " · " + esc(a0.stage) : ""}</div></div><span class="star${MINE.has(e.key) ? " on" : ""}" role="button" tabindex="0" data-star="${esc(e.key)}" aria-pressed="${MINE.has(e.key)}" title="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}" aria-label="${MINE.has(e.key) ? "Retirer de ma sélection" : "Ajouter à ma sélection"}">${MINE.has(e.key) ? "★" : "☆"}</span></div>
+      <div class="facts"><div><b>${e.nb}</b><span>deals suivis</span></div><div><b>${e.n12}</b><span>sur 12 mois</span></div><div><b>${pb && pb.t ? fmtRange(pb.t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : a0 && a0.ticket ? esc(a0.ticket) : "—"}</b><span${pb && pb.t && pb.v ? ` title="Ticket annoncé pour ${esc(pb.v)}"` : ""}>ticket ${pb && pb.t && pb.v && pb.v.length <= 20 ? esc(pb.v) : pb && pb.t ? "annoncé" : "déclaré"}</span></div></div>
+      <div class="facts sub"><div title="Montant médian des tours auxquels il a participé"><b>${pr.med != null ? fmtAmt(pr.med) : "—"}</b><span>tour médian</span></div><div title="Stade le plus fréquent de ses deals"><b>${pr.stage ? Math.round(pr.stage.share * 100) + " %" : "—"}</b><span>${pr.stage ? esc(pr.stage.st) : "stade n°1"}</span></div></div>
       ${spark(e.deals)}
       <div>${sects.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</div>
       ${e.veh.length ? `<div class="depline">● En déploiement : ${e.veh.map((f) => `<b>${esc(f.name)}</b> · ${esc(f.size_label)}${f.stage ? " · " + esc(f.stage) : ""}`).join(" ; ")}</div>` : ""}
     </button>`;
-  }).join("") || `<div class="empty">Aucun investisseur pour ces filtres.</div>`;
+  }).join("") || `<div class="empty">${mine && !FS.shared && !MINE.size ? "Votre sélection est vide : cliquez sur ☆ sur la fiche d'un fonds pour l'y ajouter." : "Aucun investisseur pour ces filtres."}</div>`;
   $("#fMore").hidden = r.length <= FS.shown;
   if (hasGsap) gsap.fromTo("#fGrid .icard", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.015, ease: "power2.out", clearProps: "transform,opacity" });
 }
@@ -580,7 +654,7 @@ function openDetail(ref, push = true) {
   }
   try { history.replaceState(null, "", "#" + ref.t + ":" + encodeURIComponent(ref.id)); } catch (e) { /* hôte sans historique */ }
 }
-function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; try { history.replaceState(null, "", "#" + current); } catch (e) { /* hôte sans historique */ } }
+function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; try { history.replaceState(null, "", current === "fonds" ? fondsHash(true) : "#" + current); } catch (e) { /* hôte sans historique */ } }
 $("#dLink").addEventListener("click", () => copyText(location.href));
 $("#dClose").addEventListener("click", closeDetail);
 $("#scrim").addEventListener("click", closeDetail);
@@ -632,8 +706,9 @@ function entDetail(key) {
   const coTop = [...co.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
   const buyer = BUY.get(norm(e.name));
   return `<div><div class="d-title">${logo(e.name)}<div><h2>${esc(e.name)}</h2><div class="d-tags">${isPerson(e) ? baTag(e) : `<span class="pill">${esc(typeLabel(e))}</span>`}${e.intl ? `<span class="deploy-tag" style="background:color-mix(in srgb,var(--signal) 16%,transparent);color:var(--signal)">INTERNATIONAL · ${esc(e.intl.country.toUpperCase())}</span>` : ""}${e.veh.length ? `<span class="deploy-tag">${e.veh.length} FONDS EN DÉPLOIEMENT</span>` : ""}${e.foreign.length ? '<span class="pill">Fonds étranger hors France</span>' : ""}${buyer ? '<span class="pill">Acquéreur</span>' : ""}</div></div></div></div>
-    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
+    ${facts4([[e.nb, "deals suivis"], [e.n12, "sur 12 mois"], [fmtAmt(tot || null), "tours co-financés"], [PUB.get(e.key) && PUB.get(e.key).t ? fmtRange(PUB.get(e.key).t) : fmtTicket(ins.ticket_eur_m) ? fmtTicket(ins.ticket_eur_m) : e.veh[0] && e.veh[0].ticket ? esc(e.veh[0].ticket) : "—", "ticket"]])}
     ${thesisBlock(e, deals)}
+    ${pubBlock(e)}
     ${ins.stages || (ins.sectors && ins.sectors.length) ? sec("Profil Insights", `<dl class="kv">${ins.stages ? `<dt>Stades</dt><dd>${esc(ins.stages.replace(/→/g, " → "))}</dd>` : ""}${ins.sectors && ins.sectors.length ? `<dt>Secteurs</dt><dd>${ins.sectors.map((s) => `<span class="tag">${esc(s)}</span>`).join("")}</dd>` : ""}</dl>`) : ""}
     ${e.intl ? intlBlock(e.intl) : ""}
     ${e.foreign.length ? sec(`Fonds étranger en déploiement · sans levée en France sur 24 mois`, `<div style="display:flex;flex-direction:column;gap:12px">${e.foreign.map((f) => vehicleBlock(f, true)).join("")}</div>`) : ""}
@@ -980,6 +1055,17 @@ function buildWeek() {
 
 /* ================= DÉLÉGATION DES CLICS ================= */
 document.addEventListener("click", (ev) => {
+  const st = ev.target.closest("[data-star]");
+  if (st) {
+    ev.stopPropagation(); ev.preventDefault();
+    const k = st.dataset.star, on = !MINE.has(k);
+    if (on) MINE.add(k); else MINE.delete(k);
+    saveMine();
+    toast(on ? "Ajouté à votre sélection" : "Retiré de votre sélection");
+    if ($("#fMine").checked && !on) renderFonds();
+    else { st.classList.toggle("on", on); st.textContent = on ? "★" : "☆"; st.setAttribute("aria-pressed", on); st.title = on ? "Retirer de ma sélection" : "Ajouter à ma sélection"; st.setAttribute("aria-label", st.title); $("#fMineN").textContent = MINE.size ? `(${MINE.size})` : ""; }
+    return;
+  }
   const cp = ev.target.closest("[data-comps]");
   if (cp) { const c = JSON.parse(cp.dataset.comps); closeDetail(); go("comps", { after: () => { $("#cSec").value = c.sec || ""; $("#cStage").value = c.st || ""; $("#cYear").value = ""; $("#cMine").value = c.amt; renderComps(); } }); return; }
   const fd = ev.target.closest("[data-fund]");
@@ -1042,9 +1128,10 @@ $("#ct-fonds").textContent = FUNDS_ENTS.length;
 $("#ct-pe").textContent = PE.length;
 $("#ct-acq").textContent = BUYERS.length;
 $("#ct-europe").textContent = AF.length;
-const start = decodeURIComponent(location.hash.replace("#", ""));
+const fondsQs = location.hash.match(/^#fonds\?(.*)$/);
+const start = fondsQs ? "fonds" : decodeURIComponent(location.hash.replace("#", ""));
 const deep = start.match(/^(fund|ent|startup|op|buyer|pe):(.+)$/);
-go(VIEWS.includes(start) ? start : "ov", { silent: true });
+go(VIEWS.includes(start) ? start : "ov", { silent: true, after: fondsQs ? () => applyFondsParams(fondsQs[1]) : null });
 if (deep) setTimeout(() => openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }), 400);
 requestAnimationFrame(moveInk);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInk);
