@@ -265,17 +265,6 @@ main { padding-block: 28px 80px; }
 .icard .ih .star:hover, .icard .ih .star:focus-visible { border-color: var(--line-strong); color: var(--fg); }
 .icard .ih .star.on { color: var(--accent); }
 .icard .facts.sub { border-top: 1px dashed var(--line); padding-top: 8px; }
-.icard .xline { font-family: var(--f-mono); font-size: .66rem; color: var(--muted); letter-spacing: .02em; }
-.xline .ok, .xv.ok { color: var(--ok); }
-.xline .gap, .xv.gap { color: var(--warn); }
-.xtab { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; }
-.xrow { display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(0, 1.2fr) 74px; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: .86rem; align-items: start; }
-.xrow:first-child { border-top: 0; }
-.xrow small { display: block; font-family: var(--f-mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.xrow em { display: block; font-style: normal; font-size: .78rem; color: var(--muted); margin-top: 3px; }
-.xrow .xk { font-weight: 600; }
-.xrow .xv { font-family: var(--f-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; text-align: right; }
-@media (max-width: 560px) { .xrow { grid-template-columns: minmax(0, 1fr) auto; } .xrow > span:nth-child(2), .xrow > span:nth-child(3) { grid-column: 1 / -1; } .xrow .xv { grid-row: 1; grid-column: 2; } }
 .shared-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: .88rem; }
 .shared-bar b { font-weight: 600; }
 .shared-bar .btn { margin-left: auto; }
@@ -606,7 +595,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="field"><label for="fSort">Tri</label><select class="input" id="fSort"><option value="n12">Activité 12 mois</option><option value="nb">Deals suivis</option><option value="size">Tour médian, du plus gros</option><option value="name">Nom A→Z</option></select></div>
         <label class="toggle" for="fSpec" title="Le secteur choisi pèse nettement plus dans ses deals que sur le marché"><input type="checkbox" id="fSpec"> Spécialistes du secteur</label>
         <label class="toggle" for="fDep"><input type="checkbox" id="fDep"> En cours de déploiement</label>
-        <label class="toggle" for="fPub" title="Fonds dont le ticket, les stades et les secteurs publics ont été relevés et comparés à leurs deals"><input type="checkbox" id="fPub"> Profil public vérifié</label>
+        <label class="toggle" for="fPub" title="Fonds dont le ticket, les stades et la thèse publics ont été relevés, avec leur source"><input type="checkbox" id="fPub"> Profil public renseigné</label>
         <label class="toggle" for="fMine"><input type="checkbox" id="fMine"> Ma sélection <span class="mono" id="fMineN"></span></label>
       </div>
       <div class="shared-bar" id="fShared" hidden></div>

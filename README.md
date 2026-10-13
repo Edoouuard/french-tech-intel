@@ -13,7 +13,7 @@ Intelligence de marché sur la French Tech : levées de fonds, exits & M&A, fond
 | `src/shell.html` | Gabarit HTML/CSS d'`index.html`. |
 | `api/mcp.js`, `lib/` | Serveur MCP hébergé sur `/mcp` (fonction Vercel). |
 | `data/vehicles.json` | Fonds en déploiement, lus par le serveur MCP. |
-| `data/public-profiles.json` | Profils publics des fonds les plus actifs (ticket, stades, secteurs, réinvestissement, rôle, source datée), comparés sur le site à leurs deals observés. `npm run rebuild` en génère `assets/public-profiles.js`. |
+| `data/public-profiles.json` | Profils publics des fonds les plus actifs (véhicule concerné, ticket, stades, secteurs, réinvestissement, rôle, source datée), affichés sur les fiches sans comparaison avec les deals, qui sont rattachés à la société de gestion tous fonds confondus. `npm run rebuild` en génère `assets/public-profiles.js`. |
 
 ## Mise à jour hebdomadaire des données
 
