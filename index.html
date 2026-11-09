@@ -16,40 +16,46 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Libre+Franklin:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout : application à onglets — barre de commande, vues en grille 12 colonnes, fiches en panneau latéral. */
+/* Layout : page d'accueil puis application à onglets — barre de commande, vues en grille 12 colonnes, fiches en panneau latéral. */
+/* Direction artistique : gravure néo-classique — ciel sarcelle, nuages crème, pierre, cyprès, terre cuite et or. */
 :root {
-  --bg: #0A1D30; --bg-2: #0F2740; --bg-3: #143252;
-  --line: rgba(206, 224, 242, 0.13); --line-strong: rgba(206, 224, 242, 0.26);
-  --fg: #E7EEF5; --muted: #8FA5BB; --accent: #F3B648; --accent-ink: #1A1205;
-  --signal: #72C6E3; --warn: #E9876F; --ok: #7FC79A;
-  --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6);
-  --s0: #6EC3E6; --s1: #58B5B0; --s2: #8DB86E; --s3: #C9B04C; --s4: #EE9F45; --s5: #E9785A; --s6: #D9637A;
-  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --f-body: "Hanken Grotesk", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
-  --r: 14px; --maxw: 1320px;
+  --bg: #0E3940; --bg-2: #124650; --bg-3: #18535D;
+  --line: rgba(240, 231, 208, 0.14); --line-strong: rgba(240, 231, 208, 0.3);
+  --fg: #F2EAD6; --muted: #A9BCB3; --accent: #E2A65A; --accent-ink: #1B1307;
+  --signal: #9DD0CF; --warn: #EC8C6C; --ok: #AFC98C;
+  --sky: #125262; --sky-2: #0D3D49; --cream: #F2EAD6; --stone: #D0B180; --cypress: #3B4A33; --terra: #C4532F; --gold: #C08A3E;
+  --shadow: 0 30px 80px -30px rgba(2, 16, 20, 0.65);
+  --s0: #9DD0CF; --s1: #AFC98C; --s2: #E6C46F; --s3: #E59A69; --s4: #7FB2C8; --s5: #D88F86; --s6: #CDB9DD;
+  --f-display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-body: "Libre Franklin", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 6px; --maxw: 1320px;
+  --paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .35 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --paper-op: .09;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #EDF1F4; --bg-2: #FFFFFF; --bg-3: #E2E9EF;
-    --line: rgba(10, 29, 48, 0.12); --line-strong: rgba(10, 29, 48, 0.24);
-    --fg: #0A1D30; --muted: #4F6478; --accent: #B9790A; --accent-ink: #FFFFFF;
-    --signal: #1D6E93; --warn: #B4452C; --ok: #2E7D4F;
-    --shadow: 0 30px 70px -35px rgba(10, 29, 48, 0.35);
-    --s0: #2F8DB8; --s1: #2A8C86; --s2: #5E8F3E; --s3: #9C8420; --s4: #C87516; --s5: #C2512F; --s6: #B23D58;
+    --bg: #F1E9D8; --bg-2: #FAF5EA; --bg-3: #E9DEC6;
+    --line: rgba(29, 43, 47, 0.15); --line-strong: rgba(29, 43, 47, 0.32);
+    --fg: #1C2A2E; --muted: #5C665F; --accent: #A8442A; --accent-ink: #FFF7EA;
+    --signal: #1C5D6A; --warn: #9C3A25; --ok: #47662F;
+    --shadow: 0 28px 60px -34px rgba(44, 36, 20, 0.45);
+    --s0: #1C5D6A; --s1: #4F7238; --s2: #B8862C; --s3: #B04A2C; --s4: #6C9CA8; --s5: #8C5878; --s6: #A99260;
+    --paper-op: .16;
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #EDF1F4; --bg-2: #FFFFFF; --bg-3: #E2E9EF;
-  --line: rgba(10, 29, 48, 0.12); --line-strong: rgba(10, 29, 48, 0.24);
-  --fg: #0A1D30; --muted: #4F6478; --accent: #B9790A; --accent-ink: #FFFFFF;
-  --signal: #1D6E93; --warn: #B4452C; --ok: #2E7D4F;
-  --shadow: 0 30px 70px -35px rgba(10, 29, 48, 0.35);
-  --s0: #2F8DB8; --s1: #2A8C86; --s2: #5E8F3E; --s3: #9C8420; --s4: #C87516; --s5: #C2512F; --s6: #B23D58;
+  --bg: #F1E9D8; --bg-2: #FAF5EA; --bg-3: #E9DEC6;
+  --line: rgba(29, 43, 47, 0.15); --line-strong: rgba(29, 43, 47, 0.32);
+  --fg: #1C2A2E; --muted: #5C665F; --accent: #A8442A; --accent-ink: #FFF7EA;
+  --signal: #1C5D6A; --warn: #9C3A25; --ok: #47662F;
+  --shadow: 0 28px 60px -34px rgba(44, 36, 20, 0.45);
+  --s0: #1C5D6A; --s1: #4F7238; --s2: #B8862C; --s3: #B04A2C; --s4: #6C9CA8; --s5: #8C5878; --s6: #A99260;
+  --paper-op: .16;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -440,6 +446,132 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .score span { position: relative; }
 .ba-tag { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); white-space: nowrap; }
 .ba-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* ================= DA néo-classique : gravure, papier, filets doubles ================= */
+body { position: relative; font-size: 15px; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; background-image: var(--paper); opacity: var(--paper-op); pointer-events: none; }
+h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.005em; line-height: 1.04; }
+h3 { font-size: 1.32rem; letter-spacing: 0; }
+.eyebrow { letter-spacing: .2em; font-size: .66rem; }
+.view-head h1 { font-size: clamp(2.5rem, 5vw, 4.3rem); font-weight: 500; letter-spacing: -0.012em; line-height: .96; max-width: 17ch; }
+.view-head h1 em { font-style: italic; color: var(--accent); }
+.view-head .lede { font-size: 1.02rem; line-height: 1.6; }
+.kpi .v, .strip b, .dcard .big, .week .big, .facts4 b, .pos, .d-title h2 { font-variant-numeric: lining-nums tabular-nums; font-weight: 600; letter-spacing: -0.01em; }
+.kpi .v { font-size: clamp(2.3rem, 4vw, 3.2rem); }
+.strip b { font-size: 1.85rem; }
+.strip b span { font-size: inherit; color: inherit; }
+.deploy-line .rail-nav { top: -2px; }
+.deploy-line:has(.rail-nav) > .ph { padding-right: 86px; }
+.dcard .big { font-size: 1.9rem; }
+.dcard .vn, .icard .nm, .mcard .nm { font-family: var(--f-display); font-size: 1.22rem; font-weight: 600; letter-spacing: 0; }
+.d-title h2 { font-size: clamp(2rem, 4.4vw, 2.8rem); }
+/* barre */
+.top { background: color-mix(in srgb, var(--bg) 90%, transparent); border-bottom: 3px double var(--line-strong); }
+.brand { font-family: var(--f-display); font-size: 1.42rem; font-weight: 600; letter-spacing: 0; gap: 11px; }
+.brand svg { width: 30px; height: 30px; color: var(--accent); }
+.brand small { letter-spacing: .22em; font-size: .58rem; }
+@media (max-width: 620px) { .brand { font-size: 1.12rem; gap: 8px; } .brand small { display: none; } .brand svg { width: 24px; height: 24px; } .top-row { gap: 10px; } .searchbtn { padding: 8px 10px; } }
+.tab { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; padding: 13px 14px 14px; }
+.tab .ct, .pill, .deploy-tag, .ba-tag { border-radius: 2px; }
+.tab-ink { height: 3px; border-radius: 0; }
+.searchbtn, .themebtn, .input, .urlbox, .code, .copy, .iconbtn, .pager button, .seg, .seg button, .chip, .qchip, .tag, .av, .rail-nav button, .shared-bar, .warnbox, .toolc, .fcard, .mcard, .msg, .pal-box, .pal-list .it, .tip, .toast { border-radius: 4px; }
+.av { border-radius: 4px !important; }
+.score, .person .av { border-radius: 50% !important; }
+/* cadres gravés : filet + filet intérieur */
+.panel, .kpi, .strip, .icard, .dcard, .mcp-top, .facts4, .vehicle, .foreign, .eu-map, .xtab { border-radius: var(--r); }
+.panel, .kpi, .mcp-top, .vehicle, .land-card { box-shadow: inset 0 0 0 4px var(--bg-2), inset 0 0 0 5px var(--line); }
+.panel { padding: 22px 24px; }
+.ph h3 { font-size: 1.38rem; }
+.ph h3::before { content: "✦"; font-size: .7em; color: var(--accent); margin-right: .45em; vertical-align: .12em; }
+.kpi::after { display: none; }
+.kpi .k, .d-sec h4, .field label, .tr.head, .kv dt, .facts4 span { letter-spacing: .16em; }
+.btn { border-radius: 3px; letter-spacing: .03em; padding: 10px 18px; }
+.btn-primary { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 35%, transparent); }
+.mcp-top { background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 10%, var(--bg-2)), var(--bg-2) 60%); }
+.mcp-top .ic, .mcp-top .ic::after { border-radius: 4px; }
+.mcp-top b { font-size: 1.3rem; }
+.dcard { background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 8%, var(--bg-2)), var(--bg-2) 60%); }
+.hbar .t, .crow .bar, .lb .bar, .stagebar { border-radius: 2px; }
+.hbar .t i { border-radius: 0; }
+.stagebar > div { color: var(--bg); }
+.ticker { border-block: 3px double var(--line); }
+.thesis-decl { font-family: var(--f-display); font-size: 1.22rem; font-style: italic; }
+footer { border-top: 3px double var(--line-strong); }
+.drawer { background-color: var(--bg-2); }
+.scrim, .pal { background: color-mix(in srgb, var(--sky-2) 55%, transparent); }
+
+/* ================= Page d'accueil ================= */
+.view[data-view="accueil"] { margin-top: -28px; }
+.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+.l-hero { position: relative; color: var(--cream); background:
+  radial-gradient(rgba(242, 234, 214, .07) .9px, transparent 1.3px) 0 0 / 5px 5px,
+  linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%); border-bottom: 3px double rgba(242, 234, 214, .35); overflow: hidden; }
+.l-hero::after { content: ""; position: absolute; inset: 0; background-image: var(--paper); opacity: .12; mix-blend-mode: overlay; pointer-events: none; }
+.l-hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 5vw, 72px); align-items: center; padding-block: clamp(40px, 7vw, 92px) clamp(36px, 5vw, 64px); }
+.l-hero .eyebrow { color: color-mix(in srgb, var(--cream) 75%, transparent); }
+.l-hero h1 { font-size: clamp(2.9rem, 6.2vw, 5.4rem); font-weight: 500; line-height: .93; letter-spacing: -0.015em; margin: 14px 0 22px; max-width: 13ch; color: var(--cream); }
+.l-hero h1 em { font-style: italic; color: #E9B46A; }
+.l-hero .lede { font-size: 1.08rem; line-height: 1.65; max-width: 50ch; color: color-mix(in srgb, var(--cream) 86%, transparent); }
+.l-hero .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+.l-hero .btn { border-color: rgba(242, 234, 214, .45); color: var(--cream); }
+.l-hero .btn:hover { border-color: var(--cream); }
+.l-hero .btn-primary { background: var(--cream); color: var(--sky-2); border-color: var(--cream); }
+.l-hero .btn-primary:hover { background: #E9B46A; border-color: #E9B46A; color: #1B1307; }
+.plate { position: relative; margin: 0; padding: 10px; border: 1px solid rgba(242, 234, 214, .5); background: rgba(242, 234, 214, .06); box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .6); }
+.plate img { display: block; width: 100%; height: auto; outline: 1px solid rgba(242, 234, 214, .35); outline-offset: 4px; }
+.plate figcaption { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); }
+.l-stats-wrap { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding-inline: clamp(16px, 3.4vw, 36px); }
+.l-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid rgba(242, 234, 214, .25); }
+.l-stats > div { padding: 18px 20px 22px; border-right: 1px solid rgba(242, 234, 214, .18); }
+.l-stats > div:last-child { border-right: 0; }
+.l-stats b { display: block; font-family: var(--f-display); font-weight: 600; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1; font-variant-numeric: lining-nums tabular-nums; color: var(--cream); }
+.l-stats span { font-size: .8rem; color: color-mix(in srgb, var(--cream) 72%, transparent); }
+@media (max-width: 900px) { .l-hero .wrap { grid-template-columns: minmax(0, 1fr); } .plate { max-width: 520px; } .l-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .l-stats > div { border-bottom: 1px solid rgba(242, 234, 214, .18); } .l-stats > div:nth-child(2n) { border-right: 0; } }
+.l-sec { padding-block: clamp(48px, 7vw, 88px) 0; }
+.l-sec > header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 40px; align-items: end; margin-bottom: 30px; }
+.l-sec > header h2 { font-size: clamp(2.1rem, 4.4vw, 3.4rem); font-weight: 500; line-height: .98; }
+.l-sec > header h2 em { font-style: italic; color: var(--accent); }
+.l-sec > header p { color: var(--muted); font-size: 1rem; line-height: 1.6; max-width: 54ch; }
+@media (max-width: 860px) { .l-sec > header { grid-template-columns: minmax(0, 1fr); } }
+.orn { display: flex; align-items: center; gap: 14px; color: var(--accent); font-size: .8rem; margin-bottom: 14px; }
+.orn::before, .orn::after { content: ""; flex: 1; height: 3px; border-block: 1px solid var(--line-strong); }
+.how { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 3px double var(--line-strong); }
+.how > div { padding: 22px 22px 6px 0; }
+.how > div + div { padding-left: 22px; border-left: 1px solid var(--line); }
+.how .rn { font-family: var(--f-display); font-size: 2.9rem; font-weight: 500; font-style: italic; line-height: 1; color: var(--accent); }
+.how h3 { font-size: 1.5rem; margin: 10px 0 8px; }
+.how p { color: var(--muted); font-size: .92rem; line-height: 1.6; }
+@media (max-width: 900px) { .how { grid-template-columns: repeat(2, minmax(0, 1fr)); } .how > div:nth-child(3) { padding-left: 0; border-left: 0; } .how > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+@media (max-width: 520px) { .how { grid-template-columns: minmax(0, 1fr); } .how > div, .how > div + div { padding-left: 0; border-left: 0; } .how > div + div { border-top: 1px solid var(--line); } }
+.land-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 1060px) { .land-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .land-grid { grid-template-columns: minmax(0, 1fr); } }
+.land-card { display: flex; flex-direction: column; gap: 8px; text-align: left; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); cursor: pointer; color: inherit; font: inherit; transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s; }
+.land-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.land-card .n { font-family: var(--f-display); font-size: 2.3rem; font-weight: 600; line-height: 1; font-variant-numeric: lining-nums; color: var(--accent); }
+.land-card .n small { font-family: var(--f-body); font-size: .74rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+.land-card h3 { font-size: 1.45rem; }
+.land-card p { font-size: .88rem; color: var(--muted); line-height: 1.55; flex: 1; }
+.land-card .go { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--fg); }
+.land-card:hover .go { color: var(--accent); }
+.atelier { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+.atelier .plate { border-color: var(--line-strong); background: var(--bg-2); box-shadow: var(--shadow); }
+.atelier .plate img { outline-color: var(--line-strong); }
+.atelier .plate figcaption { color: var(--muted); }
+.atelier h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 500; line-height: 1; margin: 10px 0 14px; }
+.atelier h2 em { font-style: italic; color: var(--accent); }
+.atelier p { color: var(--muted); line-height: 1.65; }
+.atelier .urlbox { margin: 20px 0 14px; }
+@media (max-width: 900px) { .atelier { grid-template-columns: minmax(0, 1fr); } }
+.method { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; margin: 0; padding: 0; list-style: none; border-top: 3px double var(--line-strong); }
+.method li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: .94rem; line-height: 1.6; }
+.method li::before { content: "✦"; color: var(--accent); font-size: .8rem; padding-top: 3px; }
+.method b { font-family: var(--f-display); font-size: 1.15rem; font-weight: 600; display: block; }
+.method span { color: var(--muted); }
+@media (max-width: 760px) { .method { grid-template-columns: minmax(0, 1fr); } }
+.l-final { text-align: center; padding-block: clamp(56px, 8vw, 96px) 20px; }
+.l-final h2 { font-size: clamp(2.2rem, 4.8vw, 3.6rem); font-weight: 500; max-width: 18ch; margin: 0 auto 22px; line-height: .98; }
+.l-final h2 em { font-style: italic; color: var(--accent); }
+.l-final .acts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
@@ -454,15 +586,16 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <header class="top">
   <div class="wrap">
     <div class="top-row">
-      <a class="brand" href="#ov" aria-label="Insights French Tech, vue d'ensemble">
-        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="1.5" y="1.5" width="29" height="29" rx="9" stroke="currentColor" stroke-width="1.5"/><path d="M8 22V14M13 22V10M18 22v-6M23 22V8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".55"/><circle cx="23" cy="8" r="2.8" fill="var(--accent)"/></svg>
-        Insights French Tech <small>INTELLIGENCE</small>
+      <a class="brand" href="#accueil" aria-label="Insights French Tech, accueil">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M16 3v2.2"/><path d="M7.5 12.5a8.5 7 0 0 1 17 0"/><path d="M5.5 12.5h21M6.5 15h19"/><path d="M9 15v10M13 15v10M19 15v10M23 15v10"/><path d="M6 25h20M4.5 28h23"/><circle cx="16" cy="6.4" r="1.2" fill="currentColor" stroke="none"/></svg>
+        Insights French Tech <small>OBSERVATOIRE</small>
       </a>
       <span class="live" id="liveInfo">Live</span>
       <button class="searchbtn" id="openPal" type="button" aria-label="Rechercher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Startup, fonds, acquéreur…</span><kbd>⌘K</kbd></button>
       <button class="themebtn" id="themeBtn" type="button" aria-label="Changer de thème"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
     </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Vues">
+      <button class="tab" role="tab" data-view="accueil">Accueil</button>
       <button class="tab" role="tab" data-view="ov">Vue d'ensemble</button>
       <button class="tab" role="tab" data-view="levees">Levées <span class="ct" id="ct-levees"></span></button>
       <button class="tab" role="tab" data-view="exits">Exits &amp; M&amp;A <span class="ct" id="ct-exits"></span></button>
@@ -478,8 +611,63 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 </header>
 
 <main class="wrap">
+  <!-- ============ ACCUEIL ============ -->
+  <section class="view" id="v-accueil" data-view="accueil" hidden>
+    <div class="l-hero bleed">
+      <div class="wrap">
+        <div>
+          <p class="eyebrow reveal">Observatoire · mis à jour chaque lundi à 8 h</p>
+          <h1 class="reveal">La French Tech, <em>lisible</em> d'un seul regard.</h1>
+          <p class="lede reveal">Levées de fonds, exits, fonds VC et private equity : chaque semaine, Insights French Tech recense, vérifie et relie les opérations de l'écosystème, pour savoir en quelques secondes qui lève, qui investit et qui rachète.</p>
+          <div class="acts reveal"><button class="btn btn-primary" type="button" data-go="ov">Entrer dans l'observatoire →</button><button class="btn" type="button" data-scroll="l-how">Comment ça marche</button></div>
+        </div>
+        <figure class="plate reveal"><img src="assets/img/rotonde.webp" width="800" height="704" alt="Gravure : une rotonde à colonnes entre des cyprès, sous un ciel sarcelle et de grands nuages." fetchpriority="high"><figcaption><span>Pl. I</span><span id="lPlateDate"></span></figcaption></figure>
+      </div>
+      <div class="l-stats-wrap"><div class="l-stats" id="lStats"></div></div>
+    </div>
+
+    <section class="l-sec" id="l-how" aria-labelledby="l-how-t">
+      <header><h2 id="l-how-t" class="reveal">Comment <em>ça marche</em></h2><p class="reveal">Une seule base, complétée chaque semaine à partir de sources publiques, puis reliée : chaque levée renvoie à ses investisseurs, chaque fonds à ses deals, chaque startup à son historique.</p></header>
+      <div class="how reveal">
+        <div><span class="rn">I</span><h3>Collecter</h3><p>Chaque lundi, nous relevons les levées, exits, rachats et opérations de private equity annoncés publiquement : communiqués, presse spécialisée, sites des fonds.</p></div>
+        <div><span class="rn">II</span><h3>Vérifier</h3><p>Montants ramenés en euros, stades harmonisés, doublons fusionnés, véhicules rattachés à leur société de gestion. Tickets et réinvestissements ne sont affichés que s'ils sont sourcés.</p></div>
+        <div><span class="rn">III</span><h3>Explorer</h3><p>Filtrez les levées, comparez les fonds par ticket ou par réinvestissement, suivez les exits et repérez les acquéreurs. Chaque fiche relie startups, fonds et acquéreurs.</p></div>
+        <div><span class="rn">IV</span><h3>Interroger</h3><p>Branchez le serveur MCP à Claude ou ChatGPT : votre assistant interroge directement la base pour préparer une levée ou un brief investisseur.</p></div>
+      </div>
+    </section>
+
+    <section class="l-sec" aria-labelledby="l-what-t">
+      <header><h2 id="l-what-t" class="reveal">Ce que vous <em>y trouverez</em></h2><p class="reveal">Huit vues sur le même marché. Toutes se recoupent : un clic sur un fonds, une startup ou un acquéreur ouvre sa fiche complète, d'où que vous veniez.</p></header>
+      <div class="land-grid" id="lCards"></div>
+    </section>
+
+    <section class="l-sec" aria-labelledby="l-mcp-t">
+      <div class="atelier">
+        <figure class="plate reveal"><img src="assets/img/atelier.webp" width="1280" height="720" loading="lazy" alt="Gravure : un savant en toge explique un schéma à un visiteur, devant une cité aux tours flottantes."><figcaption><span>Pl. II</span><span>L'atelier</span></figcaption></figure>
+        <div class="reveal">
+          <p class="eyebrow">Pour Claude et ChatGPT</p>
+          <h2 id="l-mcp-t">Votre assistant, <em>branché sur la base</em>.</h2>
+          <p>Le serveur MCP d'Insights donne à votre assistant 28 outils : chercher des levées, trouver les fonds adaptés à un tour, comparer des investisseurs, repérer les acquéreurs probables. Pas de compte, pas de clé.</p>
+          <div class="urlbox"><code id="lMcpUrl">insights-french-tech.com/mcp</code><button class="copy" type="button" id="lMcpCopy">Copier</button></div>
+          <button class="btn btn-primary" type="button" data-go="mcp">Brancher le serveur →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="l-sec" aria-labelledby="l-method-t">
+      <header><h2 id="l-method-t" class="reveal">Méthode <em>et limites</em></h2><p class="reveal">Ce que les chiffres disent, et ce qu'ils ne disent pas.</p></header>
+      <ul class="method reveal" id="lMethod"></ul>
+    </section>
+
+    <div class="l-final">
+      <div class="orn reveal" aria-hidden="true">✦</div>
+      <h2 class="reveal">Qui lève, qui investit, <em>qui rachète</em> ?</h2>
+      <div class="acts reveal"><button class="btn btn-primary" type="button" data-go="ov">Ouvrir la vue d'ensemble →</button><button class="btn" type="button" data-go="levees">Parcourir les levées</button><button class="btn" type="button" data-go="fonds">Comparer les fonds</button></div>
+    </div>
+  </section>
+
   <!-- ============ VUE D'ENSEMBLE ============ -->
-  <section class="view" id="v-ov" data-view="ov">
+  <section class="view" id="v-ov" data-view="ov" hidden>
     <div class="view-head">
       <h1 class="reveal">Qui lève, qui investit, qui rachète <em>dans la French Tech</em>.</h1>
       <p class="lede reveal" id="ovLede"></p>

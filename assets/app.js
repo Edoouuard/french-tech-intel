@@ -188,7 +188,7 @@ const inPeriod = (date, p) => !p || (p === "12m" ? (date || "") >= SINCE12 : (da
 const SECTORS = Object.entries(D.reduce((a, d) => ((a[d.sector_raw] = (a[d.sector_raw] || 0) + 1), a), {})).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(Boolean);
 
 /* ================= ROUTAGE ================= */
-const VIEWS = ["ov", "levees", "exits", "fonds", "europe", "pe", "comps", "acq", "mcp"];
+const VIEWS = ["accueil", "ov", "levees", "exits", "fonds", "europe", "pe", "comps", "acq", "mcp"];
 const built = new Set();
 const BUILDERS = {};
 let current = null;
@@ -198,7 +198,7 @@ function moveInk() {
   ink.style.left = t.offsetLeft + 12 + "px"; ink.style.width = t.offsetWidth - 24 + "px";
 }
 function go(view, opts = {}) {
-  if (!VIEWS.includes(view)) view = "ov";
+  if (!VIEWS.includes(view)) view = "accueil";
   if (view === current && !opts.force) return;
   current = view;
   $$(".tab").forEach((t) => t.setAttribute("aria-selected", t.dataset.view === view));
@@ -228,6 +228,35 @@ const LAST_UPDATE = (() => {
 })();
 const fmtLong = (d) => `${JOURS[d.getUTCDay()]} ${d.getUTCDate()} ${MOIS_LONG[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 const fmtShort = (d) => `${d.getUTCDate()} ${MOIS[d.getUTCMonth()]}`;
+
+/* ================= ACCUEIL ================= */
+BUILDERS.accueil = () => {
+  const tot = D.reduce((s, d) => s + (d.amount_eur_m || 0), 0);
+  const fol = (window.IFT_FOLLOWONS || []).filter((f) => f.statut === "verifie").length;
+  $("#lPlateDate").textContent = `Édition du ${fmtLong(LAST_UPDATE.date)}`;
+  $("#lStats").innerHTML = [[nf.format(D.length), "levées depuis janvier 2024"], [fmtAmt(tot), "levés au total"], [nf.format(ENTS.length), "investisseurs suivis"], [nf.format(OPS.length), "exits et rachats"], [nf.format(DEPLOYING.length), "fonds en déploiement"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  const cards = [
+    ["levees", nf.format(D.length), "levées", "Levées", "Toutes les levées depuis 2024, filtrables par stade, secteur, montant et investisseur."],
+    ["fonds", nf.format(FUNDS_ENTS.length), "investisseurs", "Fonds VC", "Rythme d'investissement, ticket annoncé, réinvestissements vérifiés, sélection partageable."],
+    ["exits", nf.format(OPS.length), "opérations", "Exits & M&A", "Rachats, fusions et introductions en bourse de startups françaises."],
+    ["pe", nf.format(PE.length), "dossiers", "PE Watch", "Les participations de private equity et leur fenêtre de sortie probable."],
+    ["europe", nf.format(AF.length), "véhicules", "Fonds européens", "Les fonds en déploiement en Europe : taille, thèse, ticket et activité en France."],
+    ["comps", "", "", "Comparables", "Situez un tour face aux levées comparables : même secteur, même stade."],
+    ["acq", nf.format(BUYERS.length), "acquéreurs", "Acquéreurs", "Qui rachète quoi : les acquéreurs les plus actifs et leurs cibles."],
+    ["mcp", "28", "outils", "Serveur MCP", "Interrogez toute la base depuis Claude ou ChatGPT, sans compte ni clé."],
+  ];
+  $("#lCards").innerHTML = cards.map(([v, n, u, t, d]) => `<button class="land-card reveal" type="button" data-go="${v}">${n ? `<span class="n">${n}<small>${u}</small></span>` : `<span class="n">✦</span>`}<h3>${esc(t)}</h3><p>${esc(d)}</p><span class="go">Ouvrir →</span></button>`).join("");
+  $("#lMethod").innerHTML = [
+    ["Couverture", "Les levées annoncées publiquement depuis janvier 2024, complétées chaque lundi. Une levée non annoncée n'y figure pas."],
+    ["Montants", "Ceux communiqués lors de l'annonce. Un tour sans montant public est marqué « n.c. » et sort des totaux."],
+    ["Tickets des fonds", "Ceux que publie le fonds lui-même, rattachés au véhicule concerné et à leur source. Faute de source fiable, rien n'est affiché."],
+    ["Réinvestissements", `Vérifiés levée par levée sur les levées de Série A et plus (${nf.format(fol)} à ce jour), chacun avec sa source. Le seed n'est pas couvert.`],
+    ["Fonds et véhicules", "Les levées sont rattachées à la société de gestion, tous véhicules confondus : elles ne se comparent pas à la thèse d'un fonds précis."],
+    ["Mise à jour", "Chaque lundi à 8 h. La date de la dernière édition figure en haut de chaque page."],
+  ].map(([b, t]) => `<li><div><b>${esc(b)}</b><span>${esc(t)}</span></div></li>`).join("");
+  $("#lMcpCopy").addEventListener("click", () => copyText("https://www.insights-french-tech.com/mcp", $("#lMcpUrl")));
+  $("#v-accueil").addEventListener("click", (ev) => { const b = ev.target.closest("[data-scroll]"); if (b) document.getElementById(b.dataset.scroll).scrollIntoView({ behavior: "smooth", block: "start" }); });
+};
 
 /* ================= VUE D'ENSEMBLE ================= */
 BUILDERS.ov = () => {
@@ -1161,7 +1190,7 @@ $("#ct-europe").textContent = AF.length;
 const fondsQs = location.hash.match(/^#fonds\?(.*)$/);
 const start = fondsQs ? "fonds" : decodeURIComponent(location.hash.replace("#", ""));
 const deep = start.match(/^(fund|ent|startup|op|buyer|pe):(.+)$/);
-go(VIEWS.includes(start) ? start : "ov", { silent: true, after: fondsQs ? () => applyFondsParams(fondsQs[1]) : null });
+go(VIEWS.includes(start) ? start : "accueil", { silent: true, after: fondsQs ? () => applyFondsParams(fondsQs[1]) : null });
 if (deep) setTimeout(() => openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }), 400);
 requestAnimationFrame(moveInk);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInk);
