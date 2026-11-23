@@ -12,6 +12,8 @@ Intelligence de marché sur la French Tech : levées de fonds, exits & M&A, fond
 | `assets/vehicles.js`, `assets/logos.js` | Fonds VC européens en déploiement (vue « Fonds européens ») et logos des investisseurs. |
 | `src/shell.html` | Gabarit HTML/CSS d'`index.html`. |
 | `api/mcp.js`, `lib/` | Serveur MCP hébergé sur `/mcp` (fonction Vercel). |
+| `api/pages.js`, `lib/pages.js` | Pages indexables rendues côté serveur depuis les données d'`index.html` : `/startup/<slug>`, `/fonds/<slug>` (investisseurs avec au moins 3 deals, hors business angels individuels), `/levees/<AAAA-MM>`, les index `/startups`, `/fonds`, `/levees`, et `/sitemap.xml`. Routage dans `vercel.json`, cache CDN jusqu'au déploiement suivant : rien à régénérer après une mise à jour des données. |
+| `robots.txt` | Autorise l'indexation (hors `/api/`) et déclare le sitemap. |
 | `data/vehicles.json` | Fonds en déploiement, lus par le serveur MCP. |
 | `data/public-profiles.json` | Profils publics des fonds les plus actifs (véhicule concerné, ticket, stades, réinvestissement, rôle, source), uniquement ce que dit la source citée, affichés sur les fiches sans comparaison avec les deals, qui sont rattachés à la société de gestion tous fonds confondus. `npm run rebuild` en génère `assets/public-profiles.js`. |
 
