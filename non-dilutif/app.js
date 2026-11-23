@@ -1093,7 +1093,7 @@
   $("#menu").onclick = () => { const t = $(".top"); const open = !t.classList.contains("open"); t.classList.toggle("open", open); $("#menu").setAttribute("aria-expanded", String(open)); };
   $$("#nav a").forEach((a) => a.addEventListener("click", () => { $(".top").classList.remove("open"); $("#menu").setAttribute("aria-expanded", "false"); }));
   const fh = $("#foot-h"); if (fh) fh.outerHTML = horizon("#163f42");
-  if (location.hash.startsWith("#/")) rs(location.hash); // anciens liens partagés
+  if (location.hash.startsWith("#/")) { rs(location.hash); rendered = true; } // anciens liens partagés : titre recalculé
   lastRoute = location.pathname;
   fixLinks(document);
   render();
