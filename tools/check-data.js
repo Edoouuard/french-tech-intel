@@ -87,6 +87,21 @@ const coverage = []; for (let w = thisWeek - 7 * 8; w <= thisWeek; w += 7) cover
 if (noDay.length) warn(`${noDay.length} levées 2026+ sans jour (j), mal triées dans « Dernières levées » : ${noDay.slice(-10).join(", ")}${noDay.length > 10 ? "…" : ""}`);
 if (undatedOps) warn(`${undatedOps} opérations MD_BASE sans date (anciennes fiches de cibles), ignorées des vues datées`);
 
+// --- Section non dilutive (Dilution Zéro) : données lisibles, références cohérentes, relevé récent
+try {
+  const { createNonDilutif } = require("../lib/nondilutif.js");
+  const ND = createNonDilutif(require("fs").readFileSync(require("path").join(__dirname, "..", "non-dilutif", "data.js"), "utf8"));
+  const DZ = ND.data, ids = new Set(DZ.dispositifs.map((d) => d.id));
+  DZ.dispositifs.forEach((d) => { if (!ND.opById[d.op]) err(`non-dilutif ${d.id} : opérateur inconnu (${d.op})`); if (!d.url) warn(`non-dilutif ${d.id} : pas de lien officiel`); });
+  DZ.cumuls.forEach((c) => { if (!ids.has(c[0]) || !ids.has(c[1])) warn(`non-dilutif : cumul vers un dispositif inconnu (${c[0]} / ${c[1]})`); });
+  const MOISN = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+  const r = String(DZ.meta.releve || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").match(/([a-z]+)\s+(\d{4})/);
+  if (r) { const age = (now.getUTCFullYear() * 12 + now.getUTCMonth()) - (+r[2] * 12 + MOISN.indexOf(r[1])); if (age >= 2) warn(`non-dilutif : relevé de ${DZ.meta.releve}, à revérifier (voir docs/mise-a-jour-hebdo.md, étape mensuelle)`); }
+  else warn("non-dilutif : date de relevé illisible dans DZ.meta.releve");
+  const byStatut = DZ.dispositifs.reduce((a, d) => ((a[d.statut] = (a[d.statut] || 0) + 1), a), {});
+  console.log(`Non-dilutif : ${DZ.dispositifs.length} dispositifs (${Object.entries(byStatut).map(([k, n]) => k + " " + n).join(", ")}), relevé ${DZ.meta.releve}`);
+} catch (e) { err("non-dilutif/data.js illisible : " + e.message); }
+
 console.log(`LD_BASE ${L.length} levées · MD_BASE ${M.length} opérations · PE_BASE ${P.length} participations`);
 console.log(`Levées par mois (12 derniers, médiane ${med}) : ` + past.join(" ") + ` · mois en cours : ${curN}`);
 console.log(`Levées datées au jour, par semaine :\n  ` + coverage.join("\n  "));

@@ -447,7 +447,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 }
 
 /* liens vers les pages indexables */
-.explore { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.explore { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
 .explore a { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 18px 44px 18px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); color: inherit; text-decoration: none; overflow: hidden; transition: border-color .2s, transform .3s cubic-bezier(.2,.8,.2,1); }
 .explore a:hover { border-color: var(--accent); transform: translateY(-2px); }
 .explore .k { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -455,7 +455,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 .explore .s { font-size: .84rem; color: var(--muted); }
 .explore i { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-style: normal; color: var(--accent); font-size: 1.2rem; transition: transform .25s; }
 .explore a:hover i { transform: translate(4px, -50%); }
-@media (max-width: 860px) { .explore { grid-template-columns: 1fr; } }
+@media (max-width: 1060px) { .explore { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .explore { grid-template-columns: 1fr; } }
 .head-links { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
 .d-top #dPage { text-decoration: none; }
 </style>
@@ -485,6 +486,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <button class="tab" role="tab" data-view="pe">PE Watch <span class="ct" id="ct-pe"></span></button>
       <button class="tab" role="tab" data-view="comps">Comparables</button>
       <button class="tab" role="tab" data-view="acq">Acquéreurs <span class="ct" id="ct-acq"></span></button>
+      <a class="tab" href="/non-dilutif" style="text-decoration:none">Non-dilutif <span class="ct" style="background:color-mix(in srgb,#b5502e 22%,transparent);color:#d9785a">Aides</span></a>
       <button class="tab" role="tab" data-view="mcp">MCP <span class="ct" style="background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent)">IA</span></button>
       <span class="tab-ink" id="tabInk"></span>
     </nav>
@@ -509,6 +511,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <a href="/levees"><span class="k">Levées par mois</span><b>Chaque mois en détail</b><span class="s">Totaux, plus gros tours, stades et secteurs</span><i>→</i></a>
       <a href="/startups"><span class="k">Annuaire</span><b>Toutes les startups</b><span class="s">Une fiche par startup : tours, montants, investisseurs</span><i>→</i></a>
       <a href="/fonds"><span class="k">Investisseurs</span><b>Tous les fonds</b><span class="s">Où ils investissent, derniers deals, co-investisseurs</span><i>→</i></a>
+      <a href="/non-dilutif"><span class="k">Non-dilutif</span><b>Aides et venture debt</b><span class="s">Subventions, prêts, crédits d'impôt : ce que vous pouvez obtenir sans diluer</span><i>→</i></a>
     </nav>
     <div class="panel reveal" style="margin-top:16px" id="weekPanel">
       <div class="ph"><h3>Nouveautés de la semaine</h3><p><span id="weekRange"></span> · <button class="linkbtn" type="button" data-go="levees">Toutes les levées →</button></p></div>
@@ -763,7 +766,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 </main>
 
 <footer>
-  <div class="wrap"><span>Fait par Edouard pour usage personnel</span> · <a href="/levees">Levées par mois</a> · <a href="/startups">Annuaire des startups</a> · <a href="/fonds">Fonds et investisseurs</a></div>
+  <div class="wrap"><span>Fait par Edouard pour usage personnel</span> · <a href="/levees">Levées par mois</a> · <a href="/startups">Annuaire des startups</a> · <a href="/fonds">Fonds et investisseurs</a> · <a href="/non-dilutif">Financements non dilutifs</a></div>
 </footer>
 
 <div class="scrim" id="scrim"></div>

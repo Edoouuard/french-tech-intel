@@ -34,3 +34,11 @@ STEP 5 - Validate. Save with `d.save({...})`, then run `npm run check`: it must 
 STEP 6 - Commit and push to origin master. Commit message: "Mise à jour hebdomadaire : N levées, N M&A, N PE (semaine du ...)" followed by one line per added or corrected row with its source. Use the existing git identity; if unset, use "Edoouuard" / "poneyedouard@gmail.com". If nothing new and verifiable was found, do not commit.
 
 Final summary (short): weeks covered with rounds per week before/after, the ADD / ALREADY PRESENT / SKIP list, duplicates fixed, whether Dealroom was tried, and confirmation that the push succeeded.
+
+MONTHLY STEP (only on the first run of each month, i.e. when today's day of month is 1 to 7) - Non-dilutive section (Dilution Zéro, non-dilutif/data.js).
+- `npm run check` prints the number of dispositifs and the "relevé" date, and warns when it is two months old or more.
+- For each entry in DZ.dispositifs with statut "repertoire" or "recoupe", and for any entry whose amount, ceiling or deadline is likely to have changed (Bourse French Tech, i-Nov, i-Lab, French Tech Tremplin, EIC calls, CIR/CII/JEI rates, Bpifrance loans), open its official `url` (WebFetch or firecrawl_scrape) and check the amount (`min`, `max`), coverage, eligibility and whether the programme still exists. Update the fields only from the official page; when it confirms the figures, set statut to "verifie". If a programme is closed, keep the entry but say so in `note` and remove it from `parcours` items.
+- Venture debt and RBF entries (ids starting with vd- or rbf-): check the lender's site or recent press for ticket sizes; note new French venture debt deals found in the weekly reconciliation in the relevant entry's `note` only if they add something factual.
+- Edit non-dilutif/data.js with targeted edits (it is a plain JS object literal), keep the same French style rules (no em dash in prose). Update `DZ.meta.releve` to the current month and year ("Décembre 2026") once the review is done.
+- Run `npm run check` again (it validates operators and cumuls) and mention the monthly review in the commit message: which entries were verified, changed, or flagged.
+

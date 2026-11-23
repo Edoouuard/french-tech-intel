@@ -13,6 +13,8 @@ Intelligence de marché sur la French Tech : levées de fonds, exits & M&A, fond
 | `src/shell.html` | Gabarit HTML/CSS d'`index.html`. |
 | `api/mcp.js`, `lib/` | Serveur MCP hébergé sur `/mcp` (fonction Vercel). |
 | `api/pages.js`, `lib/pages.js` | Pages indexables rendues côté serveur depuis les données d'`index.html` : `/startup/<slug>`, `/fonds/<slug>` (investisseurs avec au moins 3 deals, hors business angels individuels), `/levees/<AAAA-MM>`, les index `/startups`, `/fonds`, `/levees`, et `/sitemap.xml`. Routage dans `vercel.json`, cache CDN jusqu'au déploiement suivant : rien à régénérer après une mise à jour des données. |
+| `non-dilutif/` | Dilution Zéro, section « Non-dilutif » : application (`app.js`, `walk.js`, `styles.css`, `insights-bar.css`, images) et base des dispositifs (`data.js`, `window.DZ`). Servie sous `/non-dilutif`, avec de vraies adresses : `/non-dilutif/aides/<id>`, `/non-dilutif/operateurs/<id>`, `/non-dilutif/explorer`, etc. |
+| `lib/nondilutif.js` | Rendu serveur de la section (titre, description, canonique et contenu lisible sans JavaScript pour chaque adresse), URL du sitemap, recherche utilisée par l'outil MCP `find_non_dilutive_funding` et par les liens croisés des fiches startup et fonds. |
 | `robots.txt` | Autorise l'indexation (hors `/api/`) et déclare le sitemap. |
 | `data/vehicles.json` | Fonds en déploiement, lus par le serveur MCP. |
 | `data/public-profiles.json` | Profils publics des fonds les plus actifs (véhicule concerné, ticket, stades, réinvestissement, rôle, source), uniquement ce que dit la source citée, affichés sur les fiches sans comparaison avec les deals, qui sont rattachés à la société de gestion tous fonds confondus. `npm run rebuild` en génère `assets/public-profiles.js`. |
@@ -50,7 +52,7 @@ Conventions : `j` (jour) est toujours renseigné sur les nouvelles levées ; qua
 
 URL : `https://www.insights-french-tech.com/mcp` (Streamable HTTP, sans authentification). Mode d'emploi dans l'onglet « MCP » du site.
 
-28 outils (levées, investisseurs, fonds européens, exits, dossier de levée, nouveautés de la semaine, comparaison de fonds, co-investisseurs, tour suivant, tendances sectorielles, acquéreurs probables), 4 parcours guidés (`preparer_levee`, `brief_investisseur`, `veille_hebdo`, `strategie_sortie`) et la ressource `insights://methodologie`. Code dans `lib/model.js` et `lib/tools.js`.
+29 outils (financements non dilutifs, levées, investisseurs, fonds européens, exits, dossier de levée, nouveautés de la semaine, comparaison de fonds, co-investisseurs, tour suivant, tendances sectorielles, acquéreurs probables), 4 parcours guidés (`preparer_levee`, `brief_investisseur`, `veille_hebdo`, `strategie_sortie`) et la ressource `insights://methodologie`. Code dans `lib/model.js` et `lib/tools.js`.
 
 Mesure d'usage : `lib/mcp-tracking.js` envoie un événement Vercel Web Analytics par connexion (« MCP connexion » : nom et version du client), par appel d'outil (« MCP outil » : outil, paramètres résumés, client, résultat ok / vide / introuvable, durée) et par parcours guidé (« MCP parcours »). À consulter dans Vercel > Analytics > Events. Rien n'est envoyé hors de Vercel (tests locaux).
 

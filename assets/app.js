@@ -211,7 +211,7 @@ function go(view, opts = {}) {
   if (t && (t.offsetLeft < bar.scrollLeft || t.offsetLeft + t.offsetWidth > bar.scrollLeft + bar.clientWidth)) bar.scrollTo({ left: t.offsetLeft - 24, behavior: "smooth" });
   if (!opts.silent) { try { history.replaceState(null, "", "/" + (view === "fonds" ? fondsHash(true) : "#" + view)); } catch (e) { /* hôte sans historique */ } window.scrollTo({ top: 0, behavior: "instant" }); reveal($("#v-" + view)); }
 }
-$$(".tab").forEach((t) => t.addEventListener("click", () => go(t.dataset.view)));
+$$(".tab[data-view]").forEach((t) => t.addEventListener("click", () => go(t.dataset.view)));
 addEventListener("resize", moveInk);
 
 /* ================= MISE À JOUR DU LUNDI ================= */

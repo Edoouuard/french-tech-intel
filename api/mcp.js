@@ -9,6 +9,7 @@ const { build } = require("../lib/model.js");
 const { createServer } = require("../lib/tools.js");
 const { tracker, status: trackingStatus } = require("../lib/mcp-tracking.js");
 const VEH = require("../data/vehicles.json");
+const { createNonDilutif } = require("../lib/nondilutif.js");
 
 let cache = null;
 function load() {
@@ -17,7 +18,9 @@ function load() {
   const INS = Insights.parse(html);
   INS.meta.url = "https://www.insights-french-tech.com/";
   const deployedAt = new Date().toISOString();
-  cache = { INS, M: build(INS, VEH), deployedAt };
+  let ND = null;
+  try { ND = createNonDilutif(fs.readFileSync(path.join(__dirname, "..", "non-dilutif", "data.js"), "utf8")); } catch (e) { console.error("[mcp] non-dilutif indisponible :", e.message); }
+  cache = { INS, M: build(INS, VEH), deployedAt, ND };
   return cache;
 }
 
@@ -44,7 +47,7 @@ module.exports = async (req, res) => {
     const msgs = Array.isArray(body) ? body : [body];
     const init = msgs.find((m) => m && m.method === "initialize");
     if (init) { const ci = (init.params && init.params.clientInfo) || {}; tr.setClient(ci.name); await tr.connection(ci); }
-    const server = createServer({ M: () => data.M, INS: () => data.INS, lastRefresh: () => ({ ok: true, source: "déploiement du site", at: data.deployedAt }), tracker: tr });
+    const server = createServer({ M: () => data.M, INS: () => data.INS, lastRefresh: () => ({ ok: true, source: "déploiement du site", at: data.deployedAt }), tracker: tr, ND: data.ND });
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on("close", () => { transport.close(); server.close(); });
     await server.connect(transport);

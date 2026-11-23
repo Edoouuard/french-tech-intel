@@ -1,0 +1,24 @@
+/* Barre Insights French Tech au-dessus de l'en-tête Dilution Zéro : relie la section au site. */
+.ift-bar { background: #0A1D30; color: #E7EEF5; font-family: var(--font); font-size: 13px; }
+.ift-bar .wrap { display: flex; align-items: center; gap: 18px; height: 34px !important; }
+.ift-brand { display: inline-flex; align-items: center; gap: 8px; color: #E7EEF5; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+.ift-brand svg { width: 18px; height: 18px; flex: none; }
+.ift-links { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+.ift-links::-webkit-scrollbar { display: none; }
+.ift-links a { color: #8FA5BB; text-decoration: none; padding: 6px 10px; border-radius: 6px; white-space: nowrap; transition: color .2s, background .2s; }
+.ift-links a:hover { color: #E7EEF5; background: rgba(206, 224, 242, .08); }
+.ift-links a[aria-current="page"] { color: #F3B648; }
+@media (max-width: 720px) { .ift-brand span, .ift-links a:not([aria-current]):nth-child(n+5) { display: none; } .ift-bar .wrap { gap: 8px; } }
+/* l'en-tête gagne 34 px : on décale le contenu en conséquence */
+main { padding-top: 100px; }
+@media (max-width: 1000px) { main { padding-top: 94px; } }
+main.home { padding-top: 0; }
+.top.over .ift-bar { background: rgba(10, 29, 48, .82); }
+/* contenu rendu côté serveur, visible avant le chargement de l'application et sans JavaScript */
+.ssr { padding-block: 40px 20px; }
+.ssr h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 5vw, 60px); line-height: 1.05; margin: 10px 0 16px; }
+.ssr h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; margin: 32px 0 8px; }
+.ssr dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; }
+.ssr dt { color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
+.ssr dd { margin: 0; }
+main.home .ssr { padding-top: 140px; }

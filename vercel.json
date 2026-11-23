@@ -43,15 +43,23 @@
     {
       "source": "/fonds/:slug",
       "destination": "/api/pages?p=/fonds/:slug"
+    },
+    {
+      "source": "/non-dilutif",
+      "destination": "/api/pages?p=/non-dilutif"
+    },
+    {
+      "source": "/non-dilutif/:path*",
+      "destination": "/api/pages?p=/non-dilutif/:path*"
     }
   ],
   "functions": {
     "api/mcp.js": {
-      "includeFiles": "index.html",
+      "includeFiles": "{index.html,non-dilutif/data.js}",
       "maxDuration": 30
     },
     "api/pages.js": {
-      "includeFiles": "{index.html,assets/logos.js}",
+      "includeFiles": "{index.html,assets/logos.js,non-dilutif/data.js}",
       "maxDuration": 30
     }
   }

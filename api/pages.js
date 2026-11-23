@@ -4,17 +4,21 @@
 const fs = require("fs");
 const path = require("path");
 const { createPages } = require("../lib/pages.js");
+const { createNonDilutif } = require("../lib/nondilutif.js");
 const VEH = require("../data/vehicles.json");
 
 let pages = null;
 const read = (f) => { try { return fs.readFileSync(path.join(__dirname, "..", f), "utf8"); } catch (e) { return ""; } };
-const get = () => pages || (pages = createPages(read("index.html"), VEH, read("assets/logos.js")));
+let nd = null;
+const getNd = () => nd || (nd = createNonDilutif(read("non-dilutif/data.js")));
+const get = () => pages || (pages = createPages(read("index.html"), VEH, read("assets/logos.js"), getNd()));
 
 module.exports = (req, res) => {
   const url = new URL(req.url, "https://www.insights-french-tech.com");
   const p = url.searchParams.get("p") || url.pathname;
   let out;
-  try { out = get().render(p); } catch (e) { console.error(e); return res.status(500).send("Erreur"); }
+  try { out = p.startsWith("/non-dilutif") ? getNd().render(p) : get().render(p); } catch (e) { console.error(e); return res.status(500).send("Erreur"); }
+  if (out.redirect) { res.setHeader("Location", out.redirect); return res.status(301).end(); }
   if (!out.body) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "public, s-maxage=3600");
