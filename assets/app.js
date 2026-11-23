@@ -209,7 +209,7 @@ function go(view, opts = {}) {
   moveInk();
   const t = $(`.tab[data-view="${view}"]`), bar = $("#tabs");
   if (t && (t.offsetLeft < bar.scrollLeft || t.offsetLeft + t.offsetWidth > bar.scrollLeft + bar.clientWidth)) bar.scrollTo({ left: t.offsetLeft - 24, behavior: "smooth" });
-  if (!opts.silent) { try { history.replaceState(null, "", view === "fonds" ? fondsHash(true) : "#" + view); } catch (e) { /* hôte sans historique */ } window.scrollTo({ top: 0, behavior: "instant" }); reveal($("#v-" + view)); }
+  if (!opts.silent) { try { history.replaceState(null, "", "/" + (view === "fonds" ? fondsHash(true) : "#" + view)); } catch (e) { /* hôte sans historique */ } window.scrollTo({ top: 0, behavior: "instant" }); reveal($("#v-" + view)); }
 }
 $$(".tab").forEach((t) => t.addEventListener("click", () => go(t.dataset.view)));
 addEventListener("resize", moveInk);
@@ -545,7 +545,7 @@ function renderFonds() {
   $("#fShare").textContent = FS.shared || (mine && MINE.size) ? "Partager la sélection" : "Partager cette liste";
   $("#fShared").hidden = !FS.shared;
   if (FS.shared) $("#fShared").innerHTML = `<span><b>Sélection partagée</b> · ${FS.shared.size} fonds</span><button class="btn sm" type="button" data-shared="add">Ajouter à ma sélection</button><button class="btn sm" type="button" data-shared="close">Voir tous les fonds</button>`;
-  if (current === "fonds" && !$("#drawer").classList.contains("on")) { try { history.replaceState(null, "", fondsHash(true)); } catch (err) { /* hôte sans historique */ } }
+  if (current === "fonds" && !$("#drawer").classList.contains("on")) { try { history.replaceState(null, "", "/" + fondsHash(true)); } catch (err) { /* hôte sans historique */ } }
   $("#fGrid").innerHTML = r.slice(0, FS.shown).map((e) => {
     const ins = e.ins || {};
     const a0 = e.veh[0];
@@ -670,6 +670,7 @@ const stack = [];
 function openDetail(ref, push = true) {
   const html = ref.t === "fund" ? fundDetail(ref.id) : ref.t === "ent" ? entDetail(ref.id) : ref.t === "startup" ? startupDetail(ref.id) : ref.t === "op" ? opDetail(ref.id) : ref.t === "buyer" ? buyerDetail(ref.id) : ref.t === "pe" ? peDetail(ref.id) : null;
   if (!html) return;
+  const wasOpen = $("#drawer").classList.contains("on");
   if (push) stack.push(ref);
   $("#dBack").disabled = stack.length < 2;
   $("#dCrumb").textContent = { fund: "Fonds européen", ent: "Fonds", startup: "Startup", op: "Opération", buyer: "Acquéreur", pe: "PE Watch" }[ref.t] + " · " + (ref.label || ref.id);
@@ -681,25 +682,39 @@ function openDetail(ref, push = true) {
     gsap.fromTo("#dBody .hbar .t i", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
     gsap.fromTo("#dBody .qbar", { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
   }
-  try { history.replaceState(null, "", "#" + ref.t + ":" + encodeURIComponent(ref.id)); } catch (e) { /* hôte sans historique */ }
+  // Adresse de la fiche : sa page indexable (/fonds/…, /startup/…) quand elle existe, sinon un lien interne.
+  // Première ouverture : nouvelle entrée d'historique (le bouton Retour ferme la fiche) ; ensuite, remplacement.
+  try {
+    const url = pageUrl(ref) || "/#" + ref.t + ":" + encodeURIComponent(ref.id);
+    if (!wasOpen) history.pushState({ ift: 1 }, "", url); else history.replaceState({ ift: 1 }, "", url);
+  } catch (e) { /* hôte sans historique */ }
   setPageLink(ref);
 }
-// Lien vers la page indexable de la fiche (/startup/… ou /fonds/…) quand elle existe.
-let pagesIdx = null;
+// Pages indexables (/startup/…, /fonds/…) : table chargée au démarrage pour donner aux fiches leur vraie adresse.
+let PIDX = null;
+const pidxReady = fetch("/pages-index.json").then((r) => (r.ok ? r.json() : null)).then((x) => (PIDX = x)).catch(() => null);
+function pageUrl(ref) {
+  if (!PIDX) return null;
+  const slug = ref.t === "startup" ? PIDX.startups[IFT.norm(ref.id)] : ref.t === "ent" ? PIDX.funds[ref.id] : null;
+  return slug ? (ref.t === "startup" ? "/startup/" : "/fonds/") + slug : null;
+}
 function setPageLink(ref) {
   const a = $("#dPage");
   if (!a) return;
-  a.hidden = true;
-  if (ref.t !== "startup" && ref.t !== "ent") return;
-  (pagesIdx ||= fetch("/pages-index.json").then((r) => (r.ok ? r.json() : null)).catch(() => null)).then((idx) => {
-    if (!idx) return;
-    const cur = stack[stack.length - 1];
-    if (cur !== ref && cur && (cur.t !== ref.t || cur.id !== ref.id)) return;
-    const slug = ref.t === "startup" ? idx.startups[IFT.norm(ref.id)] : idx.funds[ref.id];
-    if (slug) { a.href = (ref.t === "startup" ? "/startup/" : "/fonds/") + slug; a.hidden = false; }
-  });
+  const u = pageUrl(ref);
+  a.hidden = !u;
+  if (u) a.href = u;
 }
-function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; try { history.replaceState(null, "", current === "fonds" ? fondsHash(true) : "#" + current); } catch (e) { /* hôte sans historique */ } }
+function closeDetail(fromPop) {
+  const wasOpen = $("#drawer").classList.contains("on");
+  $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0;
+  if (fromPop === true) return;
+  try {
+    if (wasOpen && history.state && history.state.ift) history.back();
+    else history.replaceState(null, "", "/" + (current === "fonds" ? fondsHash(true) : "#" + current));
+  } catch (e) { /* hôte sans historique */ }
+}
+window.addEventListener("popstate", () => { if ($("#drawer").classList.contains("on") && !(history.state && history.state.ift)) closeDetail(true); });
 $("#dLink").addEventListener("click", () => copyText(location.href));
 $("#dClose").addEventListener("click", closeDetail);
 $("#scrim").addEventListener("click", closeDetail);
@@ -1113,7 +1128,7 @@ document.addEventListener("click", (ev) => {
     return;
   }
   const cp = ev.target.closest("[data-comps]");
-  if (cp) { const c = JSON.parse(cp.dataset.comps); closeDetail(); go("comps", { after: () => { $("#cSec").value = c.sec || ""; $("#cStage").value = c.st || ""; $("#cYear").value = ""; $("#cMine").value = c.amt; renderComps(); } }); return; }
+  if (cp) { const c = JSON.parse(cp.dataset.comps); closeDetail(true); go("comps", { after: () => { $("#cSec").value = c.sec || ""; $("#cStage").value = c.st || ""; $("#cYear").value = ""; $("#cMine").value = c.amt; renderComps(); } }); return; }
   const fd = ev.target.closest("[data-fund]");
   if (fd && !fd.closest(".pal")) { ev.stopPropagation(); const f = AF.find((x) => String(x.id) === fd.dataset.fund); openDetail({ t: "fund", id: fd.dataset.fund, label: f ? f.name : "" }); return; }
   const t = ev.target.closest("[data-ent],[data-startup],[data-op],[data-buyer],[data-go]");
@@ -1178,7 +1193,7 @@ const fondsQs = location.hash.match(/^#fonds\?(.*)$/);
 const start = fondsQs ? "fonds" : decodeURIComponent(location.hash.replace("#", ""));
 const deep = start.match(/^(fund|ent|startup|op|buyer|pe):(.+)$/);
 go(VIEWS.includes(start) ? start : "ov", { silent: true, after: fondsQs ? () => applyFondsParams(fondsQs[1]) : null });
-if (deep) setTimeout(() => openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }), 400);
+if (deep) Promise.race([pidxReady, new Promise((r) => setTimeout(r, 1500))]).then(() => setTimeout(() => { try { history.replaceState(null, "", "/#" + (VIEWS.includes(start) ? start : "ov")); } catch (e) { /* hôte sans historique */ } openDetail({ t: deep[1], id: deep[1] === "pe" ? +deep[2] : deep[2] }); }, 400));
 requestAnimationFrame(moveInk);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInk);
 if (hasGsap) {
