@@ -7,7 +7,7 @@ const { StreamableHTTPServerTransport } = require("@modelcontextprotocol/sdk/ser
 const Insights = require("../lib/insights.js");
 const { build } = require("../lib/model.js");
 const { createServer } = require("../lib/tools.js");
-const { tracker } = require("../lib/mcp-tracking.js");
+const { tracker, status: trackingStatus } = require("../lib/mcp-tracking.js");
 const VEH = require("../data/vehicles.json");
 
 let cache = null;
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       name: "insights-french-tech", transport: "streamable-http", endpoint: "/mcp",
       deals: data.INS.meta.counts.deals, latest_month: data.INS.meta.latest_deal_month,
-      docs: "https://www.insights-french-tech.com/#mcp",
+      docs: "https://www.insights-french-tech.com/#mcp", usage_tracking: trackingStatus(),
     });
   }
   if (req.method !== "POST") return res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Method not allowed." }, id: null });
