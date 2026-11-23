@@ -1,4 +1,4 @@
-/* Dilution Zéro — application (vanilla JS, routage par hash) */
+/* Insights French Tech, section financements non dilutifs (vanilla JS, adresses /non-dilutif/…) */
 (function () {
   "use strict";
   const D = window.DZ;
@@ -134,7 +134,7 @@
     fn(parts.slice(1), q);
     fixLinks(app);
     // Titre de l'onglet à jour lors de la navigation interne (le serveur le fixe au premier chargement)
-    if (rendered) { const h = app.querySelector("h1"); document.title = key && h ? h.textContent.replace(/\s+/g, " ").trim() + " | Dilution Zéro" : "Dilution Zéro : les financements non dilutifs des startups françaises | Insights French Tech"; }
+    if (rendered) { const h = app.querySelector("h1"); document.title = key && h ? h.textContent.replace(/\s+/g, " ").trim() + " | Insights French Tech" : "Financements non dilutifs des startups françaises : subventions, prêts, CIR, venture debt | Insights French Tech"; }
     rendered = true;
     bindTips(app);
     renderCmpBar();
@@ -365,7 +365,7 @@
     let aideInnovation = p.aide;
     if (young) {
       if (p.deeptech || p.labo) { push("acces", "bfte", 90000, "Entreprise de moins d'un an, projet deeptech : version Emergence de la BFT, jusqu'à 70 % des dépenses."); aideInnovation = true; }
-      else if (p.zone === "paris") { push("acces", "pia-paris", null, "À Paris, Paris Innovation Amorçage remplace la Bourse French Tech (montant selon dossier).", "Selon dossier"); aideInnovation = true; }
+      else if (p.zone === "paris") { push("acces", "pia-paris", null, "À Paris, le Fonds parisien pour l'innovation (15 000 à 30 000 €) relaie la Bourse French Tech pour les startups incubées.", "15 000 à 30 000 €"); aideInnovation = true; }
       else { push("acces", "bft", 30000, "Entreprise de moins d'un an : plafond du catalogue Bpifrance (certains relais citent 50 k€)."); aideInnovation = true; }
     }
     if (p.zone !== "autre" && st <= 1) push("acces", "innovup", null, "Entreprise francilienne avec un projet d'innovation.", "Selon dossier");

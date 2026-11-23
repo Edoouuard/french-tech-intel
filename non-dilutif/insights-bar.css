@@ -1,4 +1,4 @@
-/* Barre Insights French Tech au-dessus de l'en-tête Dilution Zéro : relie la section au site. */
+/* Barre Insights French Tech au-dessus de l'en-tête de la section non dilutive : relie la section au site. */
 .ift-bar { background: #0A1D30; color: #E7EEF5; font-family: var(--font); font-size: 13px; }
 .ift-bar .wrap { display: flex; align-items: center; gap: 18px; height: 34px !important; }
 .ift-brand { display: inline-flex; align-items: center; gap: 8px; color: #E7EEF5; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
@@ -24,3 +24,5 @@ main.home { padding-top: 0; }
 .ssr dd { margin: 0; }
 main.home .ssr { padding-top: 140px; }
 @media (max-width: 420px) { #theme { display: none; } }
+@media (max-width: 1100px) { .brand b { font-size: 21px; } }
+@media (max-width: 560px) { .brand .bw { display: none; } }

@@ -13,7 +13,7 @@ Intelligence de marché sur la French Tech : levées de fonds, exits & M&A, fond
 | `src/shell.html` | Gabarit HTML/CSS d'`index.html`. |
 | `api/mcp.js`, `lib/` | Serveur MCP hébergé sur `/mcp` (fonction Vercel). |
 | `api/pages.js`, `lib/pages.js` | Pages indexables rendues côté serveur depuis les données d'`index.html` : `/startup/<slug>`, `/fonds/<slug>` (investisseurs avec au moins 3 deals, hors business angels individuels), `/levees/<AAAA-MM>`, les index `/startups`, `/fonds`, `/levees`, et `/sitemap.xml`. Routage dans `vercel.json`, cache CDN jusqu'au déploiement suivant : rien à régénérer après une mise à jour des données. |
-| `non-dilutif/` | Dilution Zéro, section « Non-dilutif » : application (`app.js`, `walk.js`, `styles.css`, `insights-bar.css`, images) et base des dispositifs (`data.js`, `window.DZ`). Servie sous `/non-dilutif`, avec de vraies adresses : `/non-dilutif/aides/<id>`, `/non-dilutif/operateurs/<id>`, `/non-dilutif/explorer`, etc. |
+| `non-dilutif/` | Section « Financements non dilutifs » : application (`app.js`, `walk.js`, `styles.css`, `insights-bar.css`, images) et base des dispositifs (`data.js`, `window.DZ`). Servie sous `/non-dilutif`, avec de vraies adresses : `/non-dilutif/aides/<id>`, `/non-dilutif/operateurs/<id>`, `/non-dilutif/explorer`, etc. |
 | `lib/nondilutif.js` | Rendu serveur de la section (titre, description, canonique et contenu lisible sans JavaScript pour chaque adresse), URL du sitemap, recherche utilisée par l'outil MCP `find_non_dilutive_funding` et par les liens croisés des fiches startup et fonds. |
 | `robots.txt` | Autorise l'indexation (hors `/api/`) et déclare le sitemap. |
 | `data/vehicles.json` | Fonds en déploiement, lus par le serveur MCP. |

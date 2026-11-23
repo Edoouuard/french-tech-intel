@@ -87,7 +87,7 @@ const coverage = []; for (let w = thisWeek - 7 * 8; w <= thisWeek; w += 7) cover
 if (noDay.length) warn(`${noDay.length} levées 2026+ sans jour (j), mal triées dans « Dernières levées » : ${noDay.slice(-10).join(", ")}${noDay.length > 10 ? "…" : ""}`);
 if (undatedOps) warn(`${undatedOps} opérations MD_BASE sans date (anciennes fiches de cibles), ignorées des vues datées`);
 
-// --- Section non dilutive (Dilution Zéro) : données lisibles, références cohérentes, relevé récent
+// --- Section non dilutive (/non-dilutif) : données lisibles, références cohérentes, relevé récent
 try {
   const { createNonDilutif } = require("../lib/nondilutif.js");
   const ND = createNonDilutif(require("fs").readFileSync(require("path").join(__dirname, "..", "non-dilutif", "data.js"), "utf8"));

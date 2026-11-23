@@ -1,4 +1,4 @@
-/* Dilution Zéro — « La promenade » : une caméra avance dans une allée de cyprès.
+/* Insights French Tech, section non dilutive : « La promenade » : une caméra avance dans une allée de cyprès.
  * Projection perspective simple : chaque objet a une position (x, z) dans le monde ;
  * à chaque défilement, la caméra avance en z et l'on recalcule échelle et position écran. */
 (function () {

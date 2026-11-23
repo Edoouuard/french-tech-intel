@@ -1,4 +1,4 @@
-/* Dilution Zéro — « La promenade »
+/* Insights French Tech, section non dilutive : « La promenade »
    Ciel sarcelle, pierre crème, cyprès, terre cuite. Serif d'affiche + grotesque sobre. */
 :root {
   --bg: #f5efe1;
@@ -150,6 +150,9 @@ main.home { padding-top: 0; }
 .ph .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
 .ph .tagrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .ph .tag { border-color: rgba(244, 236, 219, .45); color: #f4ecdb; }
+.ph .tag.st-verifie { color: #b9e4b0; border-color: rgba(185, 228, 176, .6); }
+.ph .tag.st-recoupe { color: #bfe0f0; border-color: rgba(191, 224, 240, .6); }
+.ph .tag.st-repertoire { color: #e8e0c9; border-color: rgba(232, 224, 201, .5); }
 
 .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .18em; font-weight: 600; color: var(--terra); }
 h1, h2, h3 { font-weight: 400; }
