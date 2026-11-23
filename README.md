@@ -25,6 +25,21 @@ Ajouter les nouvelles levées à la fin du tableau de la ligne `var LD_BASE=[…
 
 Chaque commit redéploie le site et le serveur MCP avec les nouvelles données.
 
+Pour modifier les données par script, `tools/data-io.js` lit et réécrit une ligne `*_BASE` sans toucher au reste du fichier :
+
+```js
+const d = require("./tools/data-io");
+const L = d.load("LD_BASE");
+L.push({ s: "Startup", t: "IA", p: "…", m: 3, i: "Fonds A", stade: "Seed", mo: 11, an: 2026, j: 18 });
+d.save({ LD_BASE: L });
+```
+
+La procédure complète suivie par la tâche planifiée (sources, rapprochement semaine par semaine, règles anti-doublons) est dans `docs/mise-a-jour-hebdo.md`.
+
+Avant chaque commit de données, lancer `npm run check` (`tools/check-data.js`) : JSON valide, champs plausibles, doublons (même société à moins de 120 jours), tirets cadratins, et couverture par mois et par semaine pour repérer une mise à jour qui décroche. Le script sort en erreur sur un doublon certain ou une donnée invalide.
+
+Conventions : `j` (jour) est toujours renseigné sur les nouvelles levées ; quand seule la semaine est connue, `j` vaut le vendredi de la semaine et `"jw":1` le signale. Les stades suivent `STAGE_ORDER` d'`assets/app.js` (au-delà de la Série C : `Growth`, extension ou obligations convertibles : stade vide). L'annonce d'une prise de participation sans montant (ex. un corporate qui annonce entrer au capital) n'a pas de ligne propre si le tour chiffré correspondant est publié dans les mois qui suivent : on garde uniquement le tour chiffré.
+
 ## Modifier l'interface
 
 Éditer `src/shell.html` ou `assets/app.js`, puis `npm run rebuild` pour régénérer `index.html` : les lignes de données actuelles sont conservées telles quelles.

@@ -4,7 +4,8 @@
   "description": "Insights French Tech : levées, exits, fonds VC et PE de la French Tech, avec serveur MCP.",
   "scripts": {
     "rebuild": "node tools/build.js",
-    "mcp:test": "node tools/test-mcp.js"
+    "mcp:test": "node tools/test-mcp.js",
+    "check": "node tools/check-data.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
