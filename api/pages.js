@@ -7,7 +7,8 @@ const { createPages } = require("../lib/pages.js");
 const VEH = require("../data/vehicles.json");
 
 let pages = null;
-const get = () => pages || (pages = createPages(fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8"), VEH));
+const read = (f) => { try { return fs.readFileSync(path.join(__dirname, "..", f), "utf8"); } catch (e) { return ""; } };
+const get = () => pages || (pages = createPages(read("index.html"), VEH, read("assets/logos.js")));
 
 module.exports = (req, res) => {
   const url = new URL(req.url, "https://www.insights-french-tech.com");
@@ -20,6 +21,6 @@ module.exports = (req, res) => {
     return res.status(404).send(`<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Page introuvable | Insights French Tech</title><p style="font-family:system-ui;padding:40px">Page introuvable. <a href="/">Retour à Insights French Tech</a> · <a href="/startups">Startups</a> · <a href="/fonds">Fonds</a> · <a href="/levees">Levées</a></p>`);
   }
   res.setHeader("Content-Type", out.type || "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800");
+  res.setHeader("Cache-Control", out.immutable ? "public, max-age=604800, s-maxage=604800" : "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800");
   res.status(200).send(out.body);
 };

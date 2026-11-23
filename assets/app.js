@@ -682,6 +682,22 @@ function openDetail(ref, push = true) {
     gsap.fromTo("#dBody .qbar", { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "power3.out", stagger: 0.02, delay: 0.25 });
   }
   try { history.replaceState(null, "", "#" + ref.t + ":" + encodeURIComponent(ref.id)); } catch (e) { /* hôte sans historique */ }
+  setPageLink(ref);
+}
+// Lien vers la page indexable de la fiche (/startup/… ou /fonds/…) quand elle existe.
+let pagesIdx = null;
+function setPageLink(ref) {
+  const a = $("#dPage");
+  if (!a) return;
+  a.hidden = true;
+  if (ref.t !== "startup" && ref.t !== "ent") return;
+  (pagesIdx ||= fetch("/pages-index.json").then((r) => (r.ok ? r.json() : null)).catch(() => null)).then((idx) => {
+    if (!idx) return;
+    const cur = stack[stack.length - 1];
+    if (cur !== ref && cur && (cur.t !== ref.t || cur.id !== ref.id)) return;
+    const slug = ref.t === "startup" ? idx.startups[IFT.norm(ref.id)] : idx.funds[ref.id];
+    if (slug) { a.href = (ref.t === "startup" ? "/startup/" : "/fonds/") + slug; a.hidden = false; }
+  });
 }
 function closeDetail() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); stack.length = 0; try { history.replaceState(null, "", current === "fonds" ? fondsHash(true) : "#" + current); } catch (e) { /* hôte sans historique */ } }
 $("#dLink").addEventListener("click", () => copyText(location.href));

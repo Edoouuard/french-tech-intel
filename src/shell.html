@@ -436,6 +436,19 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* liens vers les pages indexables */
+.explore { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.explore a { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 18px 44px 18px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); color: inherit; text-decoration: none; overflow: hidden; transition: border-color .2s, transform .3s cubic-bezier(.2,.8,.2,1); }
+.explore a:hover { border-color: var(--accent); transform: translateY(-2px); }
+.explore .k { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.explore b { font-family: var(--f-display); font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
+.explore .s { font-size: .84rem; color: var(--muted); }
+.explore i { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-style: normal; color: var(--accent); font-size: 1.2rem; transition: transform .25s; }
+.explore a:hover i { transform: translate(4px, -50%); }
+@media (max-width: 860px) { .explore { grid-template-columns: 1fr; } }
+.head-links { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+.d-top #dPage { text-decoration: none; }
 </style>
 
 <header class="top">
@@ -478,6 +491,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     </div>
     <div class="ticker reveal" aria-label="Dernières levées"><ul id="ticker"></ul></div>
     <div class="grid" id="ovKpis"></div>
+    <nav class="explore reveal" aria-label="Explorer par page">
+      <a href="/levees"><span class="k">Levées par mois</span><b>Chaque mois en détail</b><span class="s">Totaux, plus gros tours, stades et secteurs</span><i>→</i></a>
+      <a href="/startups"><span class="k">Annuaire</span><b>Toutes les startups</b><span class="s">Une fiche par startup : tours, montants, investisseurs</span><i>→</i></a>
+      <a href="/fonds"><span class="k">Investisseurs</span><b>Tous les fonds</b><span class="s">Où ils investissent, derniers deals, co-investisseurs</span><i>→</i></a>
+    </nav>
     <div class="panel reveal" style="margin-top:16px" id="weekPanel">
       <div class="ph"><h3>Nouveautés de la semaine</h3><p><span id="weekRange"></span> · <button class="linkbtn" type="button" data-go="levees">Toutes les levées →</button></p></div>
       <div class="week">
@@ -522,7 +540,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
   <!-- ============ LEVÉES ============ -->
   <section class="view" id="v-levees" data-view="levees" hidden>
-    <div class="view-head"><h1 class="reveal">Levées de fonds</h1><p class="lede reveal">Chaque tour suivi depuis janvier 2024. Les investisseurs sont cliquables, et ceux qui gèrent un fonds en cours de déploiement apparaissent en ambre.</p></div>
+    <div class="view-head"><h1 class="reveal">Levées de fonds</h1><p class="lede reveal">Chaque tour suivi depuis janvier 2024. Les investisseurs sont cliquables, et ceux qui gèrent un fonds en cours de déploiement apparaissent en ambre.</p><div class="head-links reveal"><a class="btn sm" href="/levees">Levées mois par mois →</a><a class="btn sm" href="/startups">Annuaire des startups →</a></div></div>
     <div class="strip reveal" id="lStrip"></div>
     <div class="panel reveal">
       <div class="filters">
@@ -560,7 +578,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
   <!-- ============ FONDS ============ -->
   <section class="view" id="v-fonds" data-view="fonds" hidden>
-    <div class="view-head"><h1 class="reveal">Fonds VC et investisseurs</h1><p class="lede reveal">Les fonds et investisseurs actifs en France, avec leur rythme réel de deals : fonds VC, clubs d'investisseurs, corporates, investisseurs publics, grands fonds internationaux et business angels (étiquette « Business Angel »). Quand un de ses véhicules est en cours de déploiement, la fiche détaille sa thèse, son ticket, ses LPs et son équipe.</p></div>
+    <div class="view-head"><h1 class="reveal">Fonds VC et investisseurs</h1><p class="lede reveal">Les fonds et investisseurs actifs en France, avec leur rythme réel de deals : fonds VC, clubs d'investisseurs, corporates, investisseurs publics, grands fonds internationaux et business angels (étiquette « Business Angel »). Quand un de ses véhicules est en cours de déploiement, la fiche détaille sa thèse, son ticket, ses LPs et son équipe.</p><div class="head-links reveal"><a class="btn sm" href="/fonds">Annuaire des fonds →</a></div></div>
     <div class="strip reveal" id="fStrip"></div>
     <div class="deploy-line reveal">
       <div class="ph"><h3>Fonds en cours de déploiement</h3><p id="dlNote"></p></div>
@@ -736,7 +754,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Fiche">
-  <div class="d-top"><button class="iconbtn" id="dBack" type="button" aria-label="Fiche précédente" disabled>←</button><span class="crumb" id="dCrumb"></span><button class="btn sm" id="dLink" type="button">Copier le lien</button><button class="iconbtn" id="dClose" type="button" aria-label="Fermer">×</button></div>
+  <div class="d-top"><button class="iconbtn" id="dBack" type="button" aria-label="Fiche précédente" disabled>←</button><span class="crumb" id="dCrumb"></span><a class="btn sm" id="dPage" href="#" hidden>Page dédiée ↗</a><button class="btn sm" id="dLink" type="button">Copier le lien</button><button class="iconbtn" id="dClose" type="button" aria-label="Fermer">×</button></div>
   <div class="d-body" id="dBody"></div>
 </aside>
 <div class="pal" id="pal" hidden role="dialog" aria-label="Recherche">

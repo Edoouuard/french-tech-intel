@@ -1,16 +1,58 @@
 {
   "rewrites": [
-    { "source": "/mcp", "destination": "/api/mcp" },
-    { "source": "/sitemap.xml", "destination": "/api/pages?p=/sitemap.xml" },
-    { "source": "/levees", "destination": "/api/pages?p=/levees" },
-    { "source": "/startups", "destination": "/api/pages?p=/startups" },
-    { "source": "/fonds", "destination": "/api/pages?p=/fonds" },
-    { "source": "/levees/:ym", "destination": "/api/pages?p=/levees/:ym" },
-    { "source": "/startup/:slug", "destination": "/api/pages?p=/startup/:slug" },
-    { "source": "/fonds/:slug", "destination": "/api/pages?p=/fonds/:slug" }
+    {
+      "source": "/mcp",
+      "destination": "/api/mcp"
+    },
+    {
+      "source": "/site.css",
+      "destination": "/api/pages?p=/site.css"
+    },
+    {
+      "source": "/pages-index.json",
+      "destination": "/api/pages?p=/pages-index.json"
+    },
+    {
+      "source": "/logo/:key",
+      "destination": "/api/pages?p=/logo/:key"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/pages?p=/sitemap.xml"
+    },
+    {
+      "source": "/levees",
+      "destination": "/api/pages?p=/levees"
+    },
+    {
+      "source": "/startups",
+      "destination": "/api/pages?p=/startups"
+    },
+    {
+      "source": "/fonds",
+      "destination": "/api/pages?p=/fonds"
+    },
+    {
+      "source": "/levees/:ym",
+      "destination": "/api/pages?p=/levees/:ym"
+    },
+    {
+      "source": "/startup/:slug",
+      "destination": "/api/pages?p=/startup/:slug"
+    },
+    {
+      "source": "/fonds/:slug",
+      "destination": "/api/pages?p=/fonds/:slug"
+    }
   ],
   "functions": {
-    "api/mcp.js": { "includeFiles": "index.html", "maxDuration": 30 },
-    "api/pages.js": { "includeFiles": "index.html", "maxDuration": 30 }
+    "api/mcp.js": {
+      "includeFiles": "index.html",
+      "maxDuration": 30
+    },
+    "api/pages.js": {
+      "includeFiles": "{index.html,assets/logos.js}",
+      "maxDuration": 30
+    }
   }
 }
