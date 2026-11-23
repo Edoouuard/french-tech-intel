@@ -52,6 +52,8 @@ URL : `https://www.insights-french-tech.com/mcp` (Streamable HTTP, sans authenti
 
 28 outils (levées, investisseurs, fonds européens, exits, dossier de levée, nouveautés de la semaine, comparaison de fonds, co-investisseurs, tour suivant, tendances sectorielles, acquéreurs probables), 4 parcours guidés (`preparer_levee`, `brief_investisseur`, `veille_hebdo`, `strategie_sortie`) et la ressource `insights://methodologie`. Code dans `lib/model.js` et `lib/tools.js`.
 
+Mesure d'usage : `lib/mcp-tracking.js` envoie un événement Vercel Web Analytics par connexion (« MCP connexion » : nom et version du client), par appel d'outil (« MCP outil » : outil, paramètres résumés, client, résultat ok / vide / introuvable, durée) et par parcours guidé (« MCP parcours »). À consulter dans Vercel > Analytics > Events. Rien n'est envoyé hors de Vercel (tests locaux).
+
 ```bash
 npm install
 npm run mcp:test                                              # test local

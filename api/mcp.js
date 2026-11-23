@@ -7,6 +7,7 @@ const { StreamableHTTPServerTransport } = require("@modelcontextprotocol/sdk/ser
 const Insights = require("../lib/insights.js");
 const { build } = require("../lib/model.js");
 const { createServer } = require("../lib/tools.js");
+const { tracker } = require("../lib/mcp-tracking.js");
 const VEH = require("../data/vehicles.json");
 
 let cache = null;
@@ -36,12 +37,17 @@ module.exports = async (req, res) => {
   }
   if (req.method !== "POST") return res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Method not allowed." }, id: null });
   try {
-    const server = createServer({ M: () => data.M, INS: () => data.INS, lastRefresh: () => ({ ok: true, source: "déploiement du site", at: data.deployedAt }) });
+    let body = req.body;
+    if (typeof body === "string") body = JSON.parse(body);
+    // Mesure d'usage : connexion (nom du client déclaré), puis chaque outil et parcours appelé.
+    const tr = tracker(req);
+    const msgs = Array.isArray(body) ? body : [body];
+    const init = msgs.find((m) => m && m.method === "initialize");
+    if (init) { const ci = (init.params && init.params.clientInfo) || {}; tr.setClient(ci.name); await tr.connection(ci); }
+    const server = createServer({ M: () => data.M, INS: () => data.INS, lastRefresh: () => ({ ok: true, source: "déploiement du site", at: data.deployedAt }), tracker: tr });
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on("close", () => { transport.close(); server.close(); });
     await server.connect(transport);
-    let body = req.body;
-    if (typeof body === "string") body = JSON.parse(body);
     await transport.handleRequest(req, res, body);
   } catch (e) {
     console.error(e);
